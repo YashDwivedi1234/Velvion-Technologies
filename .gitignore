@@ -1,0 +1,49 @@
+# ==========================================
+# Root .gitignore for Velvion-Technologies
+# ==========================================
+
+# ------------------------------------------
+# Angular / Node / Frontend (.velvon-UI)
+# ------------------------------------------
+**/node_modules/
+**/.angular/
+**/dist/
+**/tmp/
+**/out-tsc/
+**/bazel-out/
+**/.sass-cache/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/connect.lock
+**/coverage/
+**/libpeerconnection.log
+**/testem.log
+**/typings/
+
+# ------------------------------------------
+# .NET / C# / Backend (.velvion-API)
+# ------------------------------------------
+**/bin/
+**/obj/
+**/.vs/
+**/*.user
+**/*.userosscache
+**/*.suo
+**/*.userprefs
+**/*.pidb
+**/*.booproj
+**/*.svclog
+**/[Dd]ebug/
+**/[Rr]elease/
+**/TestResults/
+
+# ------------------------------------------
+# IDE & System Files
+# ------------------------------------------
+.idea/
+*.launch
+.settings/
+*.sublime-workspace
+.DS_Store
+Thumbs.db
