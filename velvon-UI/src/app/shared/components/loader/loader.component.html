@@ -1,0 +1,25 @@
+@if (!inline && loaderService.isLoading()) {
+  <div class="loader-overlay" role="progressbar" aria-label="Loading">
+    <div class="loader-card glass-panel">
+      <div class="spinner-container">
+        <div class="spinner-ring outer"></div>
+        <div class="spinner-ring inner"></div>
+        <div class="spinner-core"></div>
+      </div>
+      <p class="loader-text">{{ loaderService.message() }}</p>
+    </div>
+  </div>
+}
+
+@if (inline) {
+  <div class="inline-loader size-{{ size }}">
+    <div class="spinner-container size-{{ size }}">
+      <div class="spinner-ring outer"></div>
+      <div class="spinner-ring inner"></div>
+      <div class="spinner-core"></div>
+    </div>
+    @if (text) {
+      <span class="inline-loader-text">{{ text }}</span>
+    }
+  </div>
+}

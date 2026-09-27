@@ -1,0 +1,78 @@
+<div class="v-loader-wrapper" [class.fullscreen]="fullscreen" [class.splash]="isSplashScreen">
+  <!-- Futuristic Cyber Grid Background -->
+  <div class="cyber-grid-overlay"></div>
+  <div class="glow-orb primary-orb"></div>
+  <div class="glow-orb purple-orb"></div>
+
+  <div class="loader-content-card">
+    <!-- Animated Circuit V Hologram -->
+    <div class="v-circuit-container">
+      <!-- Spinning Orbital Energy Rings -->
+      <div class="energy-orbit orbit-1"></div>
+      <div class="energy-orbit orbit-2"></div>
+
+      <!-- Glowing Circuit V -->
+      <svg class="v-loader-svg" viewBox="0 0 160 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="vLoadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00f2fe" />
+            <stop offset="50%" stop-color="#38bdf8" />
+            <stop offset="80%" stop-color="#818cf8" />
+            <stop offset="100%" stop-color="#c084fc" />
+          </linearGradient>
+
+          <filter id="loaderNeonGlow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="6" result="blur1" />
+            <feGaussianBlur stdDeviation="12" result="blur2" />
+            <feMerge>
+              <feMergeNode in="blur2" />
+              <feMergeNode in="blur1" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        <!-- Traces -->
+        <path class="trace-path-1" d="M 54 30 L 32 30 L 22 18 L 12 18" stroke="#00f2fe" stroke-width="3" stroke-linecap="round" />
+        <circle class="pulse-node" cx="12" cy="18" r="4.5" fill="#090d16" stroke="#00f2fe" stroke-width="3" />
+
+        <path class="trace-path-2" d="M 50 48 L 30 48 L 18 64 L 8 64" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
+        <circle class="pulse-node" cx="8" cy="64" r="4.5" fill="#090d16" stroke="#38bdf8" stroke-width="3" />
+
+        <path class="trace-path-3" d="M 58 72 L 40 72 L 28 88 L 22 88" stroke="#c084fc" stroke-width="3" stroke-linecap="round" />
+        <circle class="pulse-node" cx="22" cy="88" r="4" fill="#090d16" stroke="#c084fc" stroke-width="2.5" />
+
+        <path class="trace-path-4" d="M 125 35 L 138 35 L 148 20" stroke="#00f2fe" stroke-width="3" stroke-linecap="round" />
+        <circle class="pulse-node" cx="148" cy="20" r="4" fill="#090d16" stroke="#00f2fe" stroke-width="2.5" />
+
+        <!-- Main Outer V Path with Circuit Pulse -->
+        <path class="v-main-stroke" d="M 55 24 L 85 116 L 122 24" stroke="url(#vLoadGrad)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" filter="url(#loaderNeonGlow)" />
+
+        <!-- High-Speed Energy Pulse along V -->
+        <path class="v-inner-pulse" d="M 68 34 L 85 96 L 110 34" stroke="#00f2fe" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+
+        <!-- Center Node -->
+        <circle class="pulse-node" cx="85" cy="86" r="4.5" fill="#00f2fe" />
+        <circle class="pulse-node" cx="85" cy="116" r="5" fill="#c084fc" />
+      </svg>
+    </div>
+
+    <!-- Brand Typography & Subtitle -->
+    <div class="loader-brand-title">
+      <span class="v-letter">V</span>ELVION
+    </div>
+    <div class="loader-brand-sub">
+      TECHNOLOGIES
+    </div>
+
+    <!-- Progress & Status Message -->
+    <div class="status-box">
+      <div class="cyber-scan-bar">
+        <div class="scan-beam"></div>
+      </div>
+      <p class="loader-msg">
+        {{ message }}<span class="dots">{{ dots() }}</span>
+      </p>
+    </div>
+  </div>
+</div>

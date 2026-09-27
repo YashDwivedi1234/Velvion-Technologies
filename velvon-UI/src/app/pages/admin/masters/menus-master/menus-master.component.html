@@ -1,0 +1,174 @@
+<div class="master-page-view">
+  
+  <div class="page-top-header">
+    <div>
+      <div class="breadcrumb">
+        <span>Masters</span>
+        <app-icon name="chevron-right" [size]="12"></app-icon>
+        <span class="active">Menus Master</span>
+      </div>
+      <h1 class="page-title">Menus Master</h1>
+      <p class="page-subtitle">Configure application menus, routes, icon assets, and hierarchy in MySQL</p>
+    </div>
+
+    <div class="page-actions">
+      <button type="button" class="btn-secondary" (click)="loadMenus()" [disabled]="loading()">
+        <app-icon name="refresh-cw" [size]="16" [class.spin]="loading()"></app-icon>
+        <span>Reload</span>
+      </button>
+
+      <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+        <app-icon name="plus" [size]="16"></app-icon>
+        <span>Add Menu Item</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="table-card glass-panel">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Menu Name</th>
+            <th>Route URL</th>
+            <th>Icon Symbol</th>
+            <th>Parent ID</th>
+            <th>Status</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (menu of menus(); track menu.id) {
+            <tr>
+              <td class="font-mono text-muted">#{{ menu.id }}</td>
+              <td>
+                <div class="menu-name-cell">
+                  <div class="menu-icon-wrap">
+                    <app-icon [name]="menu.icon || 'grid'" [size]="15"></app-icon>
+                  </div>
+                  <span class="font-bold text-white">{{ menu.menuName }}</span>
+                </div>
+              </td>
+              <td class="font-mono text-muted">{{ menu.routeUrl || '—' }}</td>
+              <td>
+                <code class="icon-code">{{ menu.icon || 'grid' }}</code>
+              </td>
+              <td class="text-muted font-mono">
+                {{ menu.parentMenuId ? '#' + menu.parentMenuId : 'Root (0)' }}
+              </td>
+              <td>
+                <span class="status-pill" [class.active]="menu.isActive">
+                  <span class="status-dot"></span>
+                  {{ menu.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="text-right">
+                <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon edit" (click)="openEditModal(menu)" title="Edit Menu">
+                    <app-icon name="edit" [size]="15"></app-icon>
+                  </button>
+                  <button type="button" class="btn-action-icon delete" (click)="deleteMenu(menu)" title="Delete Menu">
+                    <app-icon name="trash" [size]="15"></app-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @if (menus().length === 0 && !loading()) {
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">
+                No menu items found in database.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  @if (isModalOpen()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <div class="modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <app-icon name="menu" [size]="20" class="text-cyan"></app-icon>
+            <h2 class="modal-title">{{ isEditMode() ? 'Edit Menu Record' : 'Create Menu Item' }}</h2>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="menuForm" (ngSubmit)="saveMenu()" class="modal-form">
+          <div class="form-group">
+            <label class="form-label" for="m-name">Menu Title *</label>
+            <input 
+              id="m-name"
+              type="text" 
+              class="form-control" 
+              placeholder="e.g. User Management" 
+              formControlName="menuName"
+              [class.is-invalid]="menuForm.get('menuName')?.touched && menuForm.get('menuName')?.invalid" />
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="m-url">Route URL</label>
+              <input 
+                id="m-url"
+                type="text" 
+                class="form-control" 
+                placeholder="/admin/users" 
+                formControlName="routeUrl" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="m-icon">Icon Key</label>
+              <input 
+                id="m-icon"
+                type="text" 
+                class="form-control" 
+                placeholder="users, shield, grid" 
+                formControlName="icon" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="m-parent">Parent Menu</label>
+            <select id="m-parent" class="form-control" formControlName="parentMenuId">
+              <option [value]="0">None (Top-Level Menu)</option>
+              @for (m of menus(); track m.id) {
+                @if (m.id !== currentMenuId()) {
+                  <option [value]="m.id">{{ m.menuName }} (#{{ m.id }})</option>
+                }
+              }
+            </select>
+          </div>
+
+          <div class="form-group toggle-row">
+            <label class="form-label">Active Status</label>
+            <app-toggle formControlName="isActive" label="Visible in navigation sidebar"></app-toggle>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
+            <button type="submit" class="btn-primary-neon" [disabled]="modalSubmitting()">
+              @if (modalSubmitting()) {
+                <span class="spinner-sm"></span>
+                <span>Saving to Database...</span>
+              } @else {
+                <app-icon name="check-circle" [size]="16"></app-icon>
+                <span>{{ isEditMode() ? 'Update Menu' : 'Save Menu' }}</span>
+              }
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  }
+
+</div>

@@ -1,0 +1,159 @@
+<div class="master-page-view">
+  
+  <div class="page-top-header">
+    <div>
+      <div class="breadcrumb">
+        <span>Masters</span>
+        <app-icon name="chevron-right" [size]="12"></app-icon>
+        <span class="active">Settings Master</span>
+      </div>
+      <h1 class="page-title">Settings Master</h1>
+      <p class="page-subtitle">Configure system environment key-value pairs, feature flags, and API thresholds</p>
+    </div>
+
+    <div class="page-actions">
+      <button type="button" class="btn-secondary" (click)="loadSettings()" [disabled]="loading()">
+        <app-icon name="refresh-cw" [size]="16" [class.spin]="loading()"></app-icon>
+        <span>Reload</span>
+      </button>
+
+      <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+        <app-icon name="plus" [size]="16"></app-icon>
+        <span>Add Setting</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="table-card glass-panel">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Setting Key</th>
+            <th>Setting Value</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Updated</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of settings(); track s.id) {
+            <tr>
+              <td class="font-mono text-muted">#{{ s.id }}</td>
+              <td>
+                <div class="key-cell">
+                  <div class="key-icon-box">
+                    <app-icon name="settings" [size]="15"></app-icon>
+                  </div>
+                  <code class="key-code">{{ s.settingKey }}</code>
+                </div>
+              </td>
+              <td>
+                <span class="val-preview">{{ s.settingValue }}</span>
+              </td>
+              <td class="text-muted desc-col">{{ s.description || '—' }}</td>
+              <td>
+                <span class="status-pill" [class.active]="s.isActive">
+                  <span class="status-dot"></span>
+                  {{ s.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="text-muted font-sm">{{ s.updatedAt | date:'mediumDate' }}</td>
+              <td class="text-right">
+                <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon edit" (click)="openEditModal(s)" title="Edit Setting">
+                    <app-icon name="edit" [size]="15"></app-icon>
+                  </button>
+                  <button type="button" class="btn-action-icon delete" (click)="deleteSetting(s)" title="Delete Setting">
+                    <app-icon name="trash" [size]="15"></app-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @if (settings().length === 0 && !loading()) {
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">
+                No system settings found in database.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  @if (isModalOpen()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <div class="modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <app-icon name="settings" [size]="20" class="text-cyan"></app-icon>
+            <h2 class="modal-title">{{ isEditMode() ? 'Edit Setting' : 'Create System Setting' }}</h2>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="settingForm" (ngSubmit)="saveSetting()" class="modal-form">
+          <div class="form-group">
+            <label class="form-label" for="st-key">Setting Key *</label>
+            <input 
+              id="st-key"
+              type="text" 
+              class="form-control" 
+              placeholder="e.g. SMTP_HOST or MAX_UPLOAD_LIMIT" 
+              formControlName="settingKey"
+              [class.is-invalid]="settingForm.get('settingKey')?.touched && settingForm.get('settingKey')?.invalid" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="st-val">Setting Value *</label>
+            <textarea 
+              id="st-val"
+              rows="3" 
+              class="form-control" 
+              placeholder="Enter value, endpoint, or JSON payload..." 
+              formControlName="settingValue"
+              [class.is-invalid]="settingForm.get('settingValue')?.touched && settingForm.get('settingValue')?.invalid"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="st-desc">Description</label>
+            <input 
+              id="st-desc"
+              type="text" 
+              class="form-control" 
+              placeholder="What does this configuration control?" 
+              formControlName="description" />
+          </div>
+
+          <div class="form-group toggle-row">
+            <label class="form-label">Active State</label>
+            <app-toggle formControlName="isActive" label="Enabled globally"></app-toggle>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
+            <button type="submit" class="btn-primary-neon" [disabled]="modalSubmitting()">
+              @if (modalSubmitting()) {
+                <span class="spinner-sm"></span>
+                <span>Saving to Database...</span>
+              } @else {
+                <app-icon name="check-circle" [size]="16"></app-icon>
+                <span>{{ isEditMode() ? 'Update Setting' : 'Save Setting' }}</span>
+              }
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  }
+
+</div>

@@ -1,0 +1,68 @@
+<div class="master-page-view">
+  
+  <div class="page-top-header">
+    <div>
+      <div class="breadcrumb">
+        <span>Operations & Logs</span>
+        <app-icon name="chevron-right" [size]="12"></app-icon>
+        <span class="active">Audit Trail</span>
+      </div>
+      <h1 class="page-title">Audit Activity Trail</h1>
+      <p class="page-subtitle">Immutable log records for database operations across tables and users</p>
+    </div>
+
+    <div class="page-actions">
+      <button type="button" class="btn-secondary" (click)="loadLogs()" [disabled]="loading()">
+        <app-icon name="refresh-cw" [size]="16" [class.spin]="loading()"></app-icon>
+        <span>Reload Logs</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="table-card glass-panel">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Log ID</th>
+            <th>Action</th>
+            <th>Target Table</th>
+            <th>Record ID</th>
+            <th>User Email</th>
+            <th>Details / Payload</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (log of logs(); track log.id) {
+            <tr>
+              <td class="font-mono text-muted">#{{ log.id }}</td>
+              <td>
+                <span class="action-badge" [class.insert]="log.action === 'INSERT'" [class.update]="log.action === 'UPDATE'" [class.delete]="log.action === 'DELETE'">
+                  {{ log.action }}
+                </span>
+              </td>
+              <td>
+                <span class="table-tag font-mono font-bold">{{ log.tableName }}</span>
+              </td>
+              <td class="font-mono text-muted">
+                {{ log.recordId ? '#' + log.recordId : '—' }}
+              </td>
+              <td class="text-muted font-mono font-sm">{{ log.userEmail || 'System / Admin' }}</td>
+              <td class="desc-col font-mono font-sm text-muted">{{ log.details || '—' }}</td>
+              <td class="text-muted font-sm">{{ log.createdAt | date:'medium' }}</td>
+            </tr>
+          }
+          @if (logs().length === 0 && !loading()) {
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">
+                No audit events recorded in database yet.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

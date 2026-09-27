@@ -1,0 +1,300 @@
+<div class="auth-page-container">
+  <!-- Futuristic Animated Background with Circuit Lines -->
+  <div class="cyber-grid-overlay"></div>
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+
+  <!-- Header Quick Nav -->
+  <header class="auth-top-bar">
+    <a routerLink="/" class="back-link">
+      <app-icon name="chevron-left" [size]="18"></app-icon>
+      <span>Back to Landing Page</span>
+    </a>
+  </header>
+
+  <!-- Auth Card Center -->
+  <div class="auth-card-wrapper">
+    <div class="auth-card glass-panel">
+      
+      <!-- Brand Logo Header -->
+      <div class="auth-card-header">
+        <app-logo size="md" [animated]="true"></app-logo>
+        <p class="auth-subtitle">
+          @if (mode() === 'login') {
+            Sign in to access your enterprise dashboard & control center
+          } @else {
+            Create your Velvion account to get instant platform access
+          }
+        </p>
+      </div>
+
+      <!-- Tab Switcher (Login vs Register) -->
+      <div class="auth-tabs-nav">
+        <button 
+          type="button" 
+          class="auth-tab-btn" 
+          [class.active]="mode() === 'login'"
+          (click)="switchMode('login')">
+          <app-icon name="user" [size]="16"></app-icon>
+          <span>Sign In</span>
+        </button>
+        <button 
+          type="button" 
+          class="auth-tab-btn" 
+          [class.active]="mode() === 'register'"
+          (click)="switchMode('register')">
+          <app-icon name="layers" [size]="16"></app-icon>
+          <span>Create Account</span>
+        </button>
+      </div>
+
+      <!-- ================= LOGIN FORM ================= -->
+      @if (mode() === 'login') {
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form animate-fade">
+          
+          <!-- Email Input -->
+          <div class="form-group">
+            <label class="form-label" for="login-email">
+              <app-icon name="mail" [size]="14"></app-icon>
+              <span>Email Address</span>
+            </label>
+            <div class="input-container">
+              <input 
+                id="login-email"
+                type="email" 
+                class="form-control" 
+                placeholder="name@company.com" 
+                formControlName="email"
+                [class.is-invalid]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid" />
+            </div>
+            @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
+              <span class="field-error">Please enter a valid email address</span>
+            }
+          </div>
+
+          <!-- Password Input -->
+          <div class="form-group">
+            <div class="label-row">
+              <label class="form-label" for="login-password">
+                <app-icon name="shield" [size]="14"></app-icon>
+                <span>Password</span>
+              </label>
+            </div>
+            <div class="input-container password-wrap">
+              <input 
+                id="login-password"
+                [type]="showPassword() ? 'text' : 'password'" 
+                class="form-control" 
+                placeholder="Enter your password" 
+                formControlName="password"
+                [class.is-invalid]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid" />
+              <button 
+                type="button" 
+                class="password-toggle-btn"
+                (click)="showPassword.set(!showPassword())"
+                tabindex="-1">
+                <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" [size]="16"></app-icon>
+              </button>
+            </div>
+            @if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
+              <span class="field-error">Password is required (min 4 characters)</span>
+            }
+          </div>
+
+          <!-- Quick Seed Credentials Banner -->
+          <div class="credentials-hint">
+            <app-icon name="info" [size]="14" class="hint-icon"></app-icon>
+            <div>
+              <span>Pre-filled with seeded database admin:</span>
+              <div class="badge-row">
+                <code>admin&#64;velvion.com</code> / <code>Admin&#64;123</code>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button 
+            type="submit" 
+            class="btn-primary-neon full-width" 
+            [disabled]="loading()">
+            @if (loading()) {
+              <span class="spinner-sm"></span>
+              <span>Authenticating...</span>
+            } @else {
+              <app-icon name="check-circle" [size]="18"></app-icon>
+              <span>Login to Dashboard</span>
+            }
+          </button>
+
+          <!-- Switch to Register Link -->
+          <div class="auth-footer-prompt">
+            <span>Don't have an account yet?</span>
+            <button type="button" class="text-link" (click)="switchMode('register')">
+              Register now
+            </button>
+          </div>
+        </form>
+      }
+
+      <!-- ================= REGISTER FORM ================= -->
+      @if (mode() === 'register') {
+        <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form animate-fade">
+          
+          <!-- Full Name -->
+          <div class="form-group">
+            <label class="form-label" for="reg-fullname">
+              <app-icon name="user" [size]="14"></app-icon>
+              <span>Full Name *</span>
+            </label>
+            <input 
+              id="reg-fullname"
+              type="text" 
+              class="form-control" 
+              placeholder="e.g. Johnathan Vance" 
+              formControlName="fullName"
+              [class.is-invalid]="registerForm.get('fullName')?.touched && registerForm.get('fullName')?.invalid" />
+            @if (registerForm.get('fullName')?.touched && registerForm.get('fullName')?.invalid) {
+              <span class="field-error">Full name is required (min 3 chars)</span>
+            }
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label class="form-label" for="reg-email">
+              <app-icon name="mail" [size]="14"></app-icon>
+              <span>Work Email Address *</span>
+            </label>
+            <input 
+              id="reg-email"
+              type="email" 
+              class="form-control" 
+              placeholder="e.g. user@velvion.com" 
+              formControlName="email"
+              [class.is-invalid]="registerForm.get('email')?.touched && registerForm.get('email')?.invalid" />
+            @if (registerForm.get('email')?.touched && registerForm.get('email')?.invalid) {
+              <span class="field-error">Please enter a valid email address</span>
+            }
+          </div>
+
+          <!-- Mobile & Role 2-Column Row -->
+          <div class="form-row-2">
+            <!-- Mobile -->
+            <div class="form-group">
+              <label class="form-label" for="reg-mobile">
+                <app-icon name="phone" [size]="14"></app-icon>
+                <span>Mobile Number</span>
+              </label>
+              <input 
+                id="reg-mobile"
+                type="text" 
+                class="form-control" 
+                placeholder="+91 98765 43210" 
+                formControlName="mobile" />
+            </div>
+
+            <!-- Role Selector -->
+            <div class="form-group">
+              <label class="form-label">
+                <app-icon name="shield" [size]="14"></app-icon>
+                <span>Role Assignment *</span>
+              </label>
+              <app-dropdown
+                [options]="roleOptions()"
+                [ngModel]="selectedRole().toString()"
+                (selectionChange)="onRoleChange($event)"
+                [ngModelOptions]="{standalone: true}"
+                placeholder="Select user role">
+              </app-dropdown>
+            </div>
+          </div>
+
+          <!-- Password & Confirm Password Row -->
+          <div class="form-row-2">
+            <!-- Password -->
+            <div class="form-group">
+              <label class="form-label" for="reg-password">
+                <app-icon name="shield" [size]="14"></app-icon>
+                <span>Password *</span>
+              </label>
+              <div class="input-container password-wrap">
+                <input 
+                  id="reg-password"
+                  [type]="showPassword() ? 'text' : 'password'" 
+                  class="form-control" 
+                  placeholder="Min 6 characters" 
+                  formControlName="password"
+                  [class.is-invalid]="registerForm.get('password')?.touched && registerForm.get('password')?.invalid" />
+                <button 
+                  type="button" 
+                  class="password-toggle-btn"
+                  (click)="showPassword.set(!showPassword())"
+                  tabindex="-1">
+                  <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" [size]="15"></app-icon>
+                </button>
+              </div>
+              @if (registerForm.get('password')?.touched && registerForm.get('password')?.invalid) {
+                <span class="field-error">Password min 6 chars</span>
+              }
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-group">
+              <label class="form-label" for="reg-confirm">
+                <app-icon name="check-circle" [size]="14"></app-icon>
+                <span>Confirm *</span>
+              </label>
+              <div class="input-container password-wrap">
+                <input 
+                  id="reg-confirm"
+                  [type]="showConfirmPassword() ? 'text' : 'password'" 
+                  class="form-control" 
+                  placeholder="Re-enter password" 
+                  formControlName="confirmPassword"
+                  [class.is-invalid]="registerForm.get('confirmPassword')?.touched && (registerForm.get('confirmPassword')?.invalid || registerForm.hasError('mismatch'))" />
+                <button 
+                  type="button" 
+                  class="password-toggle-btn"
+                  (click)="showConfirmPassword.set(!showConfirmPassword())"
+                  tabindex="-1">
+                  <app-icon [name]="showConfirmPassword() ? 'eye-off' : 'eye'" [size]="15"></app-icon>
+                </button>
+              </div>
+              @if (registerForm.get('confirmPassword')?.touched && registerForm.hasError('mismatch')) {
+                <span class="field-error">Passwords do not match</span>
+              }
+            </div>
+          </div>
+
+          <!-- Register Info Note -->
+          <div class="info-note">
+            <app-icon name="check-circle" [size]="13" class="note-icon"></app-icon>
+            <span>Your credentials will be stored securely with salted cryptographic SHA-256 hash.</span>
+          </div>
+
+          <!-- Submit Button -->
+          <button 
+            type="submit" 
+            class="btn-primary-neon full-width" 
+            [disabled]="loading()">
+            @if (loading()) {
+              <span class="spinner-sm"></span>
+              <span>Registering User in Database...</span>
+            } @else {
+              <app-icon name="layers" [size]="18"></app-icon>
+              <span>Complete Registration</span>
+            }
+          </button>
+
+          <!-- Switch to Login Link -->
+          <div class="auth-footer-prompt">
+            <span>Already have an account?</span>
+            <button type="button" class="text-link" (click)="switchMode('login')">
+              Sign In here
+            </button>
+          </div>
+        </form>
+      }
+
+    </div>
+  </div>
+</div>

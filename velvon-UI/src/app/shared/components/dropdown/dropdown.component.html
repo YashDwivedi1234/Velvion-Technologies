@@ -1,0 +1,154 @@
+<div
+  class="dropdown-wrapper size-{{ size }}"
+  [class.is-open]="isOpen()"
+  [class.is-disabled]="disabled"
+>
+  <!-- Main Trigger Field -->
+  <div
+    class="dropdown-trigger"
+    (click)="toggleOpen()"
+    tabindex="0"
+    role="combobox"
+    [attr.aria-expanded]="isOpen()"
+  >
+    <div class="dropdown-content-area">
+      @if (multiple) {
+        @if (selectedOptions().length === 0) {
+          <span class="dropdown-placeholder">{{ placeholder }}</span>
+        } @else {
+          <div class="chips-list">
+            @for (opt of selectedOptions().slice(0, maxChips); track opt.value) {
+              <span class="dropdown-chip">
+                @if (opt.icon) {
+                  <app-icon [name]="opt.icon" [size]="12"></app-icon>
+                }
+                <span class="chip-text">{{ opt.label }}</span>
+                <button
+                  type="button"
+                  class="chip-remove"
+                  (click)="removeChip(opt.value, $event)"
+                  aria-label="Remove item"
+                >
+                  <app-icon name="x" [size]="12"></app-icon>
+                </button>
+              </span>
+            }
+            @if (selectedOptions().length > maxChips) {
+              <span class="dropdown-chip more-chip">
+                +{{ selectedOptions().length - maxChips }} more
+              </span>
+            }
+          </div>
+        }
+      } @else {
+        @if (selectedValues().length === 0) {
+          <span class="dropdown-placeholder">{{ placeholder }}</span>
+        } @else {
+          <div class="selected-single-item">
+            @if (firstSelectedOption() && firstSelectedOption()!.icon) {
+              <app-icon [name]="firstSelectedOption()!.icon!" [size]="16" class="selected-icon"></app-icon>
+            }
+            <span class="selected-label">{{ selectedSingleLabel() }}</span>
+            @if (firstSelectedOption() && firstSelectedOption()!.badge) {
+              <span class="badge badge-{{ firstSelectedOption()!.badgeType || 'primary' }} badge-xs">
+                {{ firstSelectedOption()!.badge }}
+              </span>
+            }
+          </div>
+        }
+      }
+    </div>
+
+    <div class="dropdown-actions">
+      @if (clearable && selectedValues().length > 0 && !disabled) {
+        <button
+          type="button"
+          class="dropdown-clear-btn"
+          (click)="clearSelection($event)"
+          title="Clear selection"
+        >
+          <app-icon name="x" [size]="14"></app-icon>
+        </button>
+      }
+      <app-icon
+        name="chevron-down"
+        [size]="16"
+        class="dropdown-chevron"
+        [class.rotate]="isOpen()"
+      ></app-icon>
+    </div>
+  </div>
+
+  <!-- Popover Menu -->
+  @if (isOpen()) {
+    <div class="dropdown-menu glass-panel" (click)="$event.stopPropagation()">
+      @if (searchable && options.length > 5) {
+        <div class="dropdown-search-box">
+          <app-icon name="search" [size]="15" class="search-icon"></app-icon>
+          <input
+            type="text"
+            class="dropdown-search-input"
+            placeholder="Type to search..."
+            [ngModel]="searchTerm()"
+            (ngModelChange)="searchTerm.set($event)"
+            (click)="$event.stopPropagation()"
+            autofocus
+          />
+          @if (searchTerm()) {
+            <button
+              type="button"
+              class="clear-search-btn"
+              (click)="searchTerm.set('')"
+            >
+              <app-icon name="x" [size]="12"></app-icon>
+            </button>
+          }
+        </div>
+      }
+
+      <div class="dropdown-options-list">
+        @if (filteredOptions().length === 0) {
+          <div class="dropdown-empty">No options match "{{ searchTerm() }}"</div>
+        } @else {
+          @for (option of filteredOptions(); track option.value) {
+            <div
+              class="dropdown-option"
+              [class.is-selected]="isSelected(option.value)"
+              [class.is-disabled]="option.disabled"
+              (click)="selectOption(option, $event)"
+            >
+              @if (multiple) {
+                <div class="checkbox-indicator" [class.checked]="isSelected(option.value)">
+                  @if (isSelected(option.value)) {
+                    <app-icon name="check" [size]="12"></app-icon>
+                  }
+                </div>
+              }
+
+              @if (option.icon) {
+                <app-icon [name]="option.icon" [size]="16" class="option-icon"></app-icon>
+              }
+
+              <div class="option-text-container">
+                <span class="option-label">{{ option.label }}</span>
+                @if (option.description) {
+                  <span class="option-description">{{ option.description }}</span>
+                }
+              </div>
+
+              @if (option.badge) {
+                <span class="badge badge-{{ option.badgeType || 'neutral' }} badge-xs">
+                  {{ option.badge }}
+                </span>
+              }
+
+              @if (!multiple && isSelected(option.value)) {
+                <app-icon name="check" [size]="16" class="check-icon"></app-icon>
+              }
+            </div>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>

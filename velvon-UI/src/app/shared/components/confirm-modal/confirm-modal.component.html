@@ -1,0 +1,49 @@
+@if (confirmService.state().isOpen) {
+  <div class="modal-backdrop" (click)="confirmService.onCancel()">
+    <div
+      class="modal-dialog glass-panel type-{{ confirmService.state().type }}"
+      (click)="$event.stopPropagation()"
+      role="alertdialog"
+      aria-modal="true"
+    >
+      <div class="modal-header">
+        <div class="modal-icon-badge">
+          <app-icon [name]="confirmService.state().icon || getIconName(confirmService.state().type)" [size]="24"></app-icon>
+        </div>
+        <div class="modal-header-text">
+          <h3 class="modal-title">{{ confirmService.state().title }}</h3>
+        </div>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="confirmService.onCancel()"
+          aria-label="Close"
+        >
+          <app-icon name="x" [size]="18"></app-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-message">{{ confirmService.state().message }}</p>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="confirmService.onCancel()"
+        >
+          {{ confirmService.state().cancelText }}
+        </button>
+        <button
+          type="button"
+          class="btn"
+          [ngClass]="getConfirmBtnClass(confirmService.state().type)"
+          (click)="confirmService.onConfirm()"
+        >
+          {{ confirmService.state().confirmText }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

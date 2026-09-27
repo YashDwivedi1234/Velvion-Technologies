@@ -1,0 +1,158 @@
+<div class="master-page-view">
+  
+  <div class="page-top-header">
+    <div>
+      <div class="breadcrumb">
+        <span>Masters</span>
+        <app-icon name="chevron-right" [size]="12"></app-icon>
+        <span class="active">Services Master</span>
+      </div>
+      <h1 class="page-title">Services Master</h1>
+      <p class="page-subtitle">Manage company service catalog displayed dynamically across platform & landing page</p>
+    </div>
+
+    <div class="page-actions">
+      <button type="button" class="btn-secondary" (click)="loadServices()" [disabled]="loading()">
+        <app-icon name="refresh-cw" [size]="16" [class.spin]="loading()"></app-icon>
+        <span>Reload</span>
+      </button>
+
+      <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+        <app-icon name="plus" [size]="16"></app-icon>
+        <span>Add Service</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="table-card glass-panel">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Service Name</th>
+            <th>Description</th>
+            <th>Icon Key</th>
+            <th>Status</th>
+            <th>Updated</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (svc of services(); track svc.id) {
+            <tr>
+              <td class="font-mono text-muted">#{{ svc.id }}</td>
+              <td>
+                <div class="service-name-cell">
+                  <div class="service-icon-box">
+                    <app-icon [name]="svc.iconUrl || 'layers'" [size]="16"></app-icon>
+                  </div>
+                  <span class="font-bold text-white">{{ svc.serviceName }}</span>
+                </div>
+              </td>
+              <td class="text-muted desc-col">{{ svc.description || '—' }}</td>
+              <td>
+                <code class="icon-code">{{ svc.iconUrl || 'layers' }}</code>
+              </td>
+              <td>
+                <span class="status-pill" [class.active]="svc.isActive">
+                  <span class="status-dot"></span>
+                  {{ svc.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="text-muted font-sm">{{ svc.updatedAt | date:'mediumDate' }}</td>
+              <td class="text-right">
+                <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon edit" (click)="openEditModal(svc)" title="Edit Service">
+                    <app-icon name="edit" [size]="15"></app-icon>
+                  </button>
+                  <button type="button" class="btn-action-icon delete" (click)="deleteService(svc)" title="Delete Service">
+                    <app-icon name="trash" [size]="15"></app-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @if (services().length === 0 && !loading()) {
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">
+                No services configured in database yet.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  @if (isModalOpen()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <div class="modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <app-icon name="layers" [size]="20" class="text-cyan"></app-icon>
+            <h2 class="modal-title">{{ isEditMode() ? 'Edit Service' : 'Add New Service' }}</h2>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="serviceForm" (ngSubmit)="saveService()" class="modal-form">
+          <div class="form-group">
+            <label class="form-label" for="s-name">Service Name *</label>
+            <input 
+              id="s-name"
+              type="text" 
+              class="form-control" 
+              placeholder="e.g. Cloud Security Architecture" 
+              formControlName="serviceName"
+              [class.is-invalid]="serviceForm.get('serviceName')?.touched && serviceForm.get('serviceName')?.invalid" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="s-icon">Icon Symbol Key</label>
+            <input 
+              id="s-icon"
+              type="text" 
+              class="form-control" 
+              placeholder="shield, cloud, zap, layers, grid" 
+              formControlName="iconUrl" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="s-desc">Service Description</label>
+            <textarea 
+              id="s-desc"
+              rows="3" 
+              class="form-control" 
+              placeholder="Provide a comprehensive summary of features and deliverables..." 
+              formControlName="description"></textarea>
+          </div>
+
+          <div class="form-group toggle-row">
+            <label class="form-label">Active on Landing Page</label>
+            <app-toggle formControlName="isActive" label="Displayed in solutions showcase"></app-toggle>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
+            <button type="submit" class="btn-primary-neon" [disabled]="modalSubmitting()">
+              @if (modalSubmitting()) {
+                <span class="spinner-sm"></span>
+                <span>Saving to Database...</span>
+              } @else {
+                <app-icon name="check-circle" [size]="16"></app-icon>
+                <span>{{ isEditMode() ? 'Update Service' : 'Save Service' }}</span>
+              }
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  }
+
+</div>

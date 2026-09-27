@@ -1,0 +1,318 @@
+<div class="data-table-container card">
+  <!-- Table Header Toolbar -->
+  <div class="table-header-toolbar">
+    <div class="table-title-area">
+      @if (title) {
+        <h2 class="table-title">{{ title }}</h2>
+      }
+      @if (subtitle) {
+        <p class="table-subtitle">{{ subtitle }}</p>
+      }
+    </div>
+
+    <div class="table-toolbar-actions">
+      <!-- Search Input -->
+      @if (showSearch) {
+        <div class="table-search-box">
+          <app-icon name="search" [size]="16" class="search-icon"></app-icon>
+          <input
+            type="text"
+            class="table-search-input"
+            placeholder="Search records..."
+            [ngModel]="searchTerm()"
+            (ngModelChange)="searchTerm.set($event); currentPage.set(1)"
+          />
+          @if (searchTerm()) {
+            <button
+              type="button"
+              class="clear-search-btn"
+              (click)="searchTerm.set(''); currentPage.set(1)"
+            >
+              <app-icon name="x" [size]="14"></app-icon>
+            </button>
+          }
+        </div>
+      }
+
+      <div class="table-buttons-group">
+        @if (showRefresh) {
+          <button
+            type="button"
+            class="btn btn-secondary btn-icon"
+            title="Refresh data"
+            (click)="refresh.emit()"
+          >
+            <app-icon name="refresh" [size]="16"></app-icon>
+          </button>
+        }
+
+        @if (showExport) {
+          <button
+            type="button"
+            class="btn btn-secondary btn-icon"
+            title="Export CSV"
+            (click)="exportCsv()"
+          >
+            <app-icon name="download" [size]="16"></app-icon>
+          </button>
+        }
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="addNew.emit()"
+        >
+          <app-icon name="plus" [size]="16"></app-icon>
+          <span>Add New</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Actions Bar (Shown when rows are selected) -->
+  @if (selectedRows().length > 0) {
+    <div class="bulk-actions-bar">
+      <div class="selected-count">
+        <span class="count-badge">{{ selectedRows().length }}</span>
+        <span>items selected</span>
+      </div>
+      <div class="bulk-buttons">
+        @for (bAction of bulkActions; track bAction.id) {
+          <button
+            type="button"
+            class="btn btn-sm"
+            [ngClass]="bAction.variant === 'danger' ? 'btn-danger' : 'btn-secondary'"
+            (click)="onBulkActionClick(bAction.id)"
+          >
+            @if (bAction.icon) {
+              <app-icon [name]="bAction.icon" [size]="14"></app-icon>
+            }
+            <span>{{ bAction.label }}</span>
+          </button>
+        }
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          (click)="selectedRows.set([])"
+        >
+          Deselect All
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Table Element Box -->
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          @if (selectable) {
+            <th class="th-checkbox">
+              <label class="custom-checkbox">
+                <input
+                  type="checkbox"
+                  [checked]="isAllSelected()"
+                  [indeterminate]="isSomeSelected()"
+                  (change)="toggleSelectAll()"
+                />
+                <span class="checkmark"></span>
+              </label>
+            </th>
+          }
+
+          @for (col of columns; track col.key) {
+            <th
+              [style.width]="col.width || 'auto'"
+              [class.sortable]="col.sortable"
+              [class.text-center]="col.align === 'center'"
+              [class.text-right]="col.align === 'right'"
+              (click)="handleSort(col)"
+            >
+              <div class="th-content" [class.justify-center]="col.align === 'center'" [class.justify-end]="col.align === 'right'">
+                <span>{{ col.label }}</span>
+                @if (col.sortable) {
+                  <span class="sort-icon-wrapper">
+                    @if (sortColumn() === col.key) {
+                      @if (sortDirection() === 'asc') {
+                        <app-icon name="arrow-up" [size]="14" class="sort-active"></app-icon>
+                      } @else {
+                        <app-icon name="arrow-down" [size]="14" class="sort-active"></app-icon>
+                      }
+                    } @else {
+                      <app-icon name="arrow-up-down" [size]="13" class="sort-idle"></app-icon>
+                    }
+                  </span>
+                }
+              </div>
+            </th>
+          }
+
+          @if (actions.length > 0) {
+            <th class="th-actions text-right">Actions</th>
+          }
+        </tr>
+      </thead>
+
+      <tbody>
+        <!-- Loading Skeleton Rows -->
+        @if (loading) {
+          @for (n of [1, 2, 3, 4, 5]; track n) {
+            <tr class="skeleton-row">
+              @if (selectable) {
+                <td><app-skeleton width="18px" height="18px" borderRadius="4px"></app-skeleton></td>
+              }
+              @for (col of columns; track col.key) {
+                <td><app-skeleton [width]="col.type === 'badge' ? '60px' : '85%'" height="16px"></app-skeleton></td>
+              }
+              @if (actions.length > 0) {
+                <td><app-skeleton width="60px" height="24px" margin="0 0 0 auto"></app-skeleton></td>
+              }
+            </tr>
+          }
+        } @else if (paginatedData().length === 0) {
+          <!-- Empty State -->
+          <tr>
+            <td [attr.colspan]="columns.length + (selectable ? 1 : 0) + (actions.length > 0 ? 1 : 0)">
+              <div class="empty-state">
+                <div class="empty-icon-circle">
+                  <app-icon name="search" [size]="28"></app-icon>
+                </div>
+                <h4 class="empty-title">{{ emptyTitle }}</h4>
+                <p class="empty-subtitle">{{ emptySubtitle }}</p>
+                @if (searchTerm()) {
+                  <button
+                    type="button"
+                    class="btn btn-outline btn-sm"
+                    (click)="searchTerm.set(''); currentPage.set(1)"
+                  >
+                    Clear Search
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        } @else {
+          <!-- Data Rows -->
+          @for (row of paginatedData(); track row[rowKey]) {
+            <tr
+              [class.is-selected]="isRowSelected(row)"
+              (click)="onRowClick(row)"
+            >
+              @if (selectable) {
+                <td class="td-checkbox" (click)="$event.stopPropagation()">
+                  <label class="custom-checkbox">
+                    <input
+                      type="checkbox"
+                      [checked]="isRowSelected(row)"
+                      (change)="toggleSelectRow(row, $event)"
+                    />
+                    <span class="checkmark"></span>
+                  </label>
+                </td>
+              }
+
+              @for (col of columns; track col.key) {
+                <td
+                  [class.text-center]="col.align === 'center'"
+                  [class.text-right]="col.align === 'right'"
+                >
+                  @switch (col.type) {
+                    @case ('badge') {
+                      <span class="badge badge-{{ getBadgeType(col, row[col.key]) }}">
+                        {{ col.formatter ? col.formatter(row[col.key], row) : row[col.key] }}
+                      </span>
+                    }
+                    @case ('boolean') {
+                      <span class="badge" [ngClass]="row[col.key] ? 'badge-success' : 'badge-neutral'">
+                        {{ row[col.key] ? 'Yes' : 'No' }}
+                      </span>
+                    }
+                    @default {
+                      {{ col.formatter ? col.formatter(row[col.key], row) : row[col.key] }}
+                    }
+                  }
+                </td>
+              }
+
+              @if (actions.length > 0) {
+                <td class="td-actions text-right" (click)="$event.stopPropagation()">
+                  <div class="actions-group">
+                    @for (act of actions; track act.id) {
+                      @if (!act.isVisible || act.isVisible(row)) {
+                        <button
+                          type="button"
+                          class="action-btn"
+                          [class.danger]="act.variant === 'danger'"
+                          [title]="act.label"
+                          (click)="onActionClick(act.id, row, $event)"
+                        >
+                          <app-icon [name]="act.icon || 'edit'" [size]="15"></app-icon>
+                        </button>
+                      }
+                    }
+                  </div>
+                </td>
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Table Pagination Footer -->
+  <div class="table-pagination-footer">
+    <div class="pagination-info">
+      Showing
+      <strong>{{ startRecord() }}</strong>
+      to
+      <strong>{{ endRecord() }}</strong>
+      of
+      <strong>{{ filteredData().length }}</strong> entries
+    </div>
+
+    <div class="pagination-controls">
+      <!-- Page Size Selector -->
+      <div class="page-size-selector">
+        <label for="tablePageSize">Rows:</label>
+        <select
+          id="tablePageSize"
+          class="page-size-select"
+          [value]="pageSize()"
+          (change)="changePageSize($event)"
+        >
+          @for (s of pageSizes; track s) {
+            <option [value]="s">{{ s }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Page Nav Buttons -->
+      <div class="page-buttons">
+        <button
+          type="button"
+          class="btn-page-nav"
+          [disabled]="currentPage() <= 1"
+          (click)="goToPage(currentPage() - 1)"
+          aria-label="Previous Page"
+        >
+          <app-icon name="chevron-left" [size]="16"></app-icon>
+        </button>
+
+        <span class="page-indicator">
+          Page {{ currentPage() }} of {{ totalPages() }}
+        </span>
+
+        <button
+          type="button"
+          class="btn-page-nav"
+          [disabled]="currentPage() >= totalPages()"
+          (click)="goToPage(currentPage() + 1)"
+          aria-label="Next Page"
+        >
+          <app-icon name="chevron-right" [size]="16"></app-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

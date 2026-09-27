@@ -1,0 +1,181 @@
+<div class="master-page-view">
+  
+  <div class="page-top-header">
+    <div>
+      <div class="breadcrumb">
+        <span>Content Management</span>
+        <app-icon name="chevron-right" [size]="12"></app-icon>
+        <span class="active">Team Members</span>
+      </div>
+      <h1 class="page-title">Team Directory</h1>
+      <p class="page-subtitle">Manage leadership, engineering leads, and consultants listed on platform</p>
+    </div>
+
+    <div class="page-actions">
+      <button type="button" class="btn-secondary" (click)="loadTeam()" [disabled]="loading()">
+        <app-icon name="refresh-cw" [size]="16" [class.spin]="loading()"></app-icon>
+        <span>Reload</span>
+      </button>
+
+      <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+        <app-icon name="plus" [size]="16"></app-icon>
+        <span>Add Member</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="table-card glass-panel">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Member Name</th>
+            <th>Designation</th>
+            <th>Department</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of teamMembers(); track m.id) {
+            <tr>
+              <td class="font-mono text-muted">#{{ m.id }}</td>
+              <td>
+                <div class="member-identity">
+                  <div class="member-avatar">{{ m.fullName.charAt(0) }}</div>
+                  <span class="font-bold text-white">{{ m.fullName }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="designation-pill">{{ m.designation }}</span>
+              </td>
+              <td class="text-muted">{{ m.department || 'Engineering' }}</td>
+              <td class="text-muted font-mono font-sm">{{ m.email || '—' }}</td>
+              <td>
+                <span class="status-pill" [class.active]="m.isActive">
+                  <span class="status-dot"></span>
+                  {{ m.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="text-right">
+                <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon edit" (click)="openEditModal(m)" title="Edit Member">
+                    <app-icon name="edit" [size]="15"></app-icon>
+                  </button>
+                  <button type="button" class="btn-action-icon delete" (click)="deleteMember(m)" title="Delete Member">
+                    <app-icon name="trash" [size]="15"></app-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @if (teamMembers().length === 0 && !loading()) {
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">
+                No team members recorded in database.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  @if (isModalOpen()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <div class="modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <app-icon name="user" [size]="20" class="text-cyan"></app-icon>
+            <h2 class="modal-title">{{ isEditMode() ? 'Edit Team Member' : 'Add Team Member' }}</h2>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="memberForm" (ngSubmit)="saveMember()" class="modal-form">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="tm-name">Full Name *</label>
+              <input 
+                id="tm-name"
+                type="text" 
+                class="form-control" 
+                placeholder="e.g. Elena Rostova" 
+                formControlName="fullName"
+                [class.is-invalid]="memberForm.get('fullName')?.touched && memberForm.get('fullName')?.invalid" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="tm-desig">Designation / Title *</label>
+              <input 
+                id="tm-desig"
+                type="text" 
+                class="form-control" 
+                placeholder="Principal Cloud Architect" 
+                formControlName="designation"
+                [class.is-invalid]="memberForm.get('designation')?.touched && memberForm.get('designation')?.invalid" />
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="tm-dept">Department</label>
+              <input 
+                id="tm-dept"
+                type="text" 
+                class="form-control" 
+                placeholder="Engineering, Strategy, Security" 
+                formControlName="department" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="tm-email">Work Email</label>
+              <input 
+                id="tm-email"
+                type="email" 
+                class="form-control" 
+                placeholder="name@velvion.com" 
+                formControlName="email" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="tm-bio">Short Bio & Focus Area</label>
+            <textarea 
+              id="tm-bio"
+              rows="3" 
+              class="form-control" 
+              placeholder="Summary of experience, patents, tech leadership..." 
+              formControlName="bio"></textarea>
+          </div>
+
+          <div class="form-group toggle-row">
+            <label class="form-label">Active State</label>
+            <app-toggle formControlName="isActive" label="Listed on public company team page"></app-toggle>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
+            <button type="submit" class="btn-primary-neon" [disabled]="modalSubmitting()">
+              @if (modalSubmitting()) {
+                <span class="spinner-sm"></span>
+                <span>Saving to Database...</span>
+              } @else {
+                <app-icon name="check-circle" [size]="16"></app-icon>
+                <span>{{ isEditMode() ? 'Update Member' : 'Save Member' }}</span>
+              }
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  }
+
+</div>

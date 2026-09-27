@@ -1,0 +1,303 @@
+<div class="landing-page">
+  
+  <!-- ================= NAVBAR ================= -->
+  <header class="landing-navbar glass-panel">
+    <div class="nav-container">
+      <a routerLink="/" class="brand-link">
+        <app-logo size="md" [animated]="true"></app-logo>
+      </a>
+
+      <!-- Center Nav Links -->
+      <nav class="nav-menu">
+        <a href="#solutions" class="nav-link">Solutions</a>
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#stats" class="nav-link">Metrics</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </nav>
+
+      <!-- Right Actions (Theme + Login / Register) -->
+      <div class="nav-actions">
+        <button 
+          type="button" 
+          class="theme-toggle-btn"
+          (click)="themeService.toggleTheme()"
+          [title]="'Toggle theme (' + themeService.currentTheme() + ')'">
+          <app-icon [name]="themeService.isDark() ? 'sun' : 'moon'" [size]="18"></app-icon>
+        </button>
+
+        @if (authService.isLoggedIn()) {
+          <a routerLink="/admin/dashboard" class="btn-dashboard-pill">
+            <app-icon name="grid" [size]="16"></app-icon>
+            <span>Open Dashboard</span>
+          </a>
+        } @else {
+          <button type="button" class="btn-login-outline" (click)="navigateToLogin()">
+            <app-icon name="user" [size]="16"></app-icon>
+            <span>Login</span>
+          </button>
+          <button type="button" class="btn-register-neon" (click)="navigateToRegister()">
+            <app-icon name="check-circle" [size]="16"></app-icon>
+            <span>Register</span>
+          </button>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= HERO SECTION ================= -->
+  <section class="hero-section">
+    <div class="cyber-grid-overlay"></div>
+    <div class="ambient-glow glow-cyan"></div>
+    <div class="ambient-glow glow-purple"></div>
+
+    <div class="hero-content">
+      <!-- Top Badge -->
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span>VELVION ENTERPRISE PLATFORM 2026</span>
+        <span class="badge-tag">v2.4 Online</span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="hero-title">
+        Next-Generation <br />
+        <span class="gradient-text">Intelligent Digital</span> Solutions
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="hero-description">
+        Architecting robust, scalable, and secure cloud ecosystems. Built on high-performance 
+        <strong>.NET 10 Web API</strong>, <strong>Entity Framework Core</strong>, and 
+        <strong>Angular 19 Signal-Driven Architecture</strong>.
+      </p>
+
+      <!-- CTA Buttons -->
+      <div class="hero-cta-group">
+        <button type="button" class="btn-hero-primary" (click)="navigateToRegister()">
+          <span>Get Started Now</span>
+          <app-icon name="chevron-right" [size]="18"></app-icon>
+        </button>
+
+        <button type="button" class="btn-hero-secondary" (click)="navigateToLogin()">
+          <app-icon name="user" [size]="18"></app-icon>
+          <span>Sign In to Portal</span>
+        </button>
+      </div>
+
+      <!-- Quick Platform Capability Tags -->
+      <div class="capability-strip">
+        <span class="cap-item"><app-icon name="check-circle" [size]="14"></app-icon> Real-time MySQL Database Sync</span>
+        <span class="cap-item"><app-icon name="check-circle" [size]="14"></app-icon> Dynamic RBAC Permissions</span>
+        <span class="cap-item"><app-icon name="check-circle" [size]="14"></app-icon> Modular Masters Engine</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= METRICS / STATS SECTION ================= -->
+  <section id="stats" class="stats-section">
+    <div class="stats-grid">
+      @for (stat of stats; track stat.label) {
+        <div class="stat-card glass-panel">
+          <div class="stat-icon-wrap">
+            <app-icon [name]="stat.icon" [size]="24"></app-icon>
+          </div>
+          <div class="stat-number">{{ stat.value }}</div>
+          <div class="stat-label">{{ stat.label }}</div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ================= SOLUTIONS & SERVICES SECTION ================= -->
+  <section id="solutions" class="section-container">
+    <div class="section-header text-center">
+      <div class="section-badge">SERVICES & CAPABILITIES</div>
+      <h2 class="section-title">Engineered For Modern High-Scale Demands</h2>
+      <p class="section-subtitle">
+        Discover our core suite of technology modules and architectural services managed directly via MySQL Masters.
+      </p>
+    </div>
+
+    <div class="services-grid">
+      @for (service of services(); track service.id) {
+        <div class="service-card glass-panel">
+          <div class="service-header">
+            <div class="service-icon-box">
+              <app-icon [name]="service.iconUrl || 'layers'" [size]="22"></app-icon>
+            </div>
+            <span class="active-pill">Production Ready</span>
+          </div>
+          <h3 class="service-name">{{ service.serviceName }}</h3>
+          <p class="service-desc">{{ service.description }}</p>
+          <div class="service-footer">
+            <span class="explore-link">
+              <span>View Specifications</span>
+              <app-icon name="chevron-right" [size]="14"></app-icon>
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ================= ARCHITECTURE FEATURES ================= -->
+  <section id="features" class="section-container alt-bg">
+    <div class="section-header text-center">
+      <div class="section-badge">ARCHITECTURE & STACK</div>
+      <h2 class="section-title">End-To-End Enterprise Stack</h2>
+      <p class="section-subtitle">
+        Everything designed from the ground up for zero latency, audit-ready compliance, and rapid administrative control.
+      </p>
+    </div>
+
+    <div class="features-grid">
+      @for (feature of features; track feature.title) {
+        <div class="feature-box glass-panel">
+          <div class="feature-icon">
+            <app-icon [name]="feature.icon" [size]="26"></app-icon>
+          </div>
+          <h3 class="feature-title">{{ feature.title }}</h3>
+          <p class="feature-desc">{{ feature.description }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ================= CONTACT / INQUIRY FORM ================= -->
+  <section id="contact" class="section-container">
+    <div class="contact-card-wrapper glass-panel">
+      <div class="contact-grid">
+        
+        <!-- Left info column -->
+        <div class="contact-info-col">
+          <app-logo size="md" [animated]="true"></app-logo>
+          <h2 class="contact-headline">Initiate Your Enterprise Solution</h2>
+          <p class="contact-p">
+            Send an inquiry directly into our live database. Our engineering leads will review your requirements and provide an architecture blueprint.
+          </p>
+
+          <div class="contact-details-list">
+            <div class="detail-item">
+              <app-icon name="mail" [size]="18" class="text-cyan"></app-icon>
+              <span>contact&#64;velvion.com</span>
+            </div>
+            <div class="detail-item">
+              <app-icon name="phone" [size]="18" class="text-cyan"></app-icon>
+              <span>+91 98765 43210</span>
+            </div>
+            <div class="detail-item">
+              <app-icon name="database" [size]="18" class="text-cyan"></app-icon>
+              <span>Connected directly to VelvionDB</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Form Column -->
+        <div class="contact-form-col">
+          <form [formGroup]="inquiryForm" (ngSubmit)="onSubmitInquiry()" class="inquiry-form">
+            <h3 class="form-title">Send Direct Database Inquiry</h3>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="inq-fullname">Full Name *</label>
+                <input 
+                  id="inq-fullname"
+                  type="text" 
+                  class="form-control" 
+                  placeholder="e.g. Yash Sharma" 
+                  formControlName="fullName"
+                  [class.is-invalid]="inquiryForm.get('fullName')?.touched && inquiryForm.get('fullName')?.invalid" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="inq-email">Email Address *</label>
+                <input 
+                  id="inq-email"
+                  type="email" 
+                  class="form-control" 
+                  placeholder="name@company.com" 
+                  formControlName="email"
+                  [class.is-invalid]="inquiryForm.get('email')?.touched && inquiryForm.get('email')?.invalid" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="inq-phone">Phone / Mobile</label>
+                <input 
+                  id="inq-phone"
+                  type="text" 
+                  class="form-control" 
+                  placeholder="+91..." 
+                  formControlName="phone" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="inq-subject">Subject</label>
+                <input 
+                  id="inq-subject"
+                  type="text" 
+                  class="form-control" 
+                  formControlName="subject" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inq-msg">Project Requirements / Message *</label>
+              <textarea 
+                id="inq-msg"
+                rows="4" 
+                class="form-control" 
+                placeholder="Describe your tech stack, timeline, or consultation scope..." 
+                formControlName="message"
+                [class.is-invalid]="inquiryForm.get('message')?.touched && inquiryForm.get('message')?.invalid"></textarea>
+            </div>
+
+            <button 
+              type="submit" 
+              class="btn-primary-neon submit-inquiry-btn" 
+              [disabled]="inquirySubmitting()">
+              @if (inquirySubmitting()) {
+                <span class="spinner-sm"></span>
+                <span>Saving to Database...</span>
+              } @else {
+                <app-icon name="send" [size]="16"></app-icon>
+                <span>Submit Inquiry to Database</span>
+              }
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="landing-footer">
+    <div class="footer-container">
+      <div class="footer-brand-col">
+        <app-logo size="sm"></app-logo>
+        <p class="footer-desc">
+          Next-generation scalable architectures, microservices, and modern UI engineering systems.
+        </p>
+      </div>
+
+      <div class="footer-links-col">
+        <span class="footer-heading">Portals</span>
+        <a routerLink="/auth" [queryParams]="{mode: 'login'}" class="footer-link">Admin Login</a>
+        <a routerLink="/auth" [queryParams]="{mode: 'register'}" class="footer-link">User Registration</a>
+        <a routerLink="/admin/dashboard" class="footer-link">Control Center</a>
+      </div>
+
+      <div class="footer-links-col">
+        <span class="footer-heading">Platform Architecture</span>
+        <span class="footer-item">.NET 10 Web API</span>
+        <span class="footer-item">MySQL Pomelo EF Core</span>
+        <span class="footer-item">Angular 19 Signals</span>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 Velvion Technologies. All rights reserved. Enterprise Grade Security.</p>
+    </div>
+  </footer>
+
+</div>

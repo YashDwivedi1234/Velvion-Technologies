@@ -1,0 +1,171 @@
+<div class="permissions-page-view">
+  
+  <!-- Page Header -->
+  <div class="page-top-header">
+    <div>
+      <div class="breadcrumb">
+        <span>User Management</span>
+        <app-icon name="chevron-right" [size]="12"></app-icon>
+        <span class="active">Role Menu Permissions</span>
+      </div>
+      <h1 class="page-title">Role Menu Permissions Matrix</h1>
+      <p class="page-subtitle">Configure granular CRUD permissions per menu and route for each system role</p>
+    </div>
+
+    <div class="page-actions">
+      <button 
+        type="button" 
+        class="btn-primary-neon" 
+        (click)="savePermissions()" 
+        [disabled]="saving() || loading()">
+        @if (saving()) {
+          <span class="spinner-sm"></span>
+          <span>Saving to Database...</span>
+        } @else {
+          <app-icon name="check-circle" [size]="16"></app-icon>
+          <span>Save Permissions Matrix</span>
+        }
+      </button>
+    </div>
+  </div>
+
+  <!-- Role Selector Panel -->
+  <div class="role-selector-bar glass-panel">
+    <div class="selector-label-group">
+      <app-icon name="shield" [size]="20" class="text-cyan"></app-icon>
+      <div>
+        <span class="sel-title">Selected Role for Configuration</span>
+        <span class="sel-desc">Choose a role to inspect and assign menu-level authorizations</span>
+      </div>
+    </div>
+
+    <div class="role-dropdown-wrap">
+      <app-dropdown
+        [options]="roleDropdownOptions()"
+        [ngModel]="selectedRoleId().toString()"
+        (selectionChange)="onRoleSelect($event)"
+        placeholder="Choose Role">
+      </app-dropdown>
+    </div>
+  </div>
+
+  <!-- Permission Matrix Card -->
+  <div class="table-card glass-panel">
+    <div class="table-responsive">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th class="col-menu">Menu / Route Item</th>
+            <th class="col-url">Route URL</th>
+            <th class="col-perm text-center">
+              <button type="button" class="btn-col-toggle" (click)="toggleAllColumn('canView')" title="Toggle All View">
+                <span>Can View</span>
+                <app-icon name="eye" [size]="13"></app-icon>
+              </button>
+            </th>
+            <th class="col-perm text-center">
+              <button type="button" class="btn-col-toggle" (click)="toggleAllColumn('canAdd')" title="Toggle All Add">
+                <span>Can Add</span>
+                <app-icon name="plus" [size]="13"></app-icon>
+              </button>
+            </th>
+            <th class="col-perm text-center">
+              <button type="button" class="btn-col-toggle" (click)="toggleAllColumn('canEdit')" title="Toggle All Edit">
+                <span>Can Edit</span>
+                <app-icon name="edit" [size]="13"></app-icon>
+              </button>
+            </th>
+            <th class="col-perm text-center">
+              <button type="button" class="btn-col-toggle" (click)="toggleAllColumn('canDelete')" title="Toggle All Delete">
+                <span>Can Delete</span>
+                <app-icon name="trash" [size]="13"></app-icon>
+              </button>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of matrixRows(); track row.menuId) {
+            <tr>
+              <td>
+                <div class="menu-identity">
+                  <div class="menu-icon-box">
+                    <app-icon [name]="row.icon || 'grid'" [size]="16"></app-icon>
+                  </div>
+                  <div>
+                    <span class="menu-title-text">{{ row.menuName }}</span>
+                    <span class="menu-id-tag">ID #{{ row.menuId }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="font-mono text-muted">{{ row.routeUrl || '—' }}</td>
+              
+              <!-- Can View -->
+              <td class="text-center">
+                <label class="matrix-checkbox-wrap">
+                  <input type="checkbox" [(ngModel)]="row.canView" />
+                  <span class="custom-checkbox view"></span>
+                </label>
+              </td>
+
+              <!-- Can Add -->
+              <td class="text-center">
+                <label class="matrix-checkbox-wrap">
+                  <input type="checkbox" [(ngModel)]="row.canAdd" />
+                  <span class="custom-checkbox add"></span>
+                </label>
+              </td>
+
+              <!-- Can Edit -->
+              <td class="text-center">
+                <label class="matrix-checkbox-wrap">
+                  <input type="checkbox" [(ngModel)]="row.canEdit" />
+                  <span class="custom-checkbox edit"></span>
+                </label>
+              </td>
+
+              <!-- Can Delete -->
+              <td class="text-center">
+                <label class="matrix-checkbox-wrap">
+                  <input type="checkbox" [(ngModel)]="row.canDelete" />
+                  <span class="custom-checkbox delete"></span>
+                </label>
+              </td>
+
+            </tr>
+          }
+          @if (matrixRows().length === 0 && !loading()) {
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">
+                No menus configured in database. Add menus from Masters section first.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="matrix-footer">
+      <div class="matrix-legend">
+        <span class="legend-item"><span class="legend-dot cyan"></span> View Authorization</span>
+        <span class="legend-item"><span class="legend-dot green"></span> Add Record</span>
+        <span class="legend-item"><span class="legend-dot amber"></span> Edit / Modify</span>
+        <span class="legend-item"><span class="legend-dot red"></span> Remove / Delete</span>
+      </div>
+
+      <button 
+        type="button" 
+        class="btn-primary-neon" 
+        (click)="savePermissions()" 
+        [disabled]="saving() || loading()">
+        @if (saving()) {
+          <span class="spinner-sm"></span>
+          <span>Saving...</span>
+        } @else {
+          <app-icon name="check-circle" [size]="16"></app-icon>
+          <span>Save Changes to MySQL</span>
+        }
+      </button>
+    </div>
+  </div>
+
+</div>

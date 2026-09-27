@@ -1,0 +1,192 @@
+<div class="master-page-view">
+  
+  <div class="page-top-header">
+    <div>
+      <div class="breadcrumb">
+        <span>Content Management</span>
+        <app-icon name="chevron-right" [size]="12"></app-icon>
+        <span class="active">Portfolios</span>
+      </div>
+      <h1 class="page-title">Portfolio Projects</h1>
+      <p class="page-subtitle">Showcase enterprise solutions, delivered projects, and stack deliverables</p>
+    </div>
+
+    <div class="page-actions">
+      <button type="button" class="btn-secondary" (click)="loadPortfolios()" [disabled]="loading()">
+        <app-icon name="refresh-cw" [size]="16" [class.spin]="loading()"></app-icon>
+        <span>Reload</span>
+      </button>
+
+      <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+        <app-icon name="plus" [size]="16"></app-icon>
+        <span>Add Project</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="table-card glass-panel">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Project Title</th>
+            <th>Client</th>
+            <th>Category</th>
+            <th>Stack</th>
+            <th>Status</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of portfolios(); track p.id) {
+            <tr>
+              <td class="font-mono text-muted">#{{ p.id }}</td>
+              <td>
+                <span class="font-bold text-white">{{ p.title }}</span>
+                @if (p.projectUrl) {
+                  <a [href]="p.projectUrl" target="_blank" class="project-link font-mono d-block">
+                    {{ p.projectUrl }}
+                  </a>
+                }
+              </td>
+              <td class="text-muted">{{ p.clientName || 'Velvion Internal' }}</td>
+              <td>
+                <span class="category-pill">{{ p.category || 'Engineering' }}</span>
+              </td>
+              <td class="text-muted font-sm font-mono">{{ p.technologies || '—' }}</td>
+              <td>
+                <span class="status-pill" [class.active]="p.isActive">
+                  <span class="status-dot"></span>
+                  {{ p.isActive ? 'Active' : 'Archived' }}
+                </span>
+              </td>
+              <td class="text-right">
+                <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon edit" (click)="openEditModal(p)" title="Edit Project">
+                    <app-icon name="edit" [size]="15"></app-icon>
+                  </button>
+                  <button type="button" class="btn-action-icon delete" (click)="deletePortfolio(p)" title="Delete Project">
+                    <app-icon name="trash" [size]="15"></app-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @if (portfolios().length === 0 && !loading()) {
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">
+                No portfolio projects listed in database.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  @if (isModalOpen()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <div class="modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <app-icon name="folder" [size]="20" class="text-cyan"></app-icon>
+            <h2 class="modal-title">{{ isEditMode() ? 'Edit Project' : 'Create Portfolio Project' }}</h2>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="portfolioForm" (ngSubmit)="savePortfolio()" class="modal-form">
+          <div class="form-group">
+            <label class="form-label" for="p-title">Project Title *</label>
+            <input 
+              id="p-title"
+              type="text" 
+              class="form-control" 
+              placeholder="e.g. Distributed Core Banking Ledger" 
+              formControlName="title"
+              [class.is-invalid]="portfolioForm.get('title')?.touched && portfolioForm.get('title')?.invalid" />
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="p-client">Client / Entity</label>
+              <input 
+                id="p-client"
+                type="text" 
+                class="form-control" 
+                placeholder="e.g. Global FinTech Corp" 
+                formControlName="clientName" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="p-cat">Category</label>
+              <input 
+                id="p-cat"
+                type="text" 
+                class="form-control" 
+                placeholder="Cloud, Mobile, AI" 
+                formControlName="category" />
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="p-url">Live URL / Demo</label>
+              <input 
+                id="p-url"
+                type="text" 
+                class="form-control" 
+                placeholder="https://app.velvion.com" 
+                formControlName="projectUrl" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="p-tech">Technologies Used</label>
+              <input 
+                id="p-tech"
+                type="text" 
+                class="form-control" 
+                placeholder="Angular 19, .NET 10, MySQL" 
+                formControlName="technologies" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="p-desc">Project Overview & Results</label>
+            <textarea 
+              id="p-desc"
+              rows="3" 
+              class="form-control" 
+              placeholder="Summary of architecture, challenges solved, performance..." 
+              formControlName="description"></textarea>
+          </div>
+
+          <div class="form-group toggle-row">
+            <label class="form-label">Active State</label>
+            <app-toggle formControlName="isActive" label="Showcase on public landing page"></app-toggle>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
+            <button type="submit" class="btn-primary-neon" [disabled]="modalSubmitting()">
+              @if (modalSubmitting()) {
+                <span class="spinner-sm"></span>
+                <span>Saving to Database...</span>
+              } @else {
+                <app-icon name="check-circle" [size]="16"></app-icon>
+                <span>{{ isEditMode() ? 'Update Project' : 'Save Project' }}</span>
+              }
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  }
+
+</div>

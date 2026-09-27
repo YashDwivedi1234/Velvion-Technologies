@@ -1,0 +1,139 @@
+<div class="roles-page-view">
+  
+  <!-- Page Header -->
+  <div class="page-top-header">
+    <div>
+      <div class="breadcrumb">
+        <span>User Management</span>
+        <app-icon name="chevron-right" [size]="12"></app-icon>
+        <span class="active">Roles</span>
+      </div>
+      <h1 class="page-title">Role Management</h1>
+      <p class="page-subtitle">Configure authorization roles mapped to permission matrices in MySQL database</p>
+    </div>
+
+    <div class="page-actions">
+      <button type="button" class="btn-secondary" (click)="loadRoles()" [disabled]="loading()">
+        <app-icon name="refresh-cw" [size]="16" [class.spin]="loading()"></app-icon>
+        <span>Reload</span>
+      </button>
+
+      <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+        <app-icon name="plus" [size]="16"></app-icon>
+        <span>Create Role</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Roles Table -->
+  <div class="table-card glass-panel">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Role ID</th>
+            <th>Role Name</th>
+            <th>Active Status</th>
+            <th>Created Date</th>
+            <th>Last Updated</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (role of roles(); track role.id) {
+            <tr>
+              <td class="font-mono text-muted">#{{ role.id }}</td>
+              <td>
+                <div class="role-cell">
+                  <div class="role-shield-icon">
+                    <app-icon name="shield" [size]="16"></app-icon>
+                  </div>
+                  <span class="font-bold text-white">{{ role.roleName }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="status-pill" [class.active]="role.isActive">
+                  <span class="status-dot"></span>
+                  {{ role.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="text-muted font-sm">{{ role.createdAt | date:'mediumDate' }}</td>
+              <td class="text-muted font-sm">{{ role.updatedAt | date:'mediumDate' }}</td>
+              <td class="text-right">
+                <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon edit" (click)="openEditModal(role)" title="Edit Role">
+                    <app-icon name="edit" [size]="15"></app-icon>
+                  </button>
+                  <button type="button" class="btn-action-icon delete" (click)="deleteRole(role)" title="Delete Role">
+                    <app-icon name="trash" [size]="15"></app-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @if (roles().length === 0 && !loading()) {
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">
+                No roles defined in database.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  @if (isModalOpen()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <div class="modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <app-icon name="shield" [size]="20" class="text-cyan"></app-icon>
+            <h2 class="modal-title">{{ isEditMode() ? 'Edit Role' : 'Create New Role' }}</h2>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="roleForm" (ngSubmit)="saveRole()" class="modal-form">
+          <div class="form-group">
+            <label class="form-label" for="role-name">Role Name *</label>
+            <input 
+              id="role-name"
+              type="text" 
+              class="form-control" 
+              placeholder="e.g. Finance Auditor" 
+              formControlName="roleName"
+              [class.is-invalid]="roleForm.get('roleName')?.touched && roleForm.get('roleName')?.invalid" />
+            @if (roleForm.get('roleName')?.touched && roleForm.get('roleName')?.invalid) {
+              <span class="field-error">Role name is required (2-50 chars)</span>
+            }
+          </div>
+
+          <div class="form-group toggle-row">
+            <label class="form-label">Role Active Status</label>
+            <app-toggle formControlName="isActive" label="Enabled for user assignment"></app-toggle>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
+            <button type="submit" class="btn-primary-neon" [disabled]="modalSubmitting()">
+              @if (modalSubmitting()) {
+                <span class="spinner-sm"></span>
+                <span>Saving to Database...</span>
+              } @else {
+                <app-icon name="check-circle" [size]="16"></app-icon>
+                <span>{{ isEditMode() ? 'Update Role' : 'Create Role' }}</span>
+              }
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  }
+
+</div>

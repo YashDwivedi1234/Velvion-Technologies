@@ -1,0 +1,125 @@
+<div class="master-page-view">
+  
+  <div class="page-top-header">
+    <div>
+      <div class="breadcrumb">
+        <span>Operations & Leads</span>
+        <app-icon name="chevron-right" [size]="12"></app-icon>
+        <span class="active">Contact Inquiries</span>
+      </div>
+      <h1 class="page-title">Contact Inquiries & Leads</h1>
+      <p class="page-subtitle">Submissions from landing page stored directly in MySQL VelvionDB</p>
+    </div>
+
+    <div class="page-actions">
+      <button type="button" class="btn-secondary" (click)="loadInquiries()" [disabled]="loading()">
+        <app-icon name="refresh-cw" [size]="16" [class.spin]="loading()"></app-icon>
+        <span>Reload</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="table-card glass-panel">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Contact Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Subject</th>
+            <th>Date Received</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (inq of inquiries(); track inq.id) {
+            <tr>
+              <td class="font-mono text-muted">#{{ inq.id }}</td>
+              <td>
+                <span class="font-bold text-white">{{ inq.fullName }}</span>
+              </td>
+              <td class="text-muted font-mono font-sm">{{ inq.email }}</td>
+              <td class="text-muted font-mono font-sm">{{ inq.phone || '—' }}</td>
+              <td>
+                <span class="subject-pill">{{ inq.subject || 'Consultation' }}</span>
+              </td>
+              <td class="text-muted font-sm">{{ inq.createdAt | date:'medium' }}</td>
+              <td class="text-right">
+                <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon edit" (click)="viewInquiry(inq)" title="View Message">
+                    <app-icon name="eye" [size]="15"></app-icon>
+                  </button>
+                  <button type="button" class="btn-action-icon delete" (click)="deleteInquiry(inq)" title="Delete Inquiry">
+                    <app-icon name="trash" [size]="15"></app-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @if (inquiries().length === 0 && !loading()) {
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">
+                No inquiries received yet. Submit one from the landing page to test.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  @if (selectedInquiry()) {
+    <div class="modal-backdrop" (click)="closeViewModal()">
+      <div class="modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <app-icon name="mail" [size]="20" class="text-cyan"></app-icon>
+            <h2 class="modal-title">Inquiry Details</h2>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeViewModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <div class="modal-body-inq">
+          <div class="inq-info-grid">
+            <div class="info-item">
+              <span class="info-label">Sender Name</span>
+              <span class="info-val font-bold">{{ selectedInquiry()?.fullName }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Email</span>
+              <span class="info-val font-mono">{{ selectedInquiry()?.email }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Phone</span>
+              <span class="info-val font-mono">{{ selectedInquiry()?.phone || 'Not provided' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Subject</span>
+              <span class="info-val text-cyan">{{ selectedInquiry()?.subject }}</span>
+            </div>
+          </div>
+
+          <div class="message-box">
+            <span class="info-label">Message Payload</span>
+            <p class="message-text">{{ selectedInquiry()?.message }}</p>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeViewModal()">Close</button>
+          <button type="button" class="btn-action-icon delete" (click)="deleteInquiry(selectedInquiry()!)" title="Delete">
+            <app-icon name="trash" [size]="16"></app-icon>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>

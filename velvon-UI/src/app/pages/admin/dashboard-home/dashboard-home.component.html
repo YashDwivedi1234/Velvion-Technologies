@@ -1,0 +1,218 @@
+<div class="dashboard-home-view">
+  
+  <!-- Page Header -->
+  <div class="dash-page-header">
+    <div>
+      <h1 class="dash-title">Platform Dashboard & Master Overview</h1>
+      <p class="dash-subtitle">Real-time system telemetry and database health across all Velvion modules</p>
+    </div>
+    <div class="dash-header-actions">
+      <button type="button" class="btn-refresh" (click)="refreshDashboard()">
+        <app-icon name="refresh-cw" [size]="16"></app-icon>
+        <span>Sync Database</span>
+      </button>
+      <a routerLink="/admin/users" class="btn-primary-action">
+        <app-icon name="plus" [size]="16"></app-icon>
+        <span>Manage Users</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Metric Overview Cards -->
+  <div class="metrics-grid">
+    
+    <!-- Total Users -->
+    <div class="metric-card glass-panel">
+      <div class="metric-icon-wrap cyan">
+        <app-icon name="users" [size]="22"></app-icon>
+      </div>
+      <div class="metric-data">
+        <span class="metric-label">Registered Users</span>
+        <div class="metric-val-row">
+          <span class="metric-number">{{ totalUsersCount() }}</span>
+          <span class="metric-trend positive">Active DB</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Roles -->
+    <div class="metric-card glass-panel">
+      <div class="metric-icon-wrap purple">
+        <app-icon name="shield" [size]="22"></app-icon>
+      </div>
+      <div class="metric-data">
+        <span class="metric-label">Assigned Roles</span>
+        <div class="metric-val-row">
+          <span class="metric-number">{{ totalRolesCount() }}</span>
+          <span class="metric-trend positive">RBAC Ready</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Menus -->
+    <div class="metric-card glass-panel">
+      <div class="metric-icon-wrap blue">
+        <app-icon name="menu" [size]="22"></app-icon>
+      </div>
+      <div class="metric-data">
+        <span class="metric-label">Active Menus</span>
+        <div class="metric-val-row">
+          <span class="metric-number">{{ totalMenusCount() }}</span>
+          <span class="metric-trend info">Tree Synced</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Services -->
+    <div class="metric-card glass-panel">
+      <div class="metric-icon-wrap amber">
+        <app-icon name="layers" [size]="22"></app-icon>
+      </div>
+      <div class="metric-data">
+        <span class="metric-label">Service Masters</span>
+        <div class="metric-val-row">
+          <span class="metric-number">{{ totalServicesCount() }}</span>
+          <span class="metric-trend warning">Configured</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Quick Shortcut Cards to Core Modules -->
+  <div class="shortcuts-row">
+    <a routerLink="/admin/users" class="shortcut-card glass-panel">
+      <div class="shortcut-icon"><app-icon name="user" [size]="18"></app-icon></div>
+      <div class="shortcut-text">
+        <span class="sc-title">Users Directory</span>
+        <span class="sc-sub">Add, Edit & Filter Members</span>
+      </div>
+      <app-icon name="chevron-right" [size]="16" class="sc-arrow"></app-icon>
+    </a>
+
+    <a routerLink="/admin/roles" class="shortcut-card glass-panel">
+      <div class="shortcut-icon"><app-icon name="shield" [size]="18"></app-icon></div>
+      <div class="shortcut-text">
+        <span class="sc-title">Role Management</span>
+        <span class="sc-sub">Access Control & Security</span>
+      </div>
+      <app-icon name="chevron-right" [size]="16" class="sc-arrow"></app-icon>
+    </a>
+
+    <a routerLink="/admin/permissions" class="shortcut-card glass-panel">
+      <div class="shortcut-icon"><app-icon name="check-circle" [size]="18"></app-icon></div>
+      <div class="shortcut-text">
+        <span class="sc-title">Permission Matrix</span>
+        <span class="sc-sub">Bulk RBAC Capabilities</span>
+      </div>
+      <app-icon name="chevron-right" [size]="16" class="sc-arrow"></app-icon>
+    </a>
+
+    <a routerLink="/admin/masters/services" class="shortcut-card glass-panel">
+      <div class="shortcut-icon"><app-icon name="grid" [size]="18"></app-icon></div>
+      <div class="shortcut-text">
+        <span class="sc-title">Services Master</span>
+        <span class="sc-sub">Service Catalog & Specs</span>
+      </div>
+      <app-icon name="chevron-right" [size]="16" class="sc-arrow"></app-icon>
+    </a>
+  </div>
+
+  <!-- Two Column Content: Recent Users & Recent Inquiries -->
+  <div class="dash-content-grid">
+    
+    <!-- Recent Users Table Card -->
+    <div class="dash-card glass-panel">
+      <div class="dash-card-header">
+        <div class="dash-card-title-wrap">
+          <app-icon name="users" [size]="18" class="text-cyan"></app-icon>
+          <h2 class="dash-card-title">Live Database Users</h2>
+        </div>
+        <a routerLink="/admin/users" class="view-all-link">
+          <span>View All</span>
+          <app-icon name="chevron-right" [size]="14"></app-icon>
+        </a>
+      </div>
+
+      <div class="table-responsive">
+        <table class="simple-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users().slice(0, 5); track user.id) {
+              <tr>
+                <td>
+                  <div class="table-user-cell">
+                    <div class="table-user-avatar">{{ user.fullName.charAt(0) }}</div>
+                    <span class="font-medium">{{ user.fullName }}</span>
+                  </div>
+                </td>
+                <td class="text-muted">{{ user.email }}</td>
+                <td>
+                  <span class="role-pill">{{ user.roleName || 'User' }}</span>
+                </td>
+                <td>
+                  <span class="status-dot" [class.active]="user.isActive"></span>
+                  <span class="status-text">{{ user.isActive ? 'Active' : 'Inactive' }}</span>
+                </td>
+              </tr>
+            }
+            @if (users().length === 0) {
+              <tr>
+                <td colspan="4" class="text-center py-4 text-muted">
+                  No users recorded in database yet.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent Inquiries Card -->
+    <div class="dash-card glass-panel">
+      <div class="dash-card-header">
+        <div class="dash-card-title-wrap">
+          <app-icon name="mail" [size]="18" class="text-cyan"></app-icon>
+          <h2 class="dash-card-title">Landing Page Inquiries</h2>
+        </div>
+        <a routerLink="/admin/inquiries" class="view-all-link">
+          <span>View All</span>
+          <app-icon name="chevron-right" [size]="14"></app-icon>
+        </a>
+      </div>
+
+      <div class="inquiry-list">
+        @for (inq of inquiries().slice(0, 4); track inq.id) {
+          <div class="inquiry-item">
+            <div class="inquiry-icon-wrap">
+              <app-icon name="mail" [size]="16"></app-icon>
+            </div>
+            <div class="inquiry-text-block">
+              <div class="inq-top">
+                <span class="inq-name">{{ inq.fullName }}</span>
+                <span class="inq-email">{{ inq.email }}</span>
+              </div>
+              <p class="inq-msg">{{ inq.message }}</p>
+            </div>
+          </div>
+        }
+        @if (inquiries().length === 0) {
+          <div class="empty-inquiry-box">
+            <app-icon name="mail" [size]="32" class="text-muted"></app-icon>
+            <p>No contact inquiries submitted yet.</p>
+            <a routerLink="/" fragment="contact" class="text-cyan text-sm">Test submitting from landing page</a>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+
+</div>

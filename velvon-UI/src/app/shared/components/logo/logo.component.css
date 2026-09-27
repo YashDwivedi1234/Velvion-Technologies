@@ -1,0 +1,151 @@
+.velvion-brand-container {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-md);
+  user-select: none;
+  text-decoration: none;
+}
+
+.logo-mark-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.v-circuit-logo {
+  overflow: visible;
+  display: block;
+}
+
+/* Sizing Scale */
+.size-sm .v-circuit-logo {
+  width: 28px;
+  height: 24px;
+}
+.size-sm .brand-title {
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+}
+.size-sm .brand-sub {
+  font-size: 0.5rem;
+  letter-spacing: 0.25em;
+}
+
+.size-md .v-circuit-logo {
+  width: 44px;
+  height: 38px;
+}
+.size-md .brand-title {
+  font-size: 1.45rem;
+  letter-spacing: 0.09em;
+}
+.size-md .brand-sub {
+  font-size: 0.65rem;
+  letter-spacing: 0.32em;
+}
+
+.size-lg .v-circuit-logo {
+  width: 64px;
+  height: 56px;
+}
+.size-lg .brand-title {
+  font-size: 2.1rem;
+  letter-spacing: 0.1em;
+}
+.size-lg .brand-sub {
+  font-size: 0.85rem;
+  letter-spacing: 0.38em;
+}
+
+.size-xl .v-circuit-logo {
+  width: 96px;
+  height: 84px;
+}
+.size-xl .brand-title {
+  font-size: 3rem;
+  letter-spacing: 0.12em;
+}
+.size-xl .brand-sub {
+  font-size: 1.1rem;
+  letter-spacing: 0.45em;
+}
+
+/* Typography & Neon Bevel Effect */
+.brand-text-block {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.brand-title {
+  font-family: var(--font-heading), 'Outfit', sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #f8fafc;
+  background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 55%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 8px rgba(0, 242, 254, 0.45));
+  display: flex;
+  align-items: baseline;
+}
+
+.brand-title .letter-v {
+  background: linear-gradient(135deg, #00f2fe 0%, #38bdf8 60%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-sub {
+  font-family: var(--font-heading), 'Outfit', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #38bdf8;
+  letter-spacing: 0.35em;
+  margin-top: 3px;
+  opacity: 0.95;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+/* Pulse / Animation */
+.animated .main-v-path {
+  filter: drop-shadow(0 0 8px #00f2fe);
+  animation: neonPulse 2.5s ease-in-out infinite alternate;
+}
+
+.animated .inner-v-track {
+  stroke-dashoffset: 24;
+  animation: circuitFlow 3s linear infinite;
+}
+
+.animated .circuit-node {
+  animation: nodeGlow 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes neonPulse {
+  0% {
+    filter: drop-shadow(0 0 4px rgba(0, 242, 254, 0.4));
+  }
+  100% {
+    filter: drop-shadow(0 0 14px rgba(0, 242, 254, 0.9)) drop-shadow(0 0 25px rgba(168, 85, 247, 0.6));
+  }
+}
+
+@keyframes circuitFlow {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes nodeGlow {
+  0% {
+    opacity: 0.7;
+    r: 3.5;
+  }
+  100% {
+    opacity: 1;
+    r: 5.5;
+  }
+}

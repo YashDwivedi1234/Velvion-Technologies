@@ -1,0 +1,279 @@
+<div class="admin-shell" [class.sidebar-collapsed]="sidebarCollapsed()" [class.mobile-open]="mobileNavOpen()">
+  
+  <!-- Mobile Backdrop -->
+  @if (mobileNavOpen()) {
+    <div class="mobile-backdrop" (click)="toggleMobileNav()"></div>
+  }
+
+  <!-- ================= LEFT SIDEBAR ================= -->
+  <aside class="admin-sidebar glass-panel">
+    
+    <!-- Brand Header -->
+    <div class="sidebar-brand-header">
+      <a routerLink="/admin/dashboard" class="sidebar-logo-link">
+        @if (sidebarCollapsed()) {
+          <app-logo size="sm" [showText]="false" [animated]="true"></app-logo>
+        } @else {
+          <app-logo size="md" [showText]="true" [animated]="true"></app-logo>
+        }
+      </a>
+      <button type="button" class="collapse-toggle-btn" (click)="toggleSidebar()" title="Toggle Sidebar">
+        <app-icon [name]="sidebarCollapsed() ? 'chevron-right' : 'chevron-left'" [size]="16"></app-icon>
+      </button>
+    </div>
+
+    <!-- User Profile Summary Pill -->
+    @if (!sidebarCollapsed() && authService.currentUser()) {
+      <div class="sidebar-user-pill">
+        <div class="user-avatar-hex">
+          <span>{{ authService.currentUser()?.fullName?.charAt(0) || 'U' }}</span>
+        </div>
+        <div class="user-info-text">
+          <span class="user-name">{{ authService.currentUser()?.fullName }}</span>
+          <span class="user-role-badge">{{ authService.currentUser()?.roleName || 'Administrator' }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- Nav List / Menu Items -->
+    <div class="sidebar-scroll-container">
+      <nav class="sidebar-nav">
+
+        <!-- 1) DASHBOARD -->
+        <div class="nav-group-item">
+          <a routerLink="/admin/dashboard" routerLinkActive="active-nav" [routerLinkActiveOptions]="{exact: true}" class="nav-link-main" title="Dashboard">
+            <app-icon name="grid" [size]="18" class="nav-icon"></app-icon>
+            @if (!sidebarCollapsed()) {
+              <span class="nav-label">Dashboard</span>
+              <span class="nav-badge primary">Live</span>
+            }
+          </a>
+        </div>
+
+        <!-- 2) USER MANAGEMENT ACCORDION -->
+        <div class="nav-section">
+          @if (!sidebarCollapsed()) {
+            <button type="button" class="nav-section-title-btn" (click)="userMgmtOpen.set(!userMgmtOpen())">
+              <span>USER MANAGEMENT</span>
+              <app-icon [name]="userMgmtOpen() ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
+            </button>
+          }
+
+          @if (userMgmtOpen() || sidebarCollapsed()) {
+            <div class="nav-submenu">
+              <!-- Users -->
+              <a routerLink="/admin/users" routerLinkActive="active-nav" class="nav-sublink" title="Users List & Management">
+                <app-icon name="users" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Users</span>
+                }
+              </a>
+
+              <!-- Role -->
+              <a routerLink="/admin/roles" routerLinkActive="active-nav" class="nav-sublink" title="Role Management">
+                <app-icon name="shield" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Roles</span>
+                }
+              </a>
+
+              <!-- Role Menu Permission -->
+              <a routerLink="/admin/permissions" routerLinkActive="active-nav" class="nav-sublink" title="Role Menu Permissions Matrix">
+                <app-icon name="check-circle" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Role Menu Permissions</span>
+                }
+              </a>
+            </div>
+          }
+        </div>
+
+        <!-- 3) MASTERS ACCORDION -->
+        <div class="nav-section">
+          @if (!sidebarCollapsed()) {
+            <button type="button" class="nav-section-title-btn" (click)="mastersOpen.set(!mastersOpen())">
+              <span>MASTERS</span>
+              <app-icon [name]="mastersOpen() ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
+            </button>
+          }
+
+          @if (mastersOpen() || sidebarCollapsed()) {
+            <div class="nav-submenu">
+              <!-- Menu Master -->
+              <a routerLink="/admin/masters/menus" routerLinkActive="active-nav" class="nav-sublink" title="Menus Master">
+                <app-icon name="menu" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Menus Master</span>
+                }
+              </a>
+
+              <!-- Services Master -->
+              <a routerLink="/admin/masters/services" routerLinkActive="active-nav" class="nav-sublink" title="Services Master">
+                <app-icon name="layers" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Services Master</span>
+                }
+              </a>
+
+              <!-- Settings Master -->
+              <a routerLink="/admin/masters/settings" routerLinkActive="active-nav" class="nav-sublink" title="Settings Master">
+                <app-icon name="settings" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Settings Master</span>
+                }
+              </a>
+            </div>
+          }
+        </div>
+
+        <!-- 4) CONTENT & MEDIA -->
+        <div class="nav-section">
+          @if (!sidebarCollapsed()) {
+            <button type="button" class="nav-section-title-btn" (click)="contentOpen.set(!contentOpen())">
+              <span>CONTENT & SHOWCASE</span>
+              <app-icon [name]="contentOpen() ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
+            </button>
+          }
+
+          @if (contentOpen() || sidebarCollapsed()) {
+            <div class="nav-submenu">
+              <!-- Blogs -->
+              <a routerLink="/admin/blogs" routerLinkActive="active-nav" class="nav-sublink" title="Blogs Management">
+                <app-icon name="edit" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Blogs & Articles</span>
+                }
+              </a>
+
+              <!-- Portfolios -->
+              <a routerLink="/admin/portfolios" routerLinkActive="active-nav" class="nav-sublink" title="Portfolio Projects">
+                <app-icon name="folder" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Portfolios</span>
+                }
+              </a>
+
+              <!-- Team Members -->
+              <a routerLink="/admin/team" routerLinkActive="active-nav" class="nav-sublink" title="Team Members">
+                <app-icon name="user" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Team Members</span>
+                }
+              </a>
+
+              <!-- Testimonials -->
+              <a routerLink="/admin/testimonials" routerLinkActive="active-nav" class="nav-sublink" title="Client Testimonials">
+                <app-icon name="star" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Testimonials</span>
+                }
+              </a>
+            </div>
+          }
+        </div>
+
+        <!-- 5) OPERATIONS & AUDIT -->
+        <div class="nav-section">
+          @if (!sidebarCollapsed()) {
+            <button type="button" class="nav-section-title-btn" (click)="operationsOpen.set(!operationsOpen())">
+              <span>OPERATIONS & LOGS</span>
+              <app-icon [name]="operationsOpen() ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
+            </button>
+          }
+
+          @if (operationsOpen() || sidebarCollapsed()) {
+            <div class="nav-submenu">
+              <!-- Inquiries -->
+              <a routerLink="/admin/inquiries" routerLinkActive="active-nav" class="nav-sublink" title="Contact Inquiries">
+                <app-icon name="mail" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Inquiries & Leads</span>
+                }
+              </a>
+
+              <!-- Audit Logs -->
+              <a routerLink="/admin/audit-logs" routerLinkActive="active-nav" class="nav-sublink" title="Audit Activity Logs">
+                <app-icon name="activity" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Audit Trail</span>
+                }
+              </a>
+            </div>
+          }
+        </div>
+
+      </nav>
+    </div>
+
+    <!-- Sidebar Bottom Action -->
+    <div class="sidebar-footer">
+      <button type="button" class="sidebar-logout-btn" (click)="logout()" title="Logout Session">
+        <app-icon name="power" [size]="16"></app-icon>
+        @if (!sidebarCollapsed()) {
+          <span>End Session / Logout</span>
+        }
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ================= MAIN CONTENT WRAPPER ================= -->
+  <div class="admin-main-wrapper">
+    
+    <!-- Top Header Bar -->
+    <header class="admin-top-header glass-panel">
+      
+      <!-- Mobile menu trigger -->
+      <button type="button" class="mobile-menu-trigger" (click)="toggleMobileNav()">
+        <app-icon name="menu" [size]="20"></app-icon>
+      </button>
+
+      <!-- DB Status Pill -->
+      <div class="db-status-pill">
+        <span class="db-dot online"></span>
+        <span class="db-text">MySQL: <strong>VelvionDB</strong> (Connected)</span>
+      </div>
+
+      <!-- Right Actions (Theme, Landing Link, Profile) -->
+      <div class="header-right-actions">
+        
+        <!-- Link to Landing -->
+        <a routerLink="/" class="header-action-btn" title="View Public Landing Page">
+          <app-icon name="globe" [size]="17"></app-icon>
+          <span class="action-text">Landing Page</span>
+        </a>
+
+        <!-- Theme Switcher -->
+        <button 
+          type="button" 
+          class="theme-toggle-header-btn" 
+          (click)="themeService.toggleTheme()"
+          [title]="'Toggle theme (' + themeService.currentTheme() + ')'">
+          <app-icon [name]="themeService.isDark() ? 'sun' : 'moon'" [size]="17"></app-icon>
+        </button>
+
+        <!-- User Dropdown Pill -->
+        <div class="user-header-profile">
+          <div class="header-avatar">
+            <span>{{ authService.currentUser()?.fullName?.charAt(0) || 'A' }}</span>
+          </div>
+          <div class="header-user-text">
+            <span class="header-user-name">{{ authService.currentUser()?.fullName || 'Super Admin' }}</span>
+            <span class="header-user-role">{{ authService.currentUser()?.roleName || 'Super Admin' }}</span>
+          </div>
+          <button type="button" class="logout-icon-btn" (click)="logout()" title="Logout">
+            <app-icon name="power" [size]="15"></app-icon>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Content Router Outlet -->
+    <main class="admin-content-view">
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+
+</div>

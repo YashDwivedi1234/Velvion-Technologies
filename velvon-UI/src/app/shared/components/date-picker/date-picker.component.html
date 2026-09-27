@@ -1,0 +1,102 @@
+<div
+  class="datepicker-wrapper size-{{ size }}"
+  [class.is-open]="isOpen()"
+  [class.is-disabled]="disabled"
+>
+  <!-- Trigger Input Box -->
+  <div
+    class="datepicker-trigger"
+    (click)="toggleOpen()"
+    tabindex="0"
+    role="button"
+    [attr.aria-expanded]="isOpen()"
+  >
+    <app-icon name="calendar" [size]="16" class="calendar-icon"></app-icon>
+    <span
+      class="date-display-text"
+      [class.placeholder]="!formattedDate()"
+    >
+      {{ formattedDate() || placeholder }}
+    </span>
+
+    <div class="datepicker-actions">
+      @if (selectedDate() && !disabled) {
+        <button
+          type="button"
+          class="datepicker-clear-btn"
+          (click)="clear($event)"
+          title="Clear date"
+        >
+          <app-icon name="x" [size]="14"></app-icon>
+        </button>
+      }
+      <app-icon
+        name="chevron-down"
+        [size]="14"
+        class="chevron-indicator"
+        [class.rotate]="isOpen()"
+      ></app-icon>
+    </div>
+  </div>
+
+  <!-- Calendar Popup Popover -->
+  @if (isOpen()) {
+    <div class="calendar-popover glass-panel" (click)="$event.stopPropagation()">
+      <!-- Presets bar -->
+      @if (showPresets) {
+        <div class="presets-bar">
+          <button type="button" class="preset-btn" (click)="selectPreset('today', $event)">Today</button>
+          <button type="button" class="preset-btn" (click)="selectPreset('yesterday', $event)">Yesterday</button>
+          <button type="button" class="preset-btn" (click)="selectPreset('weekAgo', $event)">-7 Days</button>
+          <button type="button" class="preset-btn" (click)="selectPreset('monthAgo', $event)">-30 Days</button>
+        </div>
+      }
+
+      <!-- Calendar Header -->
+      <div class="calendar-header">
+        <button
+          type="button"
+          class="btn-nav"
+          (click)="prevMonth($event)"
+          aria-label="Previous Month"
+        >
+          <app-icon name="chevron-left" [size]="16"></app-icon>
+        </button>
+        <div class="month-year-label">{{ currentMonthYear() }}</div>
+        <button
+          type="button"
+          class="btn-nav"
+          (click)="nextMonth($event)"
+          aria-label="Next Month"
+        >
+          <app-icon name="chevron-right" [size]="16"></app-icon>
+        </button>
+      </div>
+
+      <!-- Week Days Header -->
+      <div class="weekdays-grid">
+        @for (day of weekDays; track day) {
+          <span class="weekday-cell">{{ day }}</span>
+        }
+      </div>
+
+      <!-- Days Grid -->
+      <div class="days-grid">
+        @for (day of calendarDays(); track day.date.toISOString()) {
+          <button
+            type="button"
+            class="day-cell"
+            [class.is-current-month]="day.isCurrentMonth"
+            [class.is-today]="day.isToday"
+            [class.is-selected]="day.isSelected"
+            [class.is-disabled]="day.isDisabled"
+            [disabled]="day.isDisabled"
+            (click)="selectDay(day, $event)"
+          >
+            {{ day.dayNumber }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+</div>

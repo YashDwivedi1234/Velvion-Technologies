@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("velvion-API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+32eb5cc86173e9db6a39cf0783590fabfd0e938d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+17e0c2e4b3a99bd05572e011ce780b60dd61510d")]
 [assembly: System.Reflection.AssemblyProductAttribute("velvion-API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("velvion-API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

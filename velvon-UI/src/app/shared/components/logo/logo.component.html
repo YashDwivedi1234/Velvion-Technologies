@@ -1,0 +1,84 @@
+<div class="velvion-brand-container size-{{ size }}" [class.animated]="animated" [class.light-mode]="lightMode">
+  <div class="logo-mark-wrapper">
+    <svg class="v-circuit-logo" viewBox="0 0 160 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Gradients -->
+        <linearGradient id="velvionGradientV" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#00f2fe" />
+          <stop offset="50%" stop-color="#38bdf8" />
+          <stop offset="80%" stop-color="#818cf8" />
+          <stop offset="100%" stop-color="#c084fc" />
+        </linearGradient>
+
+        <linearGradient id="velvionCyanGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.9" />
+          <stop offset="100%" stop-color="#00c6ff" stop-opacity="0.9" />
+        </linearGradient>
+
+        <linearGradient id="velvionPurpleAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#6366f1" />
+          <stop offset="100%" stop-color="#a855f7" />
+        </linearGradient>
+
+        <!-- Filters for High-Tech Glow -->
+        <filter id="neonGlowV" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+
+        <filter id="circuitNodeGlow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="2.5" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- Ambient Glow Behind V -->
+      <path d="M 50 25 L 85 115 L 125 25" stroke="url(#velvionGradientV)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" opacity="0.25" filter="url(#neonGlowV)" />
+
+      <!-- Circuit Traces Branching Off Left -->
+      <!-- Branch 1 (Top left horizontal + up) -->
+      <path class="circuit-trace trace-1" d="M 54 30 L 32 30 L 22 18 L 12 18" stroke="url(#velvionCyanGlow)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+      <circle class="circuit-node node-1" cx="12" cy="18" r="4.5" fill="#090d16" stroke="#00f2fe" stroke-width="3" filter="url(#circuitNodeGlow)" />
+      
+      <!-- Branch 2 (Mid-upper horizontal + down-left) -->
+      <path class="circuit-trace trace-2" d="M 50 48 L 30 48 L 18 64 L 8 64" stroke="url(#velvionCyanGlow)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+      <circle class="circuit-node node-2" cx="8" cy="64" r="4.5" fill="#090d16" stroke="#00f2fe" stroke-width="3" filter="url(#circuitNodeGlow)" />
+
+      <!-- Branch 3 (Mid-lower branch) -->
+      <path class="circuit-trace trace-3" d="M 58 72 L 40 72 L 28 88 L 22 88" stroke="url(#velvionPurpleAccent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+      <circle class="circuit-node node-3" cx="22" cy="88" r="4" fill="#090d16" stroke="#c084fc" stroke-width="2.5" filter="url(#circuitNodeGlow)" />
+
+      <!-- Branch 4 (Right top antenna) -->
+      <path class="circuit-trace trace-4" d="M 125 35 L 138 35 L 148 20" stroke="url(#velvionCyanGlow)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+      <circle class="circuit-node node-4" cx="148" cy="20" r="4" fill="#090d16" stroke="#00f2fe" stroke-width="2.5" filter="url(#circuitNodeGlow)" />
+
+      <!-- Main Outer Circuit V Body -->
+      <path class="main-v-path" d="M 55 24 L 85 116 L 122 24" stroke="url(#velvionGradientV)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+
+      <!-- Inner Parallel Circuit Track on V -->
+      <path class="inner-v-track" d="M 68 34 L 85 96 L 110 34" stroke="url(#velvionCyanGlow)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 4" />
+
+      <!-- Center V Node at Bottom Joint -->
+      <circle class="circuit-node center-node" cx="85" cy="86" r="3.5" fill="#00f2fe" filter="url(#circuitNodeGlow)" />
+      <circle class="circuit-node bottom-node" cx="85" cy="116" r="4" fill="#c084fc" />
+    </svg>
+  </div>
+
+  @if (showText) {
+    <div class="brand-text-block">
+      <div class="brand-title">
+        <span class="letter-v">V</span>ELVION
+      </div>
+      <div class="brand-sub">
+        TECHNOLOGIES
+      </div>
+    </div>
+  }
+</div>
