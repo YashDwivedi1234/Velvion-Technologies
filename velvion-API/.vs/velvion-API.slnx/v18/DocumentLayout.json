@@ -1,0 +1,71 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\velvion-technologies\\velvion-API\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{D901BA3B-4C3C-4FD6-B366-F27FCE5DFBBE}|velvion-API\\velvion-API.csproj|d:\\velvion-technologies\\velvion-api\\velvion-api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{D901BA3B-4C3C-4FD6-B366-F27FCE5DFBBE}|velvion-API\\velvion-API.csproj|solutionrelative:velvion-api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D901BA3B-4C3C-4FD6-B366-F27FCE5DFBBE}|velvion-API\\velvion-API.csproj|d:\\velvion-technologies\\velvion-api\\velvion-api\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{D901BA3B-4C3C-4FD6-B366-F27FCE5DFBBE}|velvion-API\\velvion-API.csproj|solutionrelative:velvion-api\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D901BA3B-4C3C-4FD6-B366-F27FCE5DFBBE}|velvion-API\\velvion-API.csproj|d:\\velvion-technologies\\velvion-api\\velvion-api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D901BA3B-4C3C-4FD6-B366-F27FCE5DFBBE}|velvion-API\\velvion-API.csproj|solutionrelative:velvion-api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\velvion-technologies\\velvion-API\\velvion-API\\appsettings.json",
+              "RelativeDocumentMoniker": "velvion-API\\appsettings.json",
+              "ToolTip": "D:\\velvion-technologies\\velvion-API\\velvion-API\\appsettings.json",
+              "RelativeToolTip": "velvion-API\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-09-27T13:20:29.858Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\velvion-technologies\\velvion-API\\velvion-API\\Program.cs",
+              "RelativeDocumentMoniker": "velvion-API\\Program.cs",
+              "ToolTip": "D:\\velvion-technologies\\velvion-API\\velvion-API\\Program.cs",
+              "RelativeToolTip": "velvion-API\\Program.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-27T13:04:04.054Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "D:\\velvion-technologies\\velvion-API\\velvion-API\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "velvion-API\\Properties\\launchSettings.json",
+              "ToolTip": "D:\\velvion-technologies\\velvion-API\\velvion-API\\Properties\\launchSettings.json",
+              "RelativeToolTip": "velvion-API\\Properties\\launchSettings.json",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAgwBkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-09-27T12:58:29.717Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
