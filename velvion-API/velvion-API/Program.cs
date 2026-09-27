@@ -1,20 +1,59 @@
+using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
+using velvion_API.Data;
+using velvion_API.Services.Implementations;
+using velvion_API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// 1. Database Connection (MySQL via Pomelo EF Core - Without Dapper)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
+{
+    throw new InvalidOperationException("Connection string 'DefaultConnection' not found in configuration.");
+}
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+});
+
+// 2. Dependency Injection for Services
+builder.Services.AddScoped<IMasterService, MasterService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<IBlogService, BlogService>();
+builder.Services.AddScoped<IPortfolioService, PortfolioService>();
+builder.Services.AddScoped<ITeamMemberService, TeamMemberService>();
+builder.Services.AddScoped<ITestimonialService, TestimonialService>();
+builder.Services.AddScoped<IContactInquiryService, ContactInquiryService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+
+// 3. CORS Configuration (for Angular UI frontend)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+// 4. Controllers & OpenAPI / Scalar Documentation
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// 5. HTTP Pipeline Configuration
 if (app.Environment.IsDevelopment())
 {
-	app.MapOpenApi();
-	app.MapScalarApiReference(); 
+    app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
+app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
