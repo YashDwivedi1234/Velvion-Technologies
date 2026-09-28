@@ -1,0 +1,94 @@
+<div class="global-pagination-container">
+  
+  <!-- Records Info -->
+  @if (showTotalInfo) {
+    <div class="pagination-records-info">
+      @if (totalItemsSig() > 0) {
+        <span>
+          Showing <strong class="text-cyan">{{ startItem() }}</strong> to <strong class="text-cyan">{{ endItem() }}</strong> of <strong>{{ totalItemsSig() }}</strong> records
+        </span>
+      } @else {
+        <span>No records to display</span>
+      }
+    </div>
+  }
+
+  <div class="pagination-right-group">
+    <!-- Page Size Dropdown -->
+    @if (showPageSize && totalItemsSig() > 0) {
+      <div class="page-size-selector">
+        <label for="paginationPageSize">Rows per page:</label>
+        <select 
+          id="paginationPageSize" 
+          class="page-size-select"
+          [value]="pageSizeSig()"
+          (change)="onPageSizeChange($event)">
+          @for (opt of pageSizeOptions; track opt) {
+            <option [value]="opt">{{ opt }}</option>
+          }
+        </select>
+      </div>
+    }
+
+    <!-- Navigation Buttons -->
+    <div class="pagination-nav-buttons">
+      <!-- First Page -->
+      <button 
+        type="button" 
+        class="btn-page-step" 
+        [disabled]="currentPageSig() <= 1" 
+        (click)="firstPage()" 
+        title="First Page">
+        <app-icon name="chevrons-left" [size]="15"></app-icon>
+      </button>
+
+      <!-- Previous Page -->
+      <button 
+        type="button" 
+        class="btn-page-step" 
+        [disabled]="currentPageSig() <= 1" 
+        (click)="prevPage()" 
+        title="Previous Page">
+        <app-icon name="chevron-left" [size]="15"></app-icon>
+      </button>
+
+      <!-- Page Numbers -->
+      <div class="page-numbers-wrap">
+        @for (p of pageNumbers(); track $index) {
+          @if (p === '...') {
+            <span class="page-ellipsis">…</span>
+          } @else {
+            <button 
+              type="button" 
+              class="btn-page-number" 
+              [class.active]="p === currentPageSig()"
+              (click)="setPage(p)">
+              {{ p }}
+            </button>
+          }
+        }
+      </div>
+
+      <!-- Next Page -->
+      <button 
+        type="button" 
+        class="btn-page-step" 
+        [disabled]="currentPageSig() >= totalPages()" 
+        (click)="nextPage()" 
+        title="Next Page">
+        <app-icon name="chevron-right" [size]="15"></app-icon>
+      </button>
+
+      <!-- Last Page -->
+      <button 
+        type="button" 
+        class="btn-page-step" 
+        [disabled]="currentPageSig() >= totalPages()" 
+        (click)="lastPage()" 
+        title="Last Page">
+        <app-icon name="chevrons-right" [size]="15"></app-icon>
+      </button>
+    </div>
+  </div>
+
+</div>

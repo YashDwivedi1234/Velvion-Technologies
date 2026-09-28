@@ -1,27 +1,11 @@
 <div class="master-page-view">
   
-  <div class="page-top-header">
-    <div>
-      <div class="breadcrumb">
-        <span>Content Management</span>
-        <app-icon name="chevron-right" [size]="12"></app-icon>
-        <span class="active">Team Members</span>
-      </div>
-      <h1 class="page-title">Team Directory</h1>
-      <p class="page-subtitle">Manage leadership, engineering leads, and consultants listed on platform</p>
-    </div>
-
-    <div class="page-actions">
-      <button type="button" class="btn-secondary" (click)="loadTeam()" [disabled]="loading()">
-        <app-icon name="refresh-cw" [size]="16" [class.spin]="loading()"></app-icon>
-        <span>Reload</span>
-      </button>
-
-      <button type="button" class="btn-primary-neon" (click)="openAddModal()">
-        <app-icon name="plus" [size]="16"></app-icon>
-        <span>Add Member</span>
-      </button>
-    </div>
+  <!-- Top Action Bar -->
+  <div class="page-top-actions">
+    <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+      <app-icon name="plus" [size]="16"></app-icon>
+      <span>Add Member</span>
+    </button>
   </div>
 
   <div class="table-card glass-panel">
@@ -29,19 +13,64 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Member Name</th>
-            <th>Designation</th>
-            <th>Department</th>
-            <th>Email</th>
-            <th>Status</th>
+            <th>Sr. No.</th>
+            <th class="sortable" (click)="toggleSort('fullName')">
+              <div class="th-sort-wrap">
+                <span>Member Name</span>
+                @if (sortColumn() === 'fullName') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('designation')">
+              <div class="th-sort-wrap">
+                <span>Designation</span>
+                @if (sortColumn() === 'designation') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('department')">
+              <div class="th-sort-wrap">
+                <span>Department</span>
+                @if (sortColumn() === 'department') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('email')">
+              <div class="th-sort-wrap">
+                <span>Email</span>
+                @if (sortColumn() === 'email') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('isActive')">
+              <div class="th-sort-wrap">
+                <span>Status</span>
+                @if (sortColumn() === 'isActive') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
             <th class="text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
-          @for (m of teamMembers(); track m.id) {
+          @for (m of paginatedTeam(); track m.id; let i = $index) {
             <tr>
-              <td class="font-mono text-muted">#{{ m.id }}</td>
+              <td class="font-mono text-muted">{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
               <td>
                 <div class="member-identity">
                   <div class="member-avatar">{{ m.fullName.charAt(0) }}</div>
@@ -61,6 +90,9 @@
               </td>
               <td class="text-right">
                 <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon view" (click)="openViewModal(m)" title="View Member Details">
+                    <app-icon name="eye" [size]="15"></app-icon>
+                  </button>
                   <button type="button" class="btn-action-icon edit" (click)="openEditModal(m)" title="Edit Member">
                     <app-icon name="edit" [size]="15"></app-icon>
                   </button>
@@ -81,7 +113,84 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Global Pagination -->
+    <app-pagination
+      [totalItems]="teamMembers().length"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      (pageChange)="currentPage.set($event)"
+      (pageSizeChange)="pageSize.set($event)">
+    </app-pagination>
   </div>
+
+  <!-- View Modal -->
+  @if (isViewModalOpen() && viewingMember(); as member) {
+    <div class="modal-backdrop" (click)="closeViewModal()">
+      <div class="modal-card view-modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="view-icon-badge">
+              <app-icon name="user" [size]="20"></app-icon>
+            </div>
+            <div>
+              <h2 class="modal-title">Team Member Profile</h2>
+              <p class="text-xs text-muted">Detailed view of member credentials and department info</p>
+            </div>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeViewModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <div class="view-modal-body">
+          <div class="view-info-grid">
+            <div class="view-item">
+              <span class="view-label">Full Name</span>
+              <span class="view-value text-white font-bold">{{ member.fullName }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Designation</span>
+              <span class="view-value text-cyan">{{ member.designation }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Department</span>
+              <span class="view-value text-white">{{ member.department || 'Engineering' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Work Email</span>
+              <span class="view-value text-muted font-mono">{{ member.email || '—' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Status</span>
+              <span class="view-value">
+                <span class="status-pill" [class.active]="member.isActive">
+                  <span class="status-dot"></span>
+                  {{ member.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Record ID</span>
+              <span class="view-value font-mono text-muted text-xs">#{{ member.id }}</span>
+            </div>
+            <div class="view-item full-width" *ngIf="member.bio">
+              <span class="view-label">Bio & Summary</span>
+              <div class="view-bio-box">{{ member.bio }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeViewModal()">Close</button>
+          <button type="button" class="btn-primary-neon" (click)="closeViewModal(); openEditModal(member)">
+            <app-icon name="edit" [size]="15"></app-icon>
+            <span>Edit Profile</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- Modal -->
   @if (isModalOpen()) {

@@ -1,42 +1,69 @@
 <div class="master-page-view">
-  
-  <div class="page-top-header">
-    <div>
-      <div class="breadcrumb">
-        <span>Operations & Logs</span>
-        <app-icon name="chevron-right" [size]="12"></app-icon>
-        <span class="active">Audit Trail</span>
-      </div>
-      <h1 class="page-title">Audit Activity Trail</h1>
-      <p class="page-subtitle">Immutable log records for database operations across tables and users</p>
-    </div>
 
-    <div class="page-actions">
-      <button type="button" class="btn-secondary" (click)="loadLogs()" [disabled]="loading()">
-        <app-icon name="refresh-cw" [size]="16" [class.spin]="loading()"></app-icon>
-        <span>Reload Logs</span>
-      </button>
-    </div>
-  </div>
 
   <div class="table-card glass-panel">
     <div class="table-responsive">
       <table class="data-table">
         <thead>
           <tr>
-            <th>Log ID</th>
-            <th>Action</th>
-            <th>Target Table</th>
-            <th>Record ID</th>
-            <th>User Email</th>
+            <th>Sr. No.</th>
+            <th class="sortable" (click)="toggleSort('action')">
+              <div class="th-sort-wrap">
+                <span>Action</span>
+                @if (sortColumn() === 'action') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('tableName')">
+              <div class="th-sort-wrap">
+                <span>Target Table</span>
+                @if (sortColumn() === 'tableName') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('recordId')">
+              <div class="th-sort-wrap">
+                <span>Record ID</span>
+                @if (sortColumn() === 'recordId') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('userEmail')">
+              <div class="th-sort-wrap">
+                <span>User Email</span>
+                @if (sortColumn() === 'userEmail') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
             <th>Details / Payload</th>
-            <th>Timestamp</th>
+            <th class="sortable" (click)="toggleSort('createdAt')">
+              <div class="th-sort-wrap">
+                <span>Timestamp</span>
+                @if (sortColumn() === 'createdAt') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
           </tr>
         </thead>
         <tbody>
-          @for (log of logs(); track log.id) {
+          @for (log of paginatedLogs(); track log.id; let i = $index) {
             <tr>
-              <td class="font-mono text-muted">#{{ log.id }}</td>
+              <td class="font-mono text-muted">{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
               <td>
                 <span class="action-badge" [class.insert]="log.action === 'INSERT'" [class.update]="log.action === 'UPDATE'" [class.delete]="log.action === 'DELETE'">
                   {{ log.action }}
@@ -63,6 +90,15 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Global Pagination -->
+    <app-pagination
+      [totalItems]="logs().length"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      (pageChange)="currentPage.set($event)"
+      (pageSizeChange)="pageSize.set($event)">
+    </app-pagination>
   </div>
 
 </div>

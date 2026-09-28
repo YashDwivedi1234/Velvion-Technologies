@@ -1,27 +1,11 @@
 <div class="master-page-view">
   
-  <div class="page-top-header">
-    <div>
-      <div class="breadcrumb">
-        <span>Masters</span>
-        <app-icon name="chevron-right" [size]="12"></app-icon>
-        <span class="active">Menus Master</span>
-      </div>
-      <h1 class="page-title">Menus Master</h1>
-      <p class="page-subtitle">Configure application menus, routes, icon assets, and hierarchy in MySQL</p>
-    </div>
-
-    <div class="page-actions">
-      <button type="button" class="btn-secondary" (click)="loadMenus()" [disabled]="loading()">
-        <app-icon name="refresh-cw" [size]="16" [class.spin]="loading()"></app-icon>
-        <span>Reload</span>
-      </button>
-
-      <button type="button" class="btn-primary-neon" (click)="openAddModal()">
-        <app-icon name="plus" [size]="16"></app-icon>
-        <span>Add Menu Item</span>
-      </button>
-    </div>
+  <!-- Top Action Bar -->
+  <div class="page-top-actions">
+    <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+      <app-icon name="plus" [size]="16"></app-icon>
+      <span>Add Menu Item</span>
+    </button>
   </div>
 
   <div class="table-card glass-panel">
@@ -29,19 +13,64 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Menu Name</th>
-            <th>Route URL</th>
-            <th>Icon Symbol</th>
-            <th>Parent ID</th>
-            <th>Status</th>
+            <th>Sr. No.</th>
+            <th class="sortable" (click)="toggleSort('menuName')">
+              <div class="th-sort-wrap">
+                <span>Menu Name</span>
+                @if (sortColumn() === 'menuName') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('routeUrl')">
+              <div class="th-sort-wrap">
+                <span>Route URL</span>
+                @if (sortColumn() === 'routeUrl') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('icon')">
+              <div class="th-sort-wrap">
+                <span>Icon Symbol</span>
+                @if (sortColumn() === 'icon') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('parentMenuId')">
+              <div class="th-sort-wrap">
+                <span>Parent ID</span>
+                @if (sortColumn() === 'parentMenuId') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('isActive')">
+              <div class="th-sort-wrap">
+                <span>Status</span>
+                @if (sortColumn() === 'isActive') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
             <th class="text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
-          @for (menu of menus(); track menu.id) {
+          @for (menu of paginatedMenus(); track menu.id; let i = $index) {
             <tr>
-              <td class="font-mono text-muted">#{{ menu.id }}</td>
+              <td class="font-mono text-muted">{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
               <td>
                 <div class="menu-name-cell">
                   <div class="menu-icon-wrap">
@@ -65,6 +94,9 @@
               </td>
               <td class="text-right">
                 <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon view" (click)="openViewModal(menu)" title="View Menu Details">
+                    <app-icon name="eye" [size]="15"></app-icon>
+                  </button>
                   <button type="button" class="btn-action-icon edit" (click)="openEditModal(menu)" title="Edit Menu">
                     <app-icon name="edit" [size]="15"></app-icon>
                   </button>
@@ -85,7 +117,80 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Global Pagination -->
+    <app-pagination
+      [totalItems]="menus().length"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      (pageChange)="currentPage.set($event)"
+      (pageSizeChange)="pageSize.set($event)">
+    </app-pagination>
   </div>
+
+  <!-- View Modal -->
+  @if (isViewModalOpen() && viewingMenu(); as item) {
+    <div class="modal-backdrop" (click)="closeViewModal()">
+      <div class="modal-card view-modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="view-icon-badge">
+              <app-icon [name]="item.icon || 'grid'" [size]="20"></app-icon>
+            </div>
+            <div>
+              <h2 class="modal-title">Menu Item Details</h2>
+              <p class="text-xs text-muted">Navigation route & hierarchy details</p>
+            </div>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeViewModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <div class="view-modal-body">
+          <div class="view-info-grid">
+            <div class="view-item">
+              <span class="view-label">Menu Name</span>
+              <span class="view-value text-white font-bold">{{ item.menuName }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Route URL</span>
+              <span class="view-value text-cyan font-mono">{{ item.routeUrl || '— (Parent Category)' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Icon Name</span>
+              <span class="view-value font-mono"><code class="icon-code">{{ item.icon || 'grid' }}</code></span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Parent Menu ID</span>
+              <span class="view-value text-muted font-mono">{{ item.parentMenuId ? '#' + item.parentMenuId : 'Root Item (0)' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Status</span>
+              <span class="view-value">
+                <span class="status-pill" [class.active]="item.isActive">
+                  <span class="status-dot"></span>
+                  {{ item.isActive ? 'Active (Visible)' : 'Inactive (Hidden)' }}
+                </span>
+              </span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Menu Item ID</span>
+              <span class="view-value font-mono text-muted text-xs">#{{ item.id }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeViewModal()">Close</button>
+          <button type="button" class="btn-primary-neon" (click)="closeViewModal(); openEditModal(item)">
+            <app-icon name="edit" [size]="15"></app-icon>
+            <span>Edit Menu</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- Modal -->
   @if (isModalOpen()) {

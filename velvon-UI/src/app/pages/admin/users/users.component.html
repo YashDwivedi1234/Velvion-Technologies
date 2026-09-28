@@ -1,53 +1,50 @@
 <div class="users-page-view">
   
-  <!-- Page Header -->
-  <div class="page-top-header">
-    <div>
-      <div class="breadcrumb">
-        <span>User Management</span>
-        <app-icon name="chevron-right" [size]="12"></app-icon>
-        <span class="active">Users Directory</span>
-      </div>
-      <h1 class="page-title">Users Management</h1>
-      <p class="page-subtitle">Manage accounts, security roles, and active credentials stored in MySQL database</p>
-    </div>
-
-    <div class="page-actions">
-      <button type="button" class="btn-secondary" (click)="loadUsers()" [disabled]="loading()">
-        <app-icon name="refresh-cw" [size]="16" [class.spin]="loading()"></app-icon>
-        <span>Reload</span>
-      </button>
-
-      <button type="button" class="btn-primary-neon" (click)="openAddModal()">
-        <app-icon name="plus" [size]="16"></app-icon>
-        <span>Add New User</span>
-      </button>
-    </div>
+  <!-- Top Action Bar -->
+  <div class="page-top-actions">
+    <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+      <app-icon name="plus" [size]="16"></app-icon>
+      <span>Add New User</span>
+    </button>
   </div>
 
   <!-- Search & Filter Controls -->
   <div class="filters-panel glass-panel">
-    <div class="search-input-wrap">
-      <app-icon name="search" [size]="16" class="search-icon"></app-icon>
-      <input 
-        type="text" 
-        class="search-input" 
-        placeholder="Search by name, email, mobile, or role..." 
-        [value]="searchQuery()"
-        (input)="onSearchChange($event)" />
+    <div class="filters-left">
+      <div class="filter-dropdown-wrap">
+        <app-dropdown
+          [options]="roleDropdownOptions()"
+          [ngModel]="selectedRoleFilter()"
+          (selectionChange)="onRoleSelect($event)"
+          [searchable]="false"
+          [clearable]="false"
+          placeholder="All Roles"
+          size="md">
+        </app-dropdown>
+      </div>
+
+      <button type="button" class="btn-filter-search" (click)="applyFilter()" title="Search & Filter">
+        <app-icon name="search" [size]="15"></app-icon>
+        <span>Search</span>
+      </button>
+
+      <button type="button" class="btn-filter-reset" (click)="resetFilters()" title="Reset Filters">
+        <app-icon name="rotate-ccw" [size]="15"></app-icon>
+        <span>Reset</span>
+      </button>
     </div>
 
-    <div class="filter-group">
-      <label class="filter-label">Filter Role:</label>
-      <select 
-        class="filter-select" 
-        [value]="selectedRoleFilter()" 
-        (change)="selectedRoleFilter.set($any($event.target).value); applyFilter()">
-        <option value="all">All Roles ({{ users().length }})</option>
-        @for (r of roles(); track r.id) {
-          <option [value]="r.id.toString()">{{ r.roleName }}</option>
-        }
-      </select>
+    <div class="filters-right">
+      <div class="search-input-wrap">
+        <app-icon name="search" [size]="16" class="search-icon"></app-icon>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Search..." 
+          [value]="searchQuery()"
+          (input)="onSearchChange($event)"
+          (keyup.enter)="applyFilter()" />
+      </div>
     </div>
   </div>
 
@@ -58,23 +55,76 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Full Name</th>
-            <th>Email Address</th>
-            <th>Mobile</th>
-            <th>Assigned Role</th>
-            <th>Status</th>
-            <th>Registered Date</th>
+            <th>Sr. No.</th>
+            <th class="sortable" (click)="toggleSort('fullName')">
+              <div class="th-sort-wrap">
+                <span>Name</span>
+                @if (sortColumn() === 'fullName') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('email')">
+              <div class="th-sort-wrap">
+                <span>Email</span>
+                @if (sortColumn() === 'email') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('mobile')">
+              <div class="th-sort-wrap">
+                <span>Mobile</span>
+                @if (sortColumn() === 'mobile') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('roleName')">
+              <div class="th-sort-wrap">
+                <span>Role</span>
+                @if (sortColumn() === 'roleName') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('isActive')">
+              <div class="th-sort-wrap">
+                <span>Status</span>
+                @if (sortColumn() === 'isActive') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('createdAt')">
+              <div class="th-sort-wrap">
+                <span>Created At</span>
+                @if (sortColumn() === 'createdAt') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
             <th class="text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
-          @for (u of filteredUsers(); track u.id) {
+          @for (u of paginatedUsers(); track u.id; let i = $index) {
             <tr>
-              <td class="font-mono text-muted">#{{ u.id }}</td>
+              <td class="font-mono text-muted">{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
               <td>
                 <div class="user-identity">
-                  <div class="user-avatar-initial">{{ u.fullName.charAt(0) }}</div>
                   <span class="user-name-cell">{{ u.fullName }}</span>
                 </div>
               </td>
@@ -92,6 +142,9 @@
               <td class="text-muted font-sm">{{ u.createdAt | date:'mediumDate' }}</td>
               <td class="text-right">
                 <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon view" (click)="openViewModal(u)" title="View Details">
+                    <app-icon name="eye" [size]="15"></app-icon>
+                  </button>
                   <button type="button" class="btn-action-icon edit" (click)="openEditModal(u)" title="Edit User">
                     <app-icon name="edit" [size]="15"></app-icon>
                   </button>
@@ -123,9 +176,14 @@
       </table>
     </div>
 
-    <div class="table-footer-info">
-      <span>Showing <strong>{{ filteredUsers().length }}</strong> of <strong>{{ users().length }}</strong> records</span>
-    </div>
+    <!-- Global Pagination Component -->
+    <app-pagination
+      [totalItems]="filteredUsers().length"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      (pageChange)="currentPage.set($event)"
+      (pageSizeChange)="pageSize.set($event)">
+    </app-pagination>
 
   </div>
 
@@ -190,11 +248,15 @@
 
             <div class="form-group">
               <label class="form-label" for="u-role">Role Assignment *</label>
-              <select id="u-role" class="form-control" formControlName="roleId">
-                @for (r of roles(); track r.id) {
-                  <option [value]="r.id">{{ r.roleName }}</option>
-                }
-              </select>
+              <app-dropdown
+                id="u-role"
+                [options]="modalRoleDropdownOptions()"
+                formControlName="roleId"
+                [searchable]="false"
+                [clearable]="false"
+                placeholder="Select Role"
+                size="md">
+              </app-dropdown>
             </div>
           </div>
 
@@ -237,6 +299,68 @@
 
         </form>
 
+      </div>
+    </div>
+  }
+
+  <!-- View User Modal -->
+  @if (isViewModalOpen() && viewingUser(); as user) {
+    <div class="modal-backdrop" (click)="closeViewModal()">
+      <div class="modal-card view-modal-card animate-scale" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="view-icon-badge">
+              <app-icon name="eye" [size]="18"></app-icon>
+            </div>
+            <div>
+              <h3 class="modal-title">{{ user.fullName }}</h3>
+              <span class="text-muted font-sm">User Details & Profile</span>
+            </div>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeViewModal()">
+            <app-icon name="x" [size]="20"></app-icon>
+          </button>
+        </div>
+
+        <div class="view-modal-body">
+          <div class="view-info-grid">
+            <div class="view-item">
+              <span class="view-label">Full Name</span>
+              <span class="view-value">{{ user.fullName }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Email Address</span>
+              <span class="view-value">{{ user.email }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Mobile Number</span>
+              <span class="view-value">{{ user.mobile || 'N/A' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Assigned Role</span>
+              <span class="role-badge">{{ user.roleName || 'Standard Role' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Account Status</span>
+              <span class="status-pill" [class.active]="user.isActive">
+                <span class="status-dot"></span>
+                {{ user.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Member Since</span>
+              <span class="view-value">{{ user.createdAt | date:'mediumDate' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeViewModal()">Close</button>
+          <button type="button" class="btn-primary-neon" (click)="closeViewModal(); openEditModal(user)">
+            <app-icon name="edit" [size]="15"></app-icon>
+            <span>Edit User</span>
+          </button>
+        </div>
       </div>
     </div>
   }

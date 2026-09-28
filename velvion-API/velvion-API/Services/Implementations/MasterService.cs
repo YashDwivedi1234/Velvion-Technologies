@@ -139,14 +139,69 @@ public class MasterService : IMasterService
     // ==========================================
     // 2. MENUS (GET & POST)
     // ==========================================
+    private static readonly (string Name, string Route, string Icon)[] DefaultPlatformMenus =
+    {
+        ("Dashboard", "/admin/dashboard", "grid"),
+        ("Users", "/admin/users", "users"),
+        ("Roles", "/admin/roles", "shield"),
+        ("Role Menu Permissions", "/admin/permissions", "check-circle"),
+        ("Menus Master", "/admin/masters/menus", "menu"),
+        ("Services Master", "/admin/masters/services", "layers"),
+        ("Settings Master", "/admin/masters/settings", "settings"),
+        ("Blogs & Articles", "/admin/blogs", "edit"),
+        ("Portfolios", "/admin/portfolios", "folder"),
+        ("Team Members", "/admin/team", "user"),
+        ("Testimonials", "/admin/testimonials", "star"),
+        ("Inquiries & Leads", "/admin/inquiries", "mail"),
+        ("Audit Trail", "/admin/audit-logs", "activity")
+    };
+
+    private async Task EnsureDefaultMenusSeededAsync()
+    {
+        try
+        {
+            var existingNames = await _context.Menus.Select(m => m.MenuName.ToLower()).ToListAsync();
+            bool changed = false;
+
+            foreach (var (name, route, icon) in DefaultPlatformMenus)
+            {
+                if (!existingNames.Contains(name.ToLower()))
+                {
+                    _context.Menus.Add(new Menu
+                    {
+                        MenuName = name,
+                        RouteUrl = route,
+                        Icon = icon,
+                        ParentMenuId = 0,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+                    changed = true;
+                }
+            }
+
+            if (changed)
+            {
+                await _context.SaveChangesAsync();
+            }
+        }
+        catch
+        {
+            // Fallback gracefully if database table is read-only
+        }
+    }
+
     public async Task<ApiResponse<List<MenuDto>>> GetMenusAsync(bool activeOnly = false)
     {
+        await EnsureDefaultMenusSeededAsync();
+
         var query = _context.Menus.AsNoTracking();
         if (activeOnly)
             query = query.Where(m => m.IsActive);
 
         var list = await query
-            .OrderBy(m => m.ParentMenuId).ThenBy(m => m.MenuName)
+            .OrderBy(m => m.Id)
             .Select(m => new MenuDto { Id = m.Id, MenuName = m.MenuName, RouteUrl = m.RouteUrl, Icon = m.Icon, ParentMenuId = m.ParentMenuId, IsActive = m.IsActive, CreatedAt = m.CreatedAt, UpdatedAt = m.UpdatedAt })
             .ToListAsync();
 
@@ -155,6 +210,8 @@ public class MasterService : IMasterService
 
     public async Task<ApiResponse<List<MenuDto>>> GetMenuTreeAsync()
     {
+        await EnsureDefaultMenusSeededAsync();
+
         var allMenus = await _context.Menus.AsNoTracking()
             .Where(m => m.IsActive)
             .Select(m => new MenuDto { Id = m.Id, MenuName = m.MenuName, RouteUrl = m.RouteUrl, Icon = m.Icon, ParentMenuId = m.ParentMenuId, IsActive = m.IsActive, CreatedAt = m.CreatedAt, UpdatedAt = m.UpdatedAt })

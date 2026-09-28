@@ -4,41 +4,9 @@
   gap: var(--space-xl);
 }
 
-.page-top-header {
+.page-top-actions {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--space-lg);
-  flex-wrap: wrap;
-}
-
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-bottom: 4px;
-}
-
-.breadcrumb .active {
-  color: #00f2fe;
-}
-
-.page-title {
-  font-family: var(--font-heading);
-  font-size: 1.7rem;
-  font-weight: 800;
-  color: #ffffff;
-}
-
-.page-subtitle {
-  color: var(--text-muted);
-  font-size: 0.88rem;
-}
-
-.page-actions {
-  display: flex;
+  justify-content: flex-end;
   align-items: center;
   gap: var(--space-md);
 }
@@ -48,7 +16,7 @@
   align-items: center;
   gap: 6px;
   padding: 0.6rem 1rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-surface-elevated);
   border: 1px solid var(--border-glass);
   color: var(--text-body);
   border-radius: var(--radius-md);
@@ -71,9 +39,10 @@
 
 .table-card {
   border-radius: var(--radius-xl);
-  background: rgba(15, 23, 42, 0.6);
+  background: var(--bg-card);
   border: 1px solid var(--border-glass);
   overflow: hidden;
+  box-shadow: var(--shadow-md);
 }
 
 .table-responsive {
@@ -87,7 +56,7 @@
 }
 
 .data-table th {
-  background: rgba(8, 12, 20, 0.6);
+  background: var(--bg-surface-elevated);
   color: var(--text-muted);
   font-size: 0.78rem;
   font-weight: 700;
@@ -100,7 +69,8 @@
 
 .data-table td {
   padding: 1rem 1.2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border-glass);
+  color: var(--text-body);
 }
 
 .action-badge {
@@ -109,8 +79,8 @@
   border-radius: var(--radius-sm);
   font-weight: 700;
   font-family: var(--font-mono);
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  background: var(--bg-surface-elevated);
+  color: var(--text-main);
 }
 
 .action-badge.insert {

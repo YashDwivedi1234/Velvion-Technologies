@@ -68,8 +68,8 @@ export interface MenuDto {
   icon?: string;
   parentMenuId?: number;
   isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   subMenus?: MenuDto[];
 }
 

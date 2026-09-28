@@ -1,27 +1,11 @@
 <div class="master-page-view">
   
-  <div class="page-top-header">
-    <div>
-      <div class="breadcrumb">
-        <span>Content Management</span>
-        <app-icon name="chevron-right" [size]="12"></app-icon>
-        <span class="active">Blogs & Articles</span>
-      </div>
-      <h1 class="page-title">Blogs & Articles</h1>
-      <p class="page-subtitle">Publish technology whitepapers, architecture insights, and case notes</p>
-    </div>
-
-    <div class="page-actions">
-      <button type="button" class="btn-secondary" (click)="loadBlogs()" [disabled]="loading()">
-        <app-icon name="refresh-cw" [size]="16" [class.spin]="loading()"></app-icon>
-        <span>Reload</span>
-      </button>
-
-      <button type="button" class="btn-primary-neon" (click)="openAddModal()">
-        <app-icon name="plus" [size]="16"></app-icon>
-        <span>Write New Post</span>
-      </button>
-    </div>
+  <!-- Top Action Bar -->
+  <div class="page-top-actions">
+    <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+      <app-icon name="plus" [size]="16"></app-icon>
+      <span>Write New Post</span>
+    </button>
   </div>
 
   <div class="table-card glass-panel">
@@ -29,19 +13,64 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Article Title</th>
-            <th>Category</th>
-            <th>Tags</th>
-            <th>Publish Status</th>
-            <th>Date</th>
+            <th>Sr. No.</th>
+            <th class="sortable" (click)="toggleSort('title')">
+              <div class="th-sort-wrap">
+                <span>Article Title</span>
+                @if (sortColumn() === 'title') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('category')">
+              <div class="th-sort-wrap">
+                <span>Category</span>
+                @if (sortColumn() === 'category') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('tags')">
+              <div class="th-sort-wrap">
+                <span>Tags</span>
+                @if (sortColumn() === 'tags') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('isPublished')">
+              <div class="th-sort-wrap">
+                <span>Publish Status</span>
+                @if (sortColumn() === 'isPublished') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('createdAt')">
+              <div class="th-sort-wrap">
+                <span>Date</span>
+                @if (sortColumn() === 'createdAt') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
             <th class="text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
-          @for (blog of blogs(); track blog.id) {
+          @for (blog of paginatedBlogs(); track blog.id; let i = $index) {
             <tr>
-              <td class="font-mono text-muted">#{{ blog.id }}</td>
+              <td class="font-mono text-muted">{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
               <td>
                 <span class="font-bold text-white">{{ blog.title }}</span>
                 <span class="blog-slug font-mono text-muted d-block">{{ blog.slug }}</span>
@@ -59,6 +88,9 @@
               <td class="text-muted font-sm">{{ blog.createdAt | date:'mediumDate' }}</td>
               <td class="text-right">
                 <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon view" (click)="openViewModal(blog)" title="View Article">
+                    <app-icon name="eye" [size]="15"></app-icon>
+                  </button>
                   <button type="button" class="btn-action-icon edit" (click)="openEditModal(blog)" title="Edit Article">
                     <app-icon name="edit" [size]="15"></app-icon>
                   </button>
@@ -79,7 +111,92 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Global Pagination -->
+    <app-pagination
+      [totalItems]="blogs().length"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      (pageChange)="currentPage.set($event)"
+      (pageSizeChange)="pageSize.set($event)">
+    </app-pagination>
   </div>
+
+  <!-- View Modal -->
+  @if (isViewModalOpen() && viewingBlog(); as article) {
+    <div class="modal-backdrop" (click)="closeViewModal()">
+      <div class="modal-card view-modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="view-icon-badge">
+              <app-icon name="edit" [size]="20"></app-icon>
+            </div>
+            <div>
+              <h2 class="modal-title">Blog Article Details</h2>
+              <p class="text-xs text-muted">Metadata, category & article content preview</p>
+            </div>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeViewModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <div class="view-modal-body">
+          <div class="view-info-grid">
+            <div class="view-item full-width">
+              <span class="view-label">Article Title</span>
+              <span class="view-value text-white font-bold">{{ article.title }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">URL Slug</span>
+              <span class="view-value text-cyan font-mono text-xs">/blog/{{ article.slug }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Category</span>
+              <span class="view-value text-white">{{ article.category || 'General' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Tags</span>
+              <span class="view-value text-muted font-sm">{{ article.tags || '—' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Publish Status</span>
+              <span class="view-value">
+                <span class="status-pill" [class.active]="article.isPublished">
+                  <span class="status-dot"></span>
+                  {{ article.isPublished ? 'Published' : 'Draft' }}
+                </span>
+              </span>
+            </div>
+            <div class="view-item" *ngIf="article.createdAt">
+              <span class="view-label">Publication Date</span>
+              <span class="view-value text-muted font-mono text-xs">{{ article.createdAt | date:'medium' }}</span>
+            </div>
+            <div class="view-item" *ngIf="article.authorName">
+              <span class="view-label">Author</span>
+              <span class="view-value text-white">{{ article.authorName }}</span>
+            </div>
+            <div class="view-item full-width" *ngIf="article.summary">
+              <span class="view-label">Summary / Teaser</span>
+              <div class="view-bio-box">{{ article.summary }}</div>
+            </div>
+            <div class="view-item full-width">
+              <span class="view-label">Article Body</span>
+              <div class="view-bio-box" style="white-space: pre-wrap; max-height: 200px; overflow-y: auto;">{{ article.content }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeViewModal()">Close</button>
+          <button type="button" class="btn-primary-neon" (click)="closeViewModal(); openEditModal(article)">
+            <app-icon name="edit" [size]="15"></app-icon>
+            <span>Edit Article</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- Modal -->
   @if (isModalOpen()) {

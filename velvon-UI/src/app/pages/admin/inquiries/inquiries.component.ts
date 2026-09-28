@@ -1,13 +1,13 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminDataService } from '../../../core/services/admin-data.service';
-import { ToastService, ConfirmService, IconComponent } from '../../../shared';
+import { ToastService, ConfirmService, IconComponent, PaginationComponent } from '../../../shared';
 import { ContactInquiryDto } from '../../../core/models/api.models';
 
 @Component({
   selector: 'app-inquiries',
   standalone: true,
-  imports: [CommonModule, IconComponent],
+  imports: [CommonModule, IconComponent, PaginationComponent],
   templateUrl: './inquiries.component.html',
   styleUrls: ['./inquiries.component.css']
 })
@@ -19,6 +19,49 @@ export class InquiriesComponent implements OnInit {
   loading = signal<boolean>(false);
   inquiries = signal<ContactInquiryDto[]>([]);
   selectedInquiry = signal<ContactInquiryDto | null>(null);
+
+  // Sorting state
+  sortColumn = signal<string>('createdAt');
+  sortDirection = signal<'asc' | 'desc'>('desc');
+
+  // Pagination
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(10);
+
+  sortedInquiries = computed(() => {
+    let list = this.inquiries();
+    if (this.sortColumn()) {
+      const col = this.sortColumn();
+      const dir = this.sortDirection() === 'asc' ? 1 : -1;
+      list = [...list].sort((a: any, b: any) => {
+        const valA = a[col] ?? '';
+        const valB = b[col] ?? '';
+        if (typeof valA === 'number' && typeof valB === 'number') {
+          return (valA - valB) * dir;
+        }
+        if (typeof valA === 'boolean' && typeof valB === 'boolean') {
+          return (valA === valB ? 0 : valA ? 1 : -1) * dir;
+        }
+        return valA.toString().localeCompare(valB.toString(), undefined, { numeric: true, sensitivity: 'base' }) * dir;
+      });
+    }
+    return list;
+  });
+
+  paginatedInquiries = computed(() => {
+    const list = this.sortedInquiries();
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return list.slice(start, start + this.pageSize());
+  });
+
+  toggleSort(column: string): void {
+    if (this.sortColumn() === column) {
+      this.sortDirection.update(dir => dir === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
+    }
+  }
 
   ngOnInit(): void {
     this.loadInquiries();

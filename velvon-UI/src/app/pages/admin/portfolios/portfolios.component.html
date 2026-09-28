@@ -1,27 +1,11 @@
 <div class="master-page-view">
   
-  <div class="page-top-header">
-    <div>
-      <div class="breadcrumb">
-        <span>Content Management</span>
-        <app-icon name="chevron-right" [size]="12"></app-icon>
-        <span class="active">Portfolios</span>
-      </div>
-      <h1 class="page-title">Portfolio Projects</h1>
-      <p class="page-subtitle">Showcase enterprise solutions, delivered projects, and stack deliverables</p>
-    </div>
-
-    <div class="page-actions">
-      <button type="button" class="btn-secondary" (click)="loadPortfolios()" [disabled]="loading()">
-        <app-icon name="refresh-cw" [size]="16" [class.spin]="loading()"></app-icon>
-        <span>Reload</span>
-      </button>
-
-      <button type="button" class="btn-primary-neon" (click)="openAddModal()">
-        <app-icon name="plus" [size]="16"></app-icon>
-        <span>Add Project</span>
-      </button>
-    </div>
+  <!-- Top Action Bar -->
+  <div class="page-top-actions">
+    <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+      <app-icon name="plus" [size]="16"></app-icon>
+      <span>Add Project</span>
+    </button>
   </div>
 
   <div class="table-card glass-panel">
@@ -29,19 +13,64 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Project Title</th>
-            <th>Client</th>
-            <th>Category</th>
-            <th>Stack</th>
-            <th>Status</th>
+            <th>Sr. No.</th>
+            <th class="sortable" (click)="toggleSort('title')">
+              <div class="th-sort-wrap">
+                <span>Project Title</span>
+                @if (sortColumn() === 'title') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('clientName')">
+              <div class="th-sort-wrap">
+                <span>Client</span>
+                @if (sortColumn() === 'clientName') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('category')">
+              <div class="th-sort-wrap">
+                <span>Category</span>
+                @if (sortColumn() === 'category') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('technologies')">
+              <div class="th-sort-wrap">
+                <span>Stack</span>
+                @if (sortColumn() === 'technologies') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('isActive')">
+              <div class="th-sort-wrap">
+                <span>Status</span>
+                @if (sortColumn() === 'isActive') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
             <th class="text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
-          @for (p of portfolios(); track p.id) {
+          @for (p of paginatedPortfolios(); track p.id; let i = $index) {
             <tr>
-              <td class="font-mono text-muted">#{{ p.id }}</td>
+              <td class="font-mono text-muted">{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
               <td>
                 <span class="font-bold text-white">{{ p.title }}</span>
                 @if (p.projectUrl) {
@@ -63,6 +92,9 @@
               </td>
               <td class="text-right">
                 <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon view" (click)="openViewModal(p)" title="View Project Details">
+                    <app-icon name="eye" [size]="15"></app-icon>
+                  </button>
                   <button type="button" class="btn-action-icon edit" (click)="openEditModal(p)" title="Edit Project">
                     <app-icon name="edit" [size]="15"></app-icon>
                   </button>
@@ -83,7 +115,91 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Global Pagination -->
+    <app-pagination
+      [totalItems]="portfolios().length"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      (pageChange)="currentPage.set($event)"
+      (pageSizeChange)="pageSize.set($event)">
+    </app-pagination>
   </div>
+
+  <!-- View Modal -->
+  @if (isViewModalOpen() && viewingPortfolio(); as project) {
+    <div class="modal-backdrop" (click)="closeViewModal()">
+      <div class="modal-card view-modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="view-icon-badge">
+              <app-icon name="folder" [size]="20"></app-icon>
+            </div>
+            <div>
+              <h2 class="modal-title">Portfolio Project Details</h2>
+              <p class="text-xs text-muted">Project specifications & tech stack overview</p>
+            </div>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeViewModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <div class="view-modal-body">
+          <div class="view-info-grid">
+            <div class="view-item">
+              <span class="view-label">Project Title</span>
+              <span class="view-value text-white font-bold">{{ project.title }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Client</span>
+              <span class="view-value text-cyan">{{ project.clientName || 'Internal Product' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Category</span>
+              <span class="view-value text-white">{{ project.category || 'General' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Tech Stack</span>
+              <span class="view-value text-muted font-mono">{{ project.technologies || '—' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Status</span>
+              <span class="view-value">
+                <span class="status-pill" [class.active]="project.isActive">
+                  <span class="status-dot"></span>
+                  {{ project.isActive ? 'Active & Published' : 'Archived' }}
+                </span>
+              </span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Record ID</span>
+              <span class="view-value font-mono text-muted text-xs">#{{ project.id }}</span>
+            </div>
+            <div class="view-item full-width" *ngIf="project.projectUrl">
+              <span class="view-label">Live Deployment URL</span>
+              <a [href]="project.projectUrl" target="_blank" class="project-link font-mono d-inline-flex align-items-center gap-1">
+                <span>{{ project.projectUrl }}</span>
+                <app-icon name="external-link" [size]="13"></app-icon>
+              </a>
+            </div>
+            <div class="view-item full-width" *ngIf="project.description">
+              <span class="view-label">Project Scope & Description</span>
+              <div class="view-bio-box">{{ project.description }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeViewModal()">Close</button>
+          <button type="button" class="btn-primary-neon" (click)="closeViewModal(); openEditModal(project)">
+            <app-icon name="edit" [size]="15"></app-icon>
+            <span>Edit Project</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- Modal -->
   @if (isModalOpen()) {

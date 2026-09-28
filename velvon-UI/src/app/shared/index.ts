@@ -24,3 +24,4 @@ export * from './components/form-controls/form-field.component';
 export * from './components/form-controls/form-card.component';
 export * from './components/logo/logo.component';
 export * from './components/v-loader/v-loader.component';
+export * from './components/pagination/pagination.component';

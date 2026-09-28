@@ -1,171 +1,472 @@
 <div class="permissions-page-view">
-  
-  <!-- Page Header -->
-  <div class="page-top-header">
-    <div>
-      <div class="breadcrumb">
-        <span>User Management</span>
-        <app-icon name="chevron-right" [size]="12"></app-icon>
-        <span class="active">Role Menu Permissions</span>
+
+  <!-- ========================================== -->
+  <!-- 1. ROLES DIRECTORY LIST VIEW (Default)    -->
+  <!-- ========================================== -->
+  @if (viewMode() === 'list') {
+    <div class="list-view-container">
+      
+      <!-- List Header & Search Bar -->
+      <div class="directory-header-card glass-panel">
+        <div class="header-text-block">
+          <div class="badge-tag">
+            <app-icon name="shield" [size]="14"></app-icon> 
+            <span>Access Control Management</span>
+          </div>
+          <h2 class="section-title">Role Menu Permissions</h2>
+          <p class="section-desc">Select a role below to view current access rights or click Edit to configure granular menu permissions.</p>
+        </div>
+
+        <div class="header-controls">
+          <div class="search-box">
+            <app-icon name="search" [size]="16" class="search-icon"></app-icon>
+            <input 
+              type="text" 
+              placeholder="Search roles..." 
+              [ngModel]="searchTerm()" 
+              (ngModelChange)="searchTerm.set($event)"
+              class="search-input" />
+            @if (searchTerm()) {
+              <button class="clear-search-btn" (click)="searchTerm.set('')" type="button">
+                <app-icon name="x" [size]="14"></app-icon>
+              </button>
+            }
+          </div>
+        </div>
       </div>
-      <h1 class="page-title">Role Menu Permissions Matrix</h1>
-      <p class="page-subtitle">Configure granular CRUD permissions per menu and route for each system role</p>
-    </div>
 
-    <div class="page-actions">
-      <button 
-        type="button" 
-        class="btn-primary-neon" 
-        (click)="savePermissions()" 
-        [disabled]="saving() || loading()">
-        @if (saving()) {
-          <span class="spinner-sm"></span>
-          <span>Saving to Database...</span>
-        } @else {
-          <app-icon name="check-circle" [size]="16"></app-icon>
-          <span>Save Permissions Matrix</span>
-        }
-      </button>
-    </div>
-  </div>
+      <!-- Roles Table Card -->
+      <div class="table-card glass-panel">
+        <div class="table-responsive">
+          <table class="roles-table">
+            <thead>
+              <tr>
+                <th class="col-id">Sr. No.</th>
+                <th class="col-role">Role Name</th>
+                <th class="col-scope">Platform Scope</th>
+                <th class="col-status">Status</th>
+                <th class="col-actions text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (role of filteredRoles(); track role.id; let i = $index) {
+                <tr class="role-row">
+                  <td class="role-id-cell">
+                    <span class="id-badge">{{ i + 1 }}</span>
+                  </td>
+                  <td>
+                    <div class="role-identity">
+                      <div class="role-icon-box" [class.admin-box]="role.id === 1 || role.id === 2">
+                        <app-icon [name]="role.id === 1 ? 'shield' : (role.id === 2 ? 'lock' : 'user')" [size]="18"></app-icon>
+                      </div>
+                      <div class="role-info">
+                        <span class="role-name-text">{{ role.roleName }}</span>
+                        <span class="role-sub-text">
+                          {{ role.id === 1 ? 'Full system super administrator privileges' : (role.id === 2 ? 'Administrative platform manager' : 'Standard configured access role') }}
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="scope-badge">
+                      <app-icon name="grid" [size]="13"></app-icon>
+                      {{ menus().length }} Platform Modules
+                    </span>
+                  </td>
+                  <td>
+                    <span class="status-pill active">
+                      <span class="status-dot"></span> Active
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <div class="action-buttons-group">
+                      <!-- VIEW BUTTON -->
+                      <button 
+                        type="button" 
+                        class="btn-action btn-view" 
+                        (click)="openViewPermissions(role)"
+                        title="View Permissions for {{ role.roleName }}">
+                        <app-icon name="eye" [size]="15"></app-icon>
+                        <span>View</span>
+                      </button>
 
-  <!-- Role Selector Panel -->
-  <div class="role-selector-bar glass-panel">
-    <div class="selector-label-group">
-      <app-icon name="shield" [size]="20" class="text-cyan"></app-icon>
-      <div>
-        <span class="sel-title">Selected Role for Configuration</span>
-        <span class="sel-desc">Choose a role to inspect and assign menu-level authorizations</span>
+                      <!-- EDIT BUTTON -->
+                      <button 
+                        type="button" 
+                        class="btn-action btn-edit" 
+                        (click)="openEditPermissions(role)"
+                        title="Configure & Edit Permissions for {{ role.roleName }}">
+                        <app-icon name="edit" [size]="15"></app-icon>
+                        <span>Edit Permissions</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+              @if (filteredRoles().length === 0 && !loading()) {
+                <tr>
+                  <td colspan="5" class="empty-state-cell">
+                    <div class="empty-state">
+                      <app-icon name="search" [size]="32" class="empty-icon"></app-icon>
+                      <p>No roles found matching "{{ searchTerm() }}"</p>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
+
     </div>
+  }
 
-    <div class="role-dropdown-wrap">
-      <app-dropdown
-        [options]="roleDropdownOptions()"
-        [ngModel]="selectedRoleId().toString()"
-        (selectionChange)="onRoleSelect($event)"
-        placeholder="Choose Role">
-      </app-dropdown>
+  <!-- ========================================== -->
+  <!-- 2. MATRIX EDIT VIEW (Parent & Child Menus) -->
+  <!-- ========================================== -->
+  @if (viewMode() === 'matrix') {
+    <div class="matrix-view-container">
+
+      <!-- Back bar & Action Bar -->
+      <div class="matrix-top-bar glass-panel">
+        <div class="top-left-actions">
+          <button type="button" class="btn-back" (click)="backToList()">
+            <app-icon name="arrow-left" [size]="16"></app-icon>
+            <span>Back to Roles List</span>
+          </button>
+          
+          <div class="editing-role-badge">
+            <app-icon name="shield" [size]="16" class="text-cyan"></app-icon>
+            <span>Editing Permissions: <strong>{{ selectedRole()?.roleName || 'Role #' + selectedRoleId() }}</strong></span>
+          </div>
+        </div>
+
+        <div class="top-right-actions">
+          <button 
+            type="button" 
+            class="btn-primary-neon" 
+            (click)="savePermissions()" 
+            [disabled]="saving() || loading()">
+            @if (saving()) {
+              <span class="spinner-sm"></span>
+              <span>Saving to MySQL...</span>
+            } @else {
+              <app-icon name="check-circle" [size]="16"></app-icon>
+              <span>Save Permissions Matrix</span>
+            }
+          </button>
+        </div>
+      </div>
+
+      <!-- Role Quick Switcher Selector Bar -->
+      <div class="role-selector-bar glass-panel">
+        <div class="selector-label-group">
+          <app-icon name="layers" [size]="20" class="text-cyan"></app-icon>
+          <div>
+            <span class="sel-title">Switch Role Quick Configuration</span>
+            <span class="sel-desc">Currently configuring permissions for: {{ selectedRole()?.roleName }}</span>
+          </div>
+        </div>
+
+        <div class="role-dropdown-wrap">
+          <app-dropdown
+            [options]="roleDropdownOptions()"
+            [ngModel]="selectedRoleId().toString()"
+            (selectionChange)="onRoleSelect($event)"
+            placeholder="Choose Role">
+          </app-dropdown>
+        </div>
+      </div>
+
+      <!-- Permission Matrix Table Card -->
+      <div class="table-card glass-panel">
+        <div class="table-responsive">
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th class="col-menu">Menu / Route Item</th>
+                <th class="col-url">Route URL</th>
+                <th class="col-perm text-center">
+                  <button type="button" class="btn-col-toggle" (click)="toggleAllColumn('canView')" title="Toggle All View">
+                    <span>Can View</span>
+                    <app-icon name="eye" [size]="13"></app-icon>
+                  </button>
+                </th>
+                <th class="col-perm text-center">
+                  <button type="button" class="btn-col-toggle" (click)="toggleAllColumn('canAdd')" title="Toggle All Add">
+                    <span>Can Add</span>
+                    <app-icon name="plus" [size]="13"></app-icon>
+                  </button>
+                </th>
+                <th class="col-perm text-center">
+                  <button type="button" class="btn-col-toggle" (click)="toggleAllColumn('canEdit')" title="Toggle All Edit">
+                    <span>Can Edit</span>
+                    <app-icon name="edit" [size]="13"></app-icon>
+                  </button>
+                </th>
+                <th class="col-perm text-center">
+                  <button type="button" class="btn-col-toggle" (click)="toggleAllColumn('canDelete')" title="Toggle All Delete">
+                    <span>Can Delete</span>
+                    <app-icon name="trash" [size]="13"></app-icon>
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (group of menuGroups(); track group.groupName) {
+                
+                <!-- PARENT MENU HEADER ROW -->
+                <tr class="parent-menu-row">
+                  <td colspan="2">
+                    <div class="parent-identity">
+                      <div class="parent-icon-box">
+                        <app-icon [name]="group.groupIcon" [size]="16"></app-icon>
+                      </div>
+                      <span class="parent-title">{{ group.groupName }}</span>
+                      <span class="parent-badge">Parent Menu</span>
+                      <span class="parent-count">({{ group.rows.length }} {{ group.rows.length === 1 ? 'item' : 'submenus' }})</span>
+                    </div>
+                  </td>
+                  
+                  <!-- Group Quick Toggles -->
+                  <td class="text-center">
+                    <button 
+                      type="button" 
+                      class="btn-group-toggle" 
+                      [class.active]="isGroupAllChecked(group, 'canView')"
+                      (click)="toggleGroupPermission(group, 'canView')" 
+                      title="Toggle View for all {{ group.groupName }}">
+                      <span>{{ isGroupAllChecked(group, 'canView') ? 'All On' : 'Set All' }}</span>
+                    </button>
+                  </td>
+                  <td class="text-center">
+                    <button 
+                      type="button" 
+                      class="btn-group-toggle" 
+                      [class.active]="isGroupAllChecked(group, 'canAdd')"
+                      (click)="toggleGroupPermission(group, 'canAdd')" 
+                      title="Toggle Add for all {{ group.groupName }}">
+                      <span>{{ isGroupAllChecked(group, 'canAdd') ? 'All On' : 'Set All' }}</span>
+                    </button>
+                  </td>
+                  <td class="text-center">
+                    <button 
+                      type="button" 
+                      class="btn-group-toggle" 
+                      [class.active]="isGroupAllChecked(group, 'canEdit')"
+                      (click)="toggleGroupPermission(group, 'canEdit')" 
+                      title="Toggle Edit for all {{ group.groupName }}">
+                      <span>{{ isGroupAllChecked(group, 'canEdit') ? 'All On' : 'Set All' }}</span>
+                    </button>
+                  </td>
+                  <td class="text-center">
+                    <button 
+                      type="button" 
+                      class="btn-group-toggle" 
+                      [class.active]="isGroupAllChecked(group, 'canDelete')"
+                      (click)="toggleGroupPermission(group, 'canDelete')" 
+                      title="Toggle Delete for all {{ group.groupName }}">
+                      <span>{{ isGroupAllChecked(group, 'canDelete') ? 'All On' : 'Set All' }}</span>
+                    </button>
+                  </td>
+                </tr>
+
+                <!-- CHILD SUBMENU ROWS -->
+                @for (row of group.rows; track row.menuId) {
+                  <tr class="child-menu-row">
+                    <td>
+                      <div class="child-menu-identity">
+                        <span class="tree-branch-symbol">↳</span>
+                        <div class="menu-icon-box sub">
+                          <app-icon [name]="row.icon || 'grid'" [size]="15"></app-icon>
+                        </div>
+                        <span class="child-menu-title">{{ row.menuName }}</span>
+                      </div>
+                    </td>
+                    <td class="font-mono text-muted">{{ row.routeUrl || '—' }}</td>
+                    
+                    <!-- Can View -->
+                    <td class="text-center">
+                      <label class="matrix-checkbox-wrap">
+                        <input type="checkbox" [(ngModel)]="row.canView" />
+                        <span class="custom-checkbox view"></span>
+                      </label>
+                    </td>
+
+                    <!-- Can Add -->
+                    <td class="text-center">
+                      <label class="matrix-checkbox-wrap">
+                        <input type="checkbox" [(ngModel)]="row.canAdd" />
+                        <span class="custom-checkbox add"></span>
+                      </label>
+                    </td>
+
+                    <!-- Can Edit -->
+                    <td class="text-center">
+                      <label class="matrix-checkbox-wrap">
+                        <input type="checkbox" [(ngModel)]="row.canEdit" />
+                        <span class="custom-checkbox edit"></span>
+                      </label>
+                    </td>
+
+                    <!-- Can Delete -->
+                    <td class="text-center">
+                      <label class="matrix-checkbox-wrap">
+                        <input type="checkbox" [(ngModel)]="row.canDelete" />
+                        <span class="custom-checkbox delete"></span>
+                      </label>
+                    </td>
+
+                  </tr>
+                }
+              }
+              @if (matrixRows().length === 0 && !loading()) {
+                <tr>
+                  <td colspan="6" class="text-center py-5 text-muted">
+                    No menus configured in database. Add menus from Masters section first.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="matrix-footer">
+          <div class="matrix-legend">
+            <span class="legend-item"><span class="legend-dot cyan"></span> View Authorization</span>
+            <span class="legend-item"><span class="legend-dot green"></span> Add Record</span>
+            <span class="legend-item"><span class="legend-dot amber"></span> Edit / Modify</span>
+            <span class="legend-item"><span class="legend-dot red"></span> Remove / Delete</span>
+          </div>
+
+          <div class="footer-actions">
+            <button type="button" class="btn-secondary-outline" (click)="backToList()">
+              <span>Back to Roles</span>
+            </button>
+            <button 
+              type="button" 
+              class="btn-primary-neon" 
+              (click)="savePermissions()" 
+              [disabled]="saving() || loading()">
+              @if (saving()) {
+                <span class="spinner-sm"></span>
+                <span>Saving...</span>
+              } @else {
+                <app-icon name="check-circle" [size]="16"></app-icon>
+                <span>Save Changes to MySQL</span>
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
-  </div>
+  }
 
-  <!-- Permission Matrix Card -->
-  <div class="table-card glass-panel">
-    <div class="table-responsive">
-      <table class="matrix-table">
-        <thead>
-          <tr>
-            <th class="col-menu">Menu / Route Item</th>
-            <th class="col-url">Route URL</th>
-            <th class="col-perm text-center">
-              <button type="button" class="btn-col-toggle" (click)="toggleAllColumn('canView')" title="Toggle All View">
-                <span>Can View</span>
-                <app-icon name="eye" [size]="13"></app-icon>
-              </button>
-            </th>
-            <th class="col-perm text-center">
-              <button type="button" class="btn-col-toggle" (click)="toggleAllColumn('canAdd')" title="Toggle All Add">
-                <span>Can Add</span>
-                <app-icon name="plus" [size]="13"></app-icon>
-              </button>
-            </th>
-            <th class="col-perm text-center">
-              <button type="button" class="btn-col-toggle" (click)="toggleAllColumn('canEdit')" title="Toggle All Edit">
-                <span>Can Edit</span>
-                <app-icon name="edit" [size]="13"></app-icon>
-              </button>
-            </th>
-            <th class="col-perm text-center">
-              <button type="button" class="btn-col-toggle" (click)="toggleAllColumn('canDelete')" title="Toggle All Delete">
-                <span>Can Delete</span>
-                <app-icon name="trash" [size]="13"></app-icon>
-              </button>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (row of matrixRows(); track row.menuId) {
-            <tr>
-              <td>
-                <div class="menu-identity">
-                  <div class="menu-icon-box">
-                    <app-icon [name]="row.icon || 'grid'" [size]="16"></app-icon>
-                  </div>
-                  <div>
-                    <span class="menu-title-text">{{ row.menuName }}</span>
-                    <span class="menu-id-tag">ID #{{ row.menuId }}</span>
-                  </div>
-                </div>
-              </td>
-              <td class="font-mono text-muted">{{ row.routeUrl || '—' }}</td>
-              
-              <!-- Can View -->
-              <td class="text-center">
-                <label class="matrix-checkbox-wrap">
-                  <input type="checkbox" [(ngModel)]="row.canView" />
-                  <span class="custom-checkbox view"></span>
-                </label>
-              </td>
+  <!-- ========================================== -->
+  <!-- 3. VIEW PERMISSIONS MODAL                  -->
+  <!-- ========================================== -->
+  @if (isViewModalOpen()) {
+    <div class="modal-backdrop" (click)="closeViewModal()">
+      <div class="modal-dialog glass-panel" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="modal-icon-box">
+              <app-icon name="shield" [size]="20" class="text-cyan"></app-icon>
+            </div>
+            <div>
+              <h3 class="modal-title">Permissions Overview: {{ viewingRole()?.roleName }}</h3>
+              <p class="modal-subtitle">Configured menu and action authorizations for this role</p>
+            </div>
+          </div>
+          <button type="button" class="btn-close-modal" (click)="closeViewModal()" title="Close">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
 
-              <!-- Can Add -->
-              <td class="text-center">
-                <label class="matrix-checkbox-wrap">
-                  <input type="checkbox" [(ngModel)]="row.canAdd" />
-                  <span class="custom-checkbox add"></span>
-                </label>
-              </td>
+        <div class="modal-body">
+          @if (viewModalLoading()) {
+            <div class="modal-loading-state">
+              <span class="spinner-sm"></span>
+              <span>Loading permissions...</span>
+            </div>
+          } @else {
+            <div class="view-table-responsive">
+              <table class="view-modal-table">
+                <thead>
+                  <tr>
+                    <th>Menu / Submenu Item</th>
+                    <th class="text-center">View</th>
+                    <th class="text-center">Add</th>
+                    <th class="text-center">Edit</th>
+                    <th class="text-center">Delete</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (group of viewModalGroups(); track group.groupName) {
+                    <!-- Parent Category in Modal -->
+                    <tr class="modal-parent-row">
+                      <td colspan="5">
+                        <div class="modal-parent-header">
+                          <app-icon [name]="group.groupIcon" [size]="15" class="text-cyan"></app-icon>
+                          <span class="modal-group-name">{{ group.groupName }}</span>
+                          <span class="modal-group-badge">Parent Menu</span>
+                        </div>
+                      </td>
+                    </tr>
 
-              <!-- Can Edit -->
-              <td class="text-center">
-                <label class="matrix-checkbox-wrap">
-                  <input type="checkbox" [(ngModel)]="row.canEdit" />
-                  <span class="custom-checkbox edit"></span>
-                </label>
-              </td>
-
-              <!-- Can Delete -->
-              <td class="text-center">
-                <label class="matrix-checkbox-wrap">
-                  <input type="checkbox" [(ngModel)]="row.canDelete" />
-                  <span class="custom-checkbox delete"></span>
-                </label>
-              </td>
-
-            </tr>
+                    <!-- Child Submenus in Modal -->
+                    @for (row of group.rows; track row.menuId) {
+                      <tr class="modal-child-row">
+                        <td>
+                          <div class="modal-child-name">
+                            <span class="tree-branch-symbol">↳</span>
+                            <app-icon [name]="row.icon || 'grid'" [size]="14" class="text-cyan"></app-icon>
+                            <span>{{ row.menuName }}</span>
+                          </div>
+                        </td>
+                        <td class="text-center">
+                          <span class="badge-perm" [class.allowed]="row.canView" [class.denied]="!row.canView">
+                            {{ row.canView ? 'Allowed' : 'Denied' }}
+                          </span>
+                        </td>
+                        <td class="text-center">
+                          <span class="badge-perm" [class.allowed]="row.canAdd" [class.denied]="!row.canAdd">
+                            {{ row.canAdd ? 'Allowed' : 'Denied' }}
+                          </span>
+                        </td>
+                        <td class="text-center">
+                          <span class="badge-perm" [class.allowed]="row.canEdit" [class.denied]="!row.canEdit">
+                            {{ row.canEdit ? 'Allowed' : 'Denied' }}
+                          </span>
+                        </td>
+                        <td class="text-center">
+                          <span class="badge-perm" [class.allowed]="row.canDelete" [class.denied]="!row.canDelete">
+                            {{ row.canDelete ? 'Allowed' : 'Denied' }}
+                          </span>
+                        </td>
+                      </tr>
+                    }
+                  }
+                </tbody>
+              </table>
+            </div>
           }
-          @if (matrixRows().length === 0 && !loading()) {
-            <tr>
-              <td colspan="6" class="text-center py-5 text-muted">
-                No menus configured in database. Add menus from Masters section first.
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+        </div>
 
-    <div class="matrix-footer">
-      <div class="matrix-legend">
-        <span class="legend-item"><span class="legend-dot cyan"></span> View Authorization</span>
-        <span class="legend-item"><span class="legend-dot green"></span> Add Record</span>
-        <span class="legend-item"><span class="legend-dot amber"></span> Edit / Modify</span>
-        <span class="legend-item"><span class="legend-dot red"></span> Remove / Delete</span>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary-outline" (click)="closeViewModal()">
+            <span>Close</span>
+          </button>
+          <button type="button" class="btn-primary-neon" (click)="editFromViewModal()">
+            <app-icon name="edit" [size]="15"></app-icon>
+            <span>Edit Permissions</span>
+          </button>
+        </div>
+
       </div>
-
-      <button 
-        type="button" 
-        class="btn-primary-neon" 
-        (click)="savePermissions()" 
-        [disabled]="saving() || loading()">
-        @if (saving()) {
-          <span class="spinner-sm"></span>
-          <span>Saving...</span>
-        } @else {
-          <app-icon name="check-circle" [size]="16"></app-icon>
-          <span>Save Changes to MySQL</span>
-        }
-      </button>
     </div>
-  </div>
+  }
 
 </div>

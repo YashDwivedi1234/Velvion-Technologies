@@ -1,42 +1,69 @@
 <div class="master-page-view">
-  
-  <div class="page-top-header">
-    <div>
-      <div class="breadcrumb">
-        <span>Operations & Leads</span>
-        <app-icon name="chevron-right" [size]="12"></app-icon>
-        <span class="active">Contact Inquiries</span>
-      </div>
-      <h1 class="page-title">Contact Inquiries & Leads</h1>
-      <p class="page-subtitle">Submissions from landing page stored directly in MySQL VelvionDB</p>
-    </div>
 
-    <div class="page-actions">
-      <button type="button" class="btn-secondary" (click)="loadInquiries()" [disabled]="loading()">
-        <app-icon name="refresh-cw" [size]="16" [class.spin]="loading()"></app-icon>
-        <span>Reload</span>
-      </button>
-    </div>
-  </div>
 
   <div class="table-card glass-panel">
     <div class="table-responsive">
       <table class="data-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Contact Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Subject</th>
-            <th>Date Received</th>
+            <th>Sr. No.</th>
+            <th class="sortable" (click)="toggleSort('fullName')">
+              <div class="th-sort-wrap">
+                <span>Contact Name</span>
+                @if (sortColumn() === 'fullName') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('email')">
+              <div class="th-sort-wrap">
+                <span>Email</span>
+                @if (sortColumn() === 'email') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('phone')">
+              <div class="th-sort-wrap">
+                <span>Phone</span>
+                @if (sortColumn() === 'phone') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('subject')">
+              <div class="th-sort-wrap">
+                <span>Subject</span>
+                @if (sortColumn() === 'subject') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('createdAt')">
+              <div class="th-sort-wrap">
+                <span>Date Received</span>
+                @if (sortColumn() === 'createdAt') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
             <th class="text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
-          @for (inq of inquiries(); track inq.id) {
+          @for (inq of paginatedInquiries(); track inq.id; let i = $index) {
             <tr>
-              <td class="font-mono text-muted">#{{ inq.id }}</td>
+              <td class="font-mono text-muted">{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
               <td>
                 <span class="font-bold text-white">{{ inq.fullName }}</span>
               </td>
@@ -48,7 +75,7 @@
               <td class="text-muted font-sm">{{ inq.createdAt | date:'medium' }}</td>
               <td class="text-right">
                 <div class="action-buttons-wrap">
-                  <button type="button" class="btn-action-icon edit" (click)="viewInquiry(inq)" title="View Message">
+                  <button type="button" class="btn-action-icon view" (click)="viewInquiry(inq)" title="View Message">
                     <app-icon name="eye" [size]="15"></app-icon>
                   </button>
                   <button type="button" class="btn-action-icon delete" (click)="deleteInquiry(inq)" title="Delete Inquiry">
@@ -68,54 +95,76 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Global Pagination -->
+    <app-pagination
+      [totalItems]="inquiries().length"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      (pageChange)="currentPage.set($event)"
+      (pageSizeChange)="pageSize.set($event)">
+    </app-pagination>
   </div>
 
   <!-- Detail Modal -->
-  @if (selectedInquiry()) {
+  @if (selectedInquiry(); as inquiry) {
     <div class="modal-backdrop" (click)="closeViewModal()">
-      <div class="modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+      <div class="modal-card view-modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
         
         <div class="modal-header">
           <div class="modal-title-group">
-            <app-icon name="mail" [size]="20" class="text-cyan"></app-icon>
-            <h2 class="modal-title">Inquiry Details</h2>
+            <div class="view-icon-badge">
+              <app-icon name="mail" [size]="20"></app-icon>
+            </div>
+            <div>
+              <h2 class="modal-title">Inquiry Details</h2>
+              <p class="text-xs text-muted">Client message and contact details</p>
+            </div>
           </div>
           <button type="button" class="modal-close-btn" (click)="closeViewModal()">
             <app-icon name="x" [size]="18"></app-icon>
           </button>
         </div>
 
-        <div class="modal-body-inq">
-          <div class="inq-info-grid">
-            <div class="info-item">
-              <span class="info-label">Sender Name</span>
-              <span class="info-val font-bold">{{ selectedInquiry()?.fullName }}</span>
+        <div class="view-modal-body">
+          <div class="view-info-grid">
+            <div class="view-item">
+              <span class="view-label">Sender Name</span>
+              <span class="view-value text-white font-bold">{{ inquiry.fullName }}</span>
             </div>
-            <div class="info-item">
-              <span class="info-label">Email</span>
-              <span class="info-val font-mono">{{ selectedInquiry()?.email }}</span>
+            <div class="view-item">
+              <span class="view-label">Email Address</span>
+              <span class="view-value text-cyan font-mono">{{ inquiry.email }}</span>
             </div>
-            <div class="info-item">
-              <span class="info-label">Phone</span>
-              <span class="info-val font-mono">{{ selectedInquiry()?.phone || 'Not provided' }}</span>
+            <div class="view-item">
+              <span class="view-label">Phone</span>
+              <span class="view-value text-white font-mono">{{ inquiry.phone || 'Not provided' }}</span>
             </div>
-            <div class="info-item">
-              <span class="info-label">Subject</span>
-              <span class="info-val text-cyan">{{ selectedInquiry()?.subject }}</span>
+            <div class="view-item">
+              <span class="view-label">Subject</span>
+              <span class="view-value text-cyan">{{ inquiry.subject || 'Consultation' }}</span>
             </div>
-          </div>
-
-          <div class="message-box">
-            <span class="info-label">Message Payload</span>
-            <p class="message-text">{{ selectedInquiry()?.message }}</p>
+            <div class="view-item">
+              <span class="view-label">Received At</span>
+              <span class="view-value text-muted font-mono text-xs">{{ inquiry.createdAt | date:'medium' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Inquiry ID</span>
+              <span class="view-value font-mono text-muted text-xs">#{{ inquiry.id }}</span>
+            </div>
+            <div class="view-item full-width">
+              <span class="view-label">Message Payload</span>
+              <div class="view-bio-box">{{ inquiry.message }}</div>
+            </div>
           </div>
         </div>
 
         <div class="modal-footer">
           <button type="button" class="btn-cancel" (click)="closeViewModal()">Close</button>
-          <button type="button" class="btn-action-icon delete" (click)="deleteInquiry(selectedInquiry()!)" title="Delete">
-            <app-icon name="trash" [size]="16"></app-icon>
-          </button>
+          <a [href]="'mailto:' + inquiry.email + '?subject=Re: ' + (inquiry.subject || 'Velvion Inquiry')" class="btn-primary-neon">
+            <app-icon name="mail" [size]="15"></app-icon>
+            <span>Reply via Email</span>
+          </a>
         </div>
 
       </div>

@@ -42,6 +42,14 @@ import { CommonModule } from '@angular/common';
         @case ('chevron-right') {
           <polyline points="9 18 15 12 9 6"></polyline>
         }
+        @case ('chevrons-left') {
+          <polyline points="11 17 6 12 11 7"></polyline>
+          <polyline points="18 17 13 12 18 7"></polyline>
+        }
+        @case ('chevrons-right') {
+          <polyline points="13 17 18 12 13 7"></polyline>
+          <polyline points="6 17 11 12 6 7"></polyline>
+        }
         @case ('check') {
           <polyline points="20 6 9 17 4 12"></polyline>
         }
@@ -175,6 +183,15 @@ import { CommonModule } from '@angular/common';
         @case ('bell') {
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
           <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        }
+        @case ('power') {
+          <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+          <line x1="12" y1="2" x2="12" y2="12"></line>
+        }
+        @case ('log-out') {
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
         }
         @default {
           <circle cx="12" cy="12" r="10"></circle>

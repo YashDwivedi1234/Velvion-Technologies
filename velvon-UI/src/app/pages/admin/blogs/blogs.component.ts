@@ -1,14 +1,14 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AdminDataService } from '../../../core/services/admin-data.service';
-import { ToastService, ConfirmService, IconComponent, ToggleComponent } from '../../../shared';
+import { ToastService, ConfirmService, IconComponent, ToggleComponent, PaginationComponent } from '../../../shared';
 import { BlogDto, SaveBlogDto } from '../../../core/models/api.models';
 
 @Component({
   selector: 'app-blogs',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, IconComponent, ToggleComponent],
+  imports: [CommonModule, ReactiveFormsModule, IconComponent, ToggleComponent, PaginationComponent],
   templateUrl: './blogs.component.html',
   styleUrls: ['./blogs.component.css']
 })
@@ -20,11 +20,68 @@ export class BlogsComponent implements OnInit {
 
   loading = signal<boolean>(false);
   blogs = signal<BlogDto[]>([]);
+
+  // Sorting state
+  sortColumn = signal<string>('title');
+  sortDirection = signal<'asc' | 'desc'>('asc');
+
+  // Pagination
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(10);
+
+  sortedBlogs = computed(() => {
+    let list = this.blogs();
+    if (this.sortColumn()) {
+      const col = this.sortColumn();
+      const dir = this.sortDirection() === 'asc' ? 1 : -1;
+      list = [...list].sort((a: any, b: any) => {
+        const valA = a[col] ?? '';
+        const valB = b[col] ?? '';
+        if (typeof valA === 'number' && typeof valB === 'number') {
+          return (valA - valB) * dir;
+        }
+        if (typeof valA === 'boolean' && typeof valB === 'boolean') {
+          return (valA === valB ? 0 : valA ? 1 : -1) * dir;
+        }
+        return valA.toString().localeCompare(valB.toString(), undefined, { numeric: true, sensitivity: 'base' }) * dir;
+      });
+    }
+    return list;
+  });
+
+  paginatedBlogs = computed(() => {
+    const list = this.sortedBlogs();
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return list.slice(start, start + this.pageSize());
+  });
+
+  toggleSort(column: string): void {
+    if (this.sortColumn() === column) {
+      this.sortDirection.update(dir => dir === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
+    }
+  }
   isModalOpen = signal<boolean>(false);
   isEditMode = signal<boolean>(false);
   currentBlogId = signal<number>(0);
   modalSubmitting = signal<boolean>(false);
   blogForm!: FormGroup;
+
+  // View Modal state
+  isViewModalOpen = signal<boolean>(false);
+  viewingBlog = signal<BlogDto | null>(null);
+
+  openViewModal(b: BlogDto): void {
+    this.viewingBlog.set(b);
+    this.isViewModalOpen.set(true);
+  }
+
+  closeViewModal(): void {
+    this.isViewModalOpen.set(false);
+    this.viewingBlog.set(null);
+  }
 
   ngOnInit(): void {
     this.initForm();

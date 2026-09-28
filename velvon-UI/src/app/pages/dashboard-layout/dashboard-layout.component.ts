@@ -1,22 +1,31 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterOutlet, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterOutlet, RouterLinkActive, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ThemeService, LogoComponent, IconComponent, ToastService } from '../../shared';
 
-interface NavSection {
+interface PageInfo {
+  section: string;
+  breadcrumb: string;
   title: string;
-  isOpen: boolean;
-  items: NavItem[];
 }
 
-interface NavItem {
-  label: string;
-  route: string;
-  icon: string;
-  badge?: string;
-  badgeType?: 'primary' | 'success' | 'warning' | 'info';
-}
+const ROUTE_MAP: Record<string, PageInfo> = {
+  '/admin/dashboard': { section: 'Platform Overview', breadcrumb: 'Dashboard Overview', title: 'Platform Dashboard' },
+  '/admin/users': { section: 'User Management', breadcrumb: 'Users Directory', title: 'Users Management' },
+  '/admin/roles': { section: 'User Management', breadcrumb: 'Roles & Permissions', title: 'Role Management' },
+  '/admin/permissions': { section: 'User Management', breadcrumb: 'Permissions Matrix', title: 'Role Permissions' },
+  '/admin/masters/menus': { section: 'Masters Catalog', breadcrumb: 'Navigation Menus', title: 'Menus Master' },
+  '/admin/masters/services': { section: 'Masters Catalog', breadcrumb: 'Services Master', title: 'Services Master' },
+  '/admin/masters/settings': { section: 'Masters Catalog', breadcrumb: 'Global Configuration', title: 'Settings Master' },
+  '/admin/blogs': { section: 'Content & Media', breadcrumb: 'Blog Posts', title: 'Blog Articles' },
+  '/admin/portfolios': { section: 'Content & Media', breadcrumb: 'Showcase Portfolio', title: 'Portfolio Projects' },
+  '/admin/team': { section: 'Operations & HR', breadcrumb: 'Company Team', title: 'Team Members' },
+  '/admin/testimonials': { section: 'Content & Media', breadcrumb: 'Client Reviews', title: 'Client Testimonials' },
+  '/admin/inquiries': { section: 'Operations & Leads', breadcrumb: 'Customer Inquiries', title: 'Customer Inquiries' },
+  '/admin/audit-logs': { section: 'System & Security', breadcrumb: 'Audit Logs', title: 'Database Audit Trails' },
+  '/admin/profile': { section: 'Account & Settings', breadcrumb: 'My Profile', title: 'User Profile & Settings' }
+};
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -40,14 +49,75 @@ export class DashboardLayoutComponent implements OnInit {
 
   sidebarCollapsed = signal<boolean>(false);
   mobileNavOpen = signal<boolean>(false);
+  userDropdownOpen = signal<boolean>(false);
+  pageLoading = signal<boolean>(false);
+  currentUrl = signal<string>(this.router.url);
 
-  // Nav sections with accordions
-  userMgmtOpen = signal<boolean>(true);
-  mastersOpen = signal<boolean>(true);
-  contentOpen = signal<boolean>(true);
-  operationsOpen = signal<boolean>(true);
+  currentPageInfo = computed<PageInfo>(() => {
+    const cleanUrl = this.currentUrl().split('?')[0].split('#')[0];
+    return ROUTE_MAP[cleanUrl] || {
+      section: 'Admin Portal',
+      breadcrumb: 'Control Panel',
+      title: 'Velvion Dashboard'
+    };
+  });
+
+  // Single active accordion section (auto-closes other sections)
+  activeNavSection = signal<string | null>('user-mgmt');
+
+  // Computed backward-compatible signals for section states
+  userMgmtOpen = computed<boolean>(() => this.isSectionOpen('user-mgmt'));
+  mastersOpen = computed<boolean>(() => this.isSectionOpen('masters'));
+  contentOpen = computed<boolean>(() => this.isSectionOpen('content'));
+  operationsOpen = computed<boolean>(() => this.isSectionOpen('operations'));
+
+  toggleNavSection(section: string): void {
+    if (this.activeNavSection() === section) {
+      this.activeNavSection.set(null);
+    } else {
+      this.activeNavSection.set(section);
+    }
+  }
+
+  isSectionOpen(section: string): boolean {
+    return this.activeNavSection() === section;
+  }
+
+  private syncActiveSectionFromUrl(url: string): void {
+    if (url.includes('/admin/users') || url.includes('/admin/roles') || url.includes('/admin/permissions')) {
+      this.activeNavSection.set('user-mgmt');
+    } else if (url.includes('/admin/masters')) {
+      this.activeNavSection.set('masters');
+    } else if (url.includes('/admin/blogs') || url.includes('/admin/portfolios') || url.includes('/admin/team') || url.includes('/admin/testimonials')) {
+      this.activeNavSection.set('content');
+    } else if (url.includes('/admin/inquiries') || url.includes('/admin/audit-logs')) {
+      this.activeNavSection.set('operations');
+    }
+  }
 
   ngOnInit(): void {
+    this.currentUrl.set(this.router.url);
+    this.syncActiveSectionFromUrl(this.router.url);
+
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        this.pageLoading.set(true);
+      } else if (
+        event instanceof NavigationEnd ||
+        event instanceof NavigationCancel ||
+        event instanceof NavigationError
+      ) {
+        if (event instanceof NavigationEnd) {
+          const url = event.urlAfterRedirects || event.url;
+          this.currentUrl.set(url);
+          this.syncActiveSectionFromUrl(url);
+        }
+        setTimeout(() => {
+          this.pageLoading.set(false);
+        }, 220);
+      }
+    });
+
     // If not logged in, we can either redirect to auth or provide a default preview session
     if (!this.authService.isLoggedIn()) {
       // Auto-set admin session for smooth seamless developer experience
@@ -69,7 +139,27 @@ export class DashboardLayoutComponent implements OnInit {
     this.mobileNavOpen.set(!this.mobileNavOpen());
   }
 
+  toggleUserDropdown(event?: MouseEvent): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.userDropdownOpen.set(!this.userDropdownOpen());
+  }
+
+  closeUserDropdown(): void {
+    this.userDropdownOpen.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.user-header-profile-container')) {
+      this.userDropdownOpen.set(false);
+    }
+  }
+
   logout(): void {
+    this.userDropdownOpen.set(false);
     this.toastService.info('You have logged out securely.', 'Session Ended');
     this.authService.logout();
   }

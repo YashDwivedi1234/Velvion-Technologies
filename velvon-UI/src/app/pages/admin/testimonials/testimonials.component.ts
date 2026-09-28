@@ -1,14 +1,14 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AdminDataService } from '../../../core/services/admin-data.service';
-import { ToastService, ConfirmService, IconComponent, ToggleComponent } from '../../../shared';
+import { ToastService, ConfirmService, IconComponent, ToggleComponent, PaginationComponent } from '../../../shared';
 import { TestimonialDto, SaveTestimonialDto } from '../../../core/models/api.models';
 
 @Component({
   selector: 'app-testimonials',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, IconComponent, ToggleComponent],
+  imports: [CommonModule, ReactiveFormsModule, IconComponent, ToggleComponent, PaginationComponent],
   templateUrl: './testimonials.component.html',
   styleUrls: ['./testimonials.component.css']
 })
@@ -20,11 +20,68 @@ export class TestimonialsComponent implements OnInit {
 
   loading = signal<boolean>(false);
   testimonials = signal<TestimonialDto[]>([]);
+
+  // Sorting state
+  sortColumn = signal<string>('clientName');
+  sortDirection = signal<'asc' | 'desc'>('asc');
+
+  // Pagination
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(10);
+
+  sortedTestimonials = computed(() => {
+    let list = this.testimonials();
+    if (this.sortColumn()) {
+      const col = this.sortColumn();
+      const dir = this.sortDirection() === 'asc' ? 1 : -1;
+      list = [...list].sort((a: any, b: any) => {
+        const valA = a[col] ?? '';
+        const valB = b[col] ?? '';
+        if (typeof valA === 'number' && typeof valB === 'number') {
+          return (valA - valB) * dir;
+        }
+        if (typeof valA === 'boolean' && typeof valB === 'boolean') {
+          return (valA === valB ? 0 : valA ? 1 : -1) * dir;
+        }
+        return valA.toString().localeCompare(valB.toString(), undefined, { numeric: true, sensitivity: 'base' }) * dir;
+      });
+    }
+    return list;
+  });
+
+  paginatedTestimonials = computed(() => {
+    const list = this.sortedTestimonials();
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return list.slice(start, start + this.pageSize());
+  });
+
+  toggleSort(column: string): void {
+    if (this.sortColumn() === column) {
+      this.sortDirection.update(dir => dir === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
+    }
+  }
   isModalOpen = signal<boolean>(false);
   isEditMode = signal<boolean>(false);
   currentTestimonialId = signal<number>(0);
   modalSubmitting = signal<boolean>(false);
   testimonialForm!: FormGroup;
+
+  // View Modal state
+  isViewModalOpen = signal<boolean>(false);
+  viewingTestimonial = signal<TestimonialDto | null>(null);
+
+  openViewModal(t: TestimonialDto): void {
+    this.viewingTestimonial.set(t);
+    this.isViewModalOpen.set(true);
+  }
+
+  closeViewModal(): void {
+    this.isViewModalOpen.set(false);
+    this.viewingTestimonial.set(null);
+  }
 
   ngOnInit(): void {
     this.initForm();

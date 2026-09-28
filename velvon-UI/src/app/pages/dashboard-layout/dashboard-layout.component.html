@@ -22,19 +22,6 @@
       </button>
     </div>
 
-    <!-- User Profile Summary Pill -->
-    @if (!sidebarCollapsed() && authService.currentUser()) {
-      <div class="sidebar-user-pill">
-        <div class="user-avatar-hex">
-          <span>{{ authService.currentUser()?.fullName?.charAt(0) || 'U' }}</span>
-        </div>
-        <div class="user-info-text">
-          <span class="user-name">{{ authService.currentUser()?.fullName }}</span>
-          <span class="user-role-badge">{{ authService.currentUser()?.roleName || 'Administrator' }}</span>
-        </div>
-      </div>
-    }
-
     <!-- Nav List / Menu Items -->
     <div class="sidebar-scroll-container">
       <nav class="sidebar-nav">
@@ -53,13 +40,13 @@
         <!-- 2) USER MANAGEMENT ACCORDION -->
         <div class="nav-section">
           @if (!sidebarCollapsed()) {
-            <button type="button" class="nav-section-title-btn" (click)="userMgmtOpen.set(!userMgmtOpen())">
+            <button type="button" class="nav-section-title-btn" (click)="toggleNavSection('user-mgmt')">
               <span>USER MANAGEMENT</span>
-              <app-icon [name]="userMgmtOpen() ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
+              <app-icon [name]="isSectionOpen('user-mgmt') ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
             </button>
           }
 
-          @if (userMgmtOpen() || sidebarCollapsed()) {
+          @if (isSectionOpen('user-mgmt') || sidebarCollapsed()) {
             <div class="nav-submenu">
               <!-- Users -->
               <a routerLink="/admin/users" routerLinkActive="active-nav" class="nav-sublink" title="Users List & Management">
@@ -91,22 +78,14 @@
         <!-- 3) MASTERS ACCORDION -->
         <div class="nav-section">
           @if (!sidebarCollapsed()) {
-            <button type="button" class="nav-section-title-btn" (click)="mastersOpen.set(!mastersOpen())">
+            <button type="button" class="nav-section-title-btn" (click)="toggleNavSection('masters')">
               <span>MASTERS</span>
-              <app-icon [name]="mastersOpen() ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
+              <app-icon [name]="isSectionOpen('masters') ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
             </button>
           }
 
-          @if (mastersOpen() || sidebarCollapsed()) {
+          @if (isSectionOpen('masters') || sidebarCollapsed()) {
             <div class="nav-submenu">
-              <!-- Menu Master -->
-              <a routerLink="/admin/masters/menus" routerLinkActive="active-nav" class="nav-sublink" title="Menus Master">
-                <app-icon name="menu" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Menus Master</span>
-                }
-              </a>
-
               <!-- Services Master -->
               <a routerLink="/admin/masters/services" routerLinkActive="active-nav" class="nav-sublink" title="Services Master">
                 <app-icon name="layers" [size]="16" class="nav-icon"></app-icon>
@@ -129,13 +108,13 @@
         <!-- 4) CONTENT & MEDIA -->
         <div class="nav-section">
           @if (!sidebarCollapsed()) {
-            <button type="button" class="nav-section-title-btn" (click)="contentOpen.set(!contentOpen())">
+            <button type="button" class="nav-section-title-btn" (click)="toggleNavSection('content')">
               <span>CONTENT & SHOWCASE</span>
-              <app-icon [name]="contentOpen() ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
+              <app-icon [name]="isSectionOpen('content') ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
             </button>
           }
 
-          @if (contentOpen() || sidebarCollapsed()) {
+          @if (isSectionOpen('content') || sidebarCollapsed()) {
             <div class="nav-submenu">
               <!-- Blogs -->
               <a routerLink="/admin/blogs" routerLinkActive="active-nav" class="nav-sublink" title="Blogs Management">
@@ -175,13 +154,13 @@
         <!-- 5) OPERATIONS & AUDIT -->
         <div class="nav-section">
           @if (!sidebarCollapsed()) {
-            <button type="button" class="nav-section-title-btn" (click)="operationsOpen.set(!operationsOpen())">
+            <button type="button" class="nav-section-title-btn" (click)="toggleNavSection('operations')">
               <span>OPERATIONS & LOGS</span>
-              <app-icon [name]="operationsOpen() ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
+              <app-icon [name]="isSectionOpen('operations') ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
             </button>
           }
 
-          @if (operationsOpen() || sidebarCollapsed()) {
+          @if (isSectionOpen('operations') || sidebarCollapsed()) {
             <div class="nav-submenu">
               <!-- Inquiries -->
               <a routerLink="/admin/inquiries" routerLinkActive="active-nav" class="nav-sublink" title="Contact Inquiries">
@@ -205,15 +184,28 @@
       </nav>
     </div>
 
-    <!-- Sidebar Bottom Action -->
-    <div class="sidebar-footer">
-      <button type="button" class="sidebar-logout-btn" (click)="logout()" title="Logout Session">
-        <app-icon name="power" [size]="16"></app-icon>
+    <!-- Sidebar Footer / Bottom User Profile -->
+    @if (authService.currentUser()) {
+      <div class="sidebar-footer">
         @if (!sidebarCollapsed()) {
-          <span>End Session / Logout</span>
+          <div class="sidebar-user-pill">
+            <div class="user-avatar-hex">
+              <span>{{ authService.currentUser()?.fullName?.charAt(0) || 'U' }}</span>
+            </div>
+            <div class="user-info-text">
+              <span class="user-name">{{ authService.currentUser()?.fullName }}</span>
+              <span class="user-role-badge">{{ authService.currentUser()?.roleName || 'Administrator' }}</span>
+            </div>
+          </div>
+        } @else {
+          <div class="sidebar-user-collapsed" [title]="authService.currentUser()?.fullName || 'User Profile'">
+            <div class="user-avatar-hex">
+              <span>{{ authService.currentUser()?.fullName?.charAt(0) || 'U' }}</span>
+            </div>
+          </div>
         }
-      </button>
-    </div>
+      </div>
+    }
 
   </aside>
 
@@ -223,25 +215,22 @@
     <!-- Top Header Bar -->
     <header class="admin-top-header glass-panel">
       
-      <!-- Mobile menu trigger -->
-      <button type="button" class="mobile-menu-trigger" (click)="toggleMobileNav()">
-        <app-icon name="menu" [size]="20"></app-icon>
-      </button>
+      <!-- Left Section: Mobile Trigger + Breadcrumb / Header Title -->
+      <div class="header-left-section">
+        <button type="button" class="mobile-menu-trigger" (click)="toggleMobileNav()">
+          <app-icon name="menu" [size]="20"></app-icon>
+        </button>
 
-      <!-- DB Status Pill -->
-      <div class="db-status-pill">
-        <span class="db-dot online"></span>
-        <span class="db-text">MySQL: <strong>VelvionDB</strong> (Connected)</span>
+        <div class="header-page-info">
+          <h2 class="header-page-title">{{ currentPageInfo().title }}</h2>
+          <div class="header-breadcrumb">
+            <span>{{ currentPageInfo().section }}</span>
+            <app-icon name="chevron-right" [size]="12"></app-icon>
+            <span class="active">{{ currentPageInfo().breadcrumb }}</span>
+          </div>
+        </div>
       </div>
-
-      <!-- Right Actions (Theme, Landing Link, Profile) -->
       <div class="header-right-actions">
-        
-        <!-- Link to Landing -->
-        <a routerLink="/" class="header-action-btn" title="View Public Landing Page">
-          <app-icon name="globe" [size]="17"></app-icon>
-          <span class="action-text">Landing Page</span>
-        </a>
 
         <!-- Theme Switcher -->
         <button 
@@ -252,26 +241,92 @@
           <app-icon [name]="themeService.isDark() ? 'sun' : 'moon'" [size]="17"></app-icon>
         </button>
 
-        <!-- User Dropdown Pill -->
-        <div class="user-header-profile">
-          <div class="header-avatar">
-            <span>{{ authService.currentUser()?.fullName?.charAt(0) || 'A' }}</span>
+        <!-- User Header Profile with Dropdown -->
+        <div class="user-header-profile-container">
+          <div 
+            class="user-header-profile" 
+            (click)="toggleUserDropdown($event)"
+            [class.dropdown-active]="userDropdownOpen()"
+            title="Click to view profile menu">
+            <div class="header-avatar">
+              <span>{{ authService.currentUser()?.fullName?.charAt(0) || 'A' }}</span>
+            </div>
+            <div class="header-user-text">
+              <span class="header-user-name">{{ authService.currentUser()?.fullName || 'Super Admin' }}</span>
+              <span class="header-user-role">{{ authService.currentUser()?.roleName || 'Super Admin' }}</span>
+            </div>
+            <app-icon [name]="userDropdownOpen() ? 'chevron-up' : 'chevron-down'" [size]="13" class="dropdown-chevron-icon"></app-icon>
           </div>
-          <div class="header-user-text">
-            <span class="header-user-name">{{ authService.currentUser()?.fullName || 'Super Admin' }}</span>
-            <span class="header-user-role">{{ authService.currentUser()?.roleName || 'Super Admin' }}</span>
-          </div>
-          <button type="button" class="logout-icon-btn" (click)="logout()" title="Logout">
-            <app-icon name="power" [size]="15"></app-icon>
-          </button>
+
+          <!-- Profile Dropdown Popup -->
+          @if (userDropdownOpen()) {
+            <div class="profile-dropdown-menu glass-panel" (click)="$event.stopPropagation()">
+              <div class="dropdown-user-header">
+                <div class="dropdown-avatar-hex">
+                  <span>{{ authService.currentUser()?.fullName?.charAt(0) || 'A' }}</span>
+                </div>
+                <div class="dropdown-user-info">
+                  <div class="dropdown-name">{{ authService.currentUser()?.fullName || 'Super Admin' }}</div>
+                  <div class="dropdown-email">{{ authService.currentUser()?.email || 'admin@velvion.com' }}</div>
+                  <div class="dropdown-role-tag">{{ authService.currentUser()?.roleName || 'Super Admin' }}</div>
+                </div>
+              </div>
+
+              <div class="dropdown-divider"></div>
+
+              <div class="dropdown-menu-list">
+                <!-- My Profile Option -->
+                <a routerLink="/admin/profile" (click)="closeUserDropdown()" class="dropdown-menu-item">
+                  <div class="menu-item-icon-box">
+                    <app-icon name="user" [size]="15"></app-icon>
+                  </div>
+                  <div class="menu-item-text">
+                    <span class="menu-item-title">My Profile</span>
+                    <span class="menu-item-desc">View profile & accounts</span>
+                  </div>
+                </a>
+
+                <!-- Logout Option -->
+                <button type="button" class="dropdown-menu-item danger" (click)="logout()">
+                  <div class="menu-item-icon-box danger-icon-box">
+                    <app-icon name="power" [size]="15"></app-icon>
+                  </div>
+                  <div class="menu-item-text">
+                    <span class="menu-item-title">Logout</span>
+                    <span class="menu-item-desc">End session securely</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+          }
         </div>
+
+        <!-- Standalone Logout Button with Red Hover -->
+        <button 
+          type="button" 
+          class="header-standalone-logout-btn" 
+          (click)="logout()" 
+          title="Logout Session">
+          <app-icon name="power" [size]="16"></app-icon>
+        </button>
 
       </div>
     </header>
 
-    <!-- Content Router Outlet -->
+    <!-- Content Router Outlet with Center "V" Logo Loader -->
     <main class="admin-content-view">
-      <router-outlet></router-outlet>
+      @if (pageLoading()) {
+        <div class="page-center-loader">
+          <div class="v-loader-wrapper">
+            <app-logo size="lg" [showText]="false" [animated]="true"></app-logo>
+            <div class="v-pulse-ring"></div>
+          </div>
+          <p class="page-loading-text">Loading...</p>
+        </div>
+      }
+      <div [class.page-content-hidden]="pageLoading()">
+        <router-outlet></router-outlet>
+      </div>
     </main>
 
   </div>

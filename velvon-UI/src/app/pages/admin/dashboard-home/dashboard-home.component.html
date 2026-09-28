@@ -1,22 +1,4 @@
 <div class="dashboard-home-view">
-  
-  <!-- Page Header -->
-  <div class="dash-page-header">
-    <div>
-      <h1 class="dash-title">Platform Dashboard & Master Overview</h1>
-      <p class="dash-subtitle">Real-time system telemetry and database health across all Velvion modules</p>
-    </div>
-    <div class="dash-header-actions">
-      <button type="button" class="btn-refresh" (click)="refreshDashboard()">
-        <app-icon name="refresh-cw" [size]="16"></app-icon>
-        <span>Sync Database</span>
-      </button>
-      <a routerLink="/admin/users" class="btn-primary-action">
-        <app-icon name="plus" [size]="16"></app-icon>
-        <span>Manage Users</span>
-      </a>
-    </div>
-  </div>
 
   <!-- Metric Overview Cards -->
   <div class="metrics-grid">

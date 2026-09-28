@@ -1,27 +1,11 @@
 <div class="master-page-view">
   
-  <div class="page-top-header">
-    <div>
-      <div class="breadcrumb">
-        <span>Masters</span>
-        <app-icon name="chevron-right" [size]="12"></app-icon>
-        <span class="active">Settings Master</span>
-      </div>
-      <h1 class="page-title">Settings Master</h1>
-      <p class="page-subtitle">Configure system environment key-value pairs, feature flags, and API thresholds</p>
-    </div>
-
-    <div class="page-actions">
-      <button type="button" class="btn-secondary" (click)="loadSettings()" [disabled]="loading()">
-        <app-icon name="refresh-cw" [size]="16" [class.spin]="loading()"></app-icon>
-        <span>Reload</span>
-      </button>
-
-      <button type="button" class="btn-primary-neon" (click)="openAddModal()">
-        <app-icon name="plus" [size]="16"></app-icon>
-        <span>Add Setting</span>
-      </button>
-    </div>
+  <!-- Top Action Bar -->
+  <div class="page-top-actions">
+    <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+      <app-icon name="plus" [size]="16"></app-icon>
+      <span>Add Setting</span>
+    </button>
   </div>
 
   <div class="table-card glass-panel">
@@ -29,19 +13,55 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Setting Key</th>
-            <th>Setting Value</th>
+            <th>Sr. No.</th>
+            <th class="sortable" (click)="toggleSort('settingKey')">
+              <div class="th-sort-wrap">
+                <span>Setting Key</span>
+                @if (sortColumn() === 'settingKey') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('settingValue')">
+              <div class="th-sort-wrap">
+                <span>Setting Value</span>
+                @if (sortColumn() === 'settingValue') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
             <th>Description</th>
-            <th>Status</th>
-            <th>Updated</th>
+            <th class="sortable" (click)="toggleSort('isActive')">
+              <div class="th-sort-wrap">
+                <span>Status</span>
+                @if (sortColumn() === 'isActive') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('updatedAt')">
+              <div class="th-sort-wrap">
+                <span>Updated</span>
+                @if (sortColumn() === 'updatedAt') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
             <th class="text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
-          @for (s of settings(); track s.id) {
+          @for (s of paginatedSettings(); track s.id; let i = $index) {
             <tr>
-              <td class="font-mono text-muted">#{{ s.id }}</td>
+              <td class="font-mono text-muted">{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
               <td>
                 <div class="key-cell">
                   <div class="key-icon-box">
@@ -63,6 +83,9 @@
               <td class="text-muted font-sm">{{ s.updatedAt | date:'mediumDate' }}</td>
               <td class="text-right">
                 <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon view" (click)="openViewModal(s)" title="View Setting Details">
+                    <app-icon name="eye" [size]="15"></app-icon>
+                  </button>
                   <button type="button" class="btn-action-icon edit" (click)="openEditModal(s)" title="Edit Setting">
                     <app-icon name="edit" [size]="15"></app-icon>
                   </button>
@@ -83,7 +106,76 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Global Pagination -->
+    <app-pagination
+      [totalItems]="settings().length"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      (pageChange)="currentPage.set($event)"
+      (pageSizeChange)="pageSize.set($event)">
+    </app-pagination>
   </div>
+
+  <!-- View Modal -->
+  @if (isViewModalOpen() && viewingSetting(); as s) {
+    <div class="modal-backdrop" (click)="closeViewModal()">
+      <div class="modal-card view-modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="view-icon-badge">
+              <app-icon name="settings" [size]="20"></app-icon>
+            </div>
+            <div>
+              <h2 class="modal-title">Setting Configuration</h2>
+              <p class="text-xs text-muted">Key-value pair and parameter configuration</p>
+            </div>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeViewModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <div class="view-modal-body">
+          <div class="view-info-grid">
+            <div class="view-item">
+              <span class="view-label">Setting Key</span>
+              <span class="view-value"><code class="key-code">{{ s.settingKey }}</code></span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Setting Value</span>
+              <span class="view-value text-cyan font-mono">{{ s.settingValue }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Status</span>
+              <span class="view-value">
+                <span class="status-pill" [class.active]="s.isActive">
+                  <span class="status-dot"></span>
+                  {{ s.isActive ? 'Active & Applied' : 'Disabled' }}
+                </span>
+              </span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Last Modified</span>
+              <span class="view-value text-muted font-mono text-xs">{{ s.updatedAt | date:'medium' }}</span>
+            </div>
+            <div class="view-item full-width" *ngIf="s.description">
+              <span class="view-label">Description / Context</span>
+              <div class="view-bio-box">{{ s.description }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeViewModal()">Close</button>
+          <button type="button" class="btn-primary-neon" (click)="closeViewModal(); openEditModal(s)">
+            <app-icon name="edit" [size]="15"></app-icon>
+            <span>Edit Value</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- Modal -->
   @if (isModalOpen()) {

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { AdminDataService } from '../../../core/services/admin-data.service';
@@ -8,7 +8,8 @@ import {
   IconComponent,
   DropdownComponent,
   DropdownOption,
-  ToggleComponent
+  ToggleComponent,
+  PaginationComponent
 } from '../../../shared';
 import { UserDto, RoleDto, SaveUserDto } from '../../../core/models/api.models';
 
@@ -20,7 +21,9 @@ import { UserDto, RoleDto, SaveUserDto } from '../../../core/models/api.models';
     FormsModule,
     ReactiveFormsModule,
     IconComponent,
-    ToggleComponent
+    DropdownComponent,
+    ToggleComponent,
+    PaginationComponent
   ],
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css']
@@ -35,11 +38,28 @@ export class UsersComponent implements OnInit {
   users = signal<UserDto[]>([]);
   filteredUsers = signal<UserDto[]>([]);
   roles = signal<RoleDto[]>([]);
-  roleDropdownOptions = signal<DropdownOption[]>([]);
+  roleDropdownOptions = signal<DropdownOption[]>([
+    { label: 'All Roles', value: 'all', icon: 'shield' }
+  ]);
+  modalRoleDropdownOptions = signal<DropdownOption[]>([]);
 
   // Search & Filter state
   searchQuery = signal<string>('');
   selectedRoleFilter = signal<string>('all');
+
+  // Sorting state
+  sortColumn = signal<string>('fullName');
+  sortDirection = signal<'asc' | 'desc'>('asc');
+
+  // Pagination state
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(10);
+
+  paginatedUsers = computed(() => {
+    const list = this.filteredUsers();
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return list.slice(start, start + this.pageSize());
+  });
 
   // Modal State
   isModalOpen = signal<boolean>(false);
@@ -47,6 +67,20 @@ export class UsersComponent implements OnInit {
   currentUserId = signal<number>(0);
   modalSubmitting = signal<boolean>(false);
   userForm!: FormGroup;
+
+  // View Modal State
+  isViewModalOpen = signal<boolean>(false);
+  viewingUser = signal<UserDto | null>(null);
+
+  openViewModal(user: UserDto): void {
+    this.viewingUser.set(user);
+    this.isViewModalOpen.set(true);
+  }
+
+  closeViewModal(): void {
+    this.isViewModalOpen.set(false);
+    this.viewingUser.set(null);
+  }
 
   ngOnInit(): void {
     this.initForm();
@@ -69,12 +103,22 @@ export class UsersComponent implements OnInit {
     this.adminDataService.getRoles(true).subscribe(res => {
       if (res.success && res.data) {
         this.roles.set(res.data);
-        const options: DropdownOption[] = res.data.map(r => ({
+        const options: DropdownOption[] = [
+          { label: 'All Roles', value: 'all', icon: 'shield' },
+          ...res.data.map(r => ({
+            label: r.roleName,
+            value: r.id.toString(),
+            icon: 'shield'
+          }))
+        ];
+        this.roleDropdownOptions.set(options);
+
+        const modalOptions: DropdownOption[] = res.data.map(r => ({
           label: r.roleName,
-          value: r.id.toString(),
+          value: r.id,
           icon: 'shield'
         }));
-        this.roleDropdownOptions.set(options);
+        this.modalRoleDropdownOptions.set(modalOptions);
       }
     });
   }
@@ -118,12 +162,51 @@ export class UsersComponent implements OnInit {
       );
     }
 
+    if (this.sortColumn()) {
+      const col = this.sortColumn();
+      const dir = this.sortDirection() === 'asc' ? 1 : -1;
+      list = [...list].sort((a: any, b: any) => {
+        const valA = a[col] ?? '';
+        const valB = b[col] ?? '';
+        if (typeof valA === 'number' && typeof valB === 'number') {
+          return (valA - valB) * dir;
+        }
+        if (typeof valA === 'boolean' && typeof valB === 'boolean') {
+          return (valA === valB ? 0 : valA ? 1 : -1) * dir;
+        }
+        return valA.toString().localeCompare(valB.toString(), undefined, { numeric: true, sensitivity: 'base' }) * dir;
+      });
+    }
+
     this.filteredUsers.set(list);
+    this.currentPage.set(1);
+  }
+
+  toggleSort(column: string): void {
+    if (this.sortColumn() === column) {
+      this.sortDirection.update(dir => dir === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
+    }
+    this.applyFilter();
+  }
+
+  onRoleSelect(value: any): void {
+    const val = value !== null && value !== undefined ? value.toString() : 'all';
+    this.selectedRoleFilter.set(val);
+    this.applyFilter();
   }
 
   onSearchChange(event: Event): void {
     const val = (event.target as HTMLInputElement).value;
     this.searchQuery.set(val);
+    this.applyFilter();
+  }
+
+  resetFilters(): void {
+    this.searchQuery.set('');
+    this.selectedRoleFilter.set('all');
     this.applyFilter();
   }
 

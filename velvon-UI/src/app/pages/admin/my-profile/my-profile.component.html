@@ -1,0 +1,322 @@
+<div class="profile-page-container">
+
+  <!-- ================= PROFILE HEADER BANNER CARD ================= -->
+  <div class="profile-header-card glass-panel">
+    <div class="profile-header-main">
+      
+      <!-- Avatar Section -->
+      <div class="profile-avatar-wrapper">
+        <div class="avatar-large-hexagon">
+          <span>{{ authService.currentUser()?.fullName?.charAt(0) || 'U' }}</span>
+        </div>
+        <span class="online-status-badge" title="Active Online"></span>
+      </div>
+
+      <!-- User Identity Details -->
+      <div class="profile-identity-info">
+        <div class="name-badge-row">
+          <h1 class="user-display-name">{{ authService.currentUser()?.fullName || 'User Profile' }}</h1>
+          <span class="role-pill-badge">
+            <app-icon name="shield" [size]="13"></app-icon>
+            {{ authService.currentUser()?.roleName || 'Administrator' }}
+          </span>
+        </div>
+
+        <p class="user-email-text">
+          <app-icon name="mail" [size]="14"></app-icon>
+          <span>{{ authService.currentUser()?.email || 'admin@velvion.com' }}</span>
+        </p>
+
+        <div class="profile-quick-meta">
+          <span class="meta-tag">
+            <span class="meta-dot green"></span> Account Active
+          </span>
+          <span class="meta-tag">
+            <app-icon name="check-circle" [size]="13" class="text-cyan"></app-icon> Verified Platform Member
+          </span>
+          @if (userDetails()?.mobile) {
+            <span class="meta-tag">
+              <app-icon name="phone" [size]="13"></app-icon> {{ userDetails()?.mobile }}
+            </span>
+          }
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tab Buttons -->
+    <div class="profile-tab-nav">
+      <button 
+        type="button" 
+        class="profile-tab-btn" 
+        [class.active]="activeTab() === 'basic'"
+        (click)="activeTab.set('basic')">
+        <app-icon name="user" [size]="16"></app-icon>
+        <span>Basic Information</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="profile-tab-btn" 
+        [class.active]="activeTab() === 'security'"
+        (click)="activeTab.set('security')">
+        <app-icon name="lock" [size]="16"></app-icon>
+        <span>Security & Password</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= TAB CONTENT GRID ================= -->
+  <div class="profile-content-grid">
+    
+    <!-- LEFT MAIN CARD: FORM -->
+    <div class="form-card-container glass-panel">
+      
+      <!-- TAB 1: BASIC INFORMATION -->
+      @if (activeTab() === 'basic') {
+        <div class="tab-pane-content">
+          <div class="pane-header">
+            <div>
+              <h2 class="pane-title">Personal Information</h2>
+              <p class="pane-subtitle">Manage your personal details and contact information</p>
+            </div>
+          </div>
+
+          <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="profile-form">
+            <div class="form-grid-2col">
+              
+              <!-- Full Name Field -->
+              <div class="form-group">
+                <label class="form-label" for="prof-fullname">
+                  <span>Full Name</span>
+                  <span class="required-star">*</span>
+                </label>
+                <div class="input-icon-wrap">
+                  <app-icon name="user" [size]="16" class="input-icon"></app-icon>
+                  <input 
+                    id="prof-fullname"
+                    type="text" 
+                    formControlName="fullName"
+                    class="form-control"
+                    placeholder="Enter your full name" 
+                    [class.is-invalid]="profileForm.get('fullName')?.touched && profileForm.get('fullName')?.invalid" />
+                </div>
+                @if (profileForm.get('fullName')?.touched && profileForm.get('fullName')?.errors?.['required']) {
+                  <span class="field-error-text">Full name is required.</span>
+                }
+              </div>
+
+              <!-- Email Field -->
+              <div class="form-group">
+                <label class="form-label" for="prof-email">
+                  <span>Email Address</span>
+                  <span class="required-star">*</span>
+                </label>
+                <div class="input-icon-wrap">
+                  <app-icon name="mail" [size]="16" class="input-icon"></app-icon>
+                  <input 
+                    id="prof-email"
+                    type="email" 
+                    formControlName="email"
+                    class="form-control"
+                    placeholder="name@example.com"
+                    [class.is-invalid]="profileForm.get('email')?.touched && profileForm.get('email')?.invalid" />
+                </div>
+                @if (profileForm.get('email')?.touched && profileForm.get('email')?.errors?.['required']) {
+                  <span class="field-error-text">Email address is required.</span>
+                }
+                @if (profileForm.get('email')?.touched && profileForm.get('email')?.errors?.['email']) {
+                  <span class="field-error-text">Please enter a valid email.</span>
+                }
+              </div>
+
+              <!-- Mobile Phone Field -->
+              <div class="form-group">
+                <label class="form-label" for="prof-mobile">
+                  <span>Contact Number</span>
+                </label>
+                <div class="input-icon-wrap">
+                  <app-icon name="phone" [size]="16" class="input-icon"></app-icon>
+                  <input 
+                    id="prof-mobile"
+                    type="text" 
+                    formControlName="mobile"
+                    class="form-control"
+                    placeholder="+91 98765 43210" />
+                </div>
+              </div>
+
+              <!-- Assigned Role (Read-only) -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span>Account Role Level</span>
+                </label>
+                <div class="input-icon-wrap readonly-wrap">
+                  <app-icon name="shield" [size]="16" class="input-icon text-cyan"></app-icon>
+                  <input 
+                    type="text" 
+                    [value]="authService.currentUser()?.roleName || 'Administrator'"
+                    class="form-control readonly-input"
+                    readonly />
+                  <span class="locked-tag">System Protected</span>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="form-action-row">
+              <button 
+                type="submit" 
+                class="btn-primary-neon" 
+                [disabled]="saving() || profileForm.invalid">
+                @if (saving()) {
+                  <span class="spinner-sm"></span>
+                  <span>Saving Changes...</span>
+                } @else {
+                  <app-icon name="check" [size]="16"></app-icon>
+                  <span>Save Profile Details</span>
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+
+      <!-- TAB 2: SECURITY & PASSWORD -->
+      @if (activeTab() === 'security') {
+        <div class="tab-pane-content">
+          <div class="pane-header">
+            <div>
+              <h2 class="pane-title">Security & Password</h2>
+              <p class="pane-subtitle">Update your login credentials to keep your account secure</p>
+            </div>
+          </div>
+
+          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="profile-form">
+            <div class="form-stack">
+              
+              <!-- Current Password -->
+              <div class="form-group">
+                <label class="form-label" for="prof-curpass">
+                  <span>Current Password</span>
+                  <span class="required-star">*</span>
+                </label>
+                <div class="input-icon-wrap">
+                  <app-icon name="lock" [size]="16" class="input-icon"></app-icon>
+                  <input 
+                    id="prof-curpass"
+                    type="password" 
+                    formControlName="currentPassword"
+                    class="form-control"
+                    placeholder="Enter current password"
+                    [class.is-invalid]="passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.invalid" />
+                </div>
+              </div>
+
+              <!-- New Password -->
+              <div class="form-group">
+                <label class="form-label" for="prof-newpass">
+                  <span>New Password</span>
+                  <span class="required-star">*</span>
+                </label>
+                <div class="input-icon-wrap">
+                  <app-icon name="lock" [size]="16" class="input-icon"></app-icon>
+                  <input 
+                    id="prof-newpass"
+                    type="password" 
+                    formControlName="newPassword"
+                    class="form-control"
+                    placeholder="Enter at least 6 characters"
+                    [class.is-invalid]="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.invalid" />
+                </div>
+                @if (passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.errors?.['minlength']) {
+                  <span class="field-error-text">Password must be at least 6 characters.</span>
+                }
+              </div>
+
+              <!-- Confirm New Password -->
+              <div class="form-group">
+                <label class="form-label" for="prof-confpass">
+                  <span>Confirm New Password</span>
+                  <span class="required-star">*</span>
+                </label>
+                <div class="input-icon-wrap">
+                  <app-icon name="check" [size]="16" class="input-icon"></app-icon>
+                  <input 
+                    id="prof-confpass"
+                    type="password" 
+                    formControlName="confirmPassword"
+                    class="form-control"
+                    placeholder="Re-enter new password"
+                    [class.is-invalid]="passwordForm.get('confirmPassword')?.touched && passwordForm.get('confirmPassword')?.invalid" />
+                </div>
+              </div>
+
+            </div>
+
+            <div class="form-action-row">
+              <button 
+                type="submit" 
+                class="btn-primary-neon" 
+                [disabled]="passwordSaving() || passwordForm.invalid">
+                @if (passwordSaving()) {
+                  <span class="spinner-sm"></span>
+                  <span>Updating Password...</span>
+                } @else {
+                  <app-icon name="shield" [size]="16"></app-icon>
+                  <span>Update Password</span>
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+
+    </div>
+
+    <!-- RIGHT SIDEBAR: ACCOUNT STATS & INFO -->
+    <div class="profile-side-column">
+      
+      <!-- Account Overview Card -->
+      <div class="info-card glass-panel">
+        <h3 class="side-card-title">
+          <app-icon name="activity" [size]="16" class="text-cyan"></app-icon>
+          <span>Account Overview</span>
+        </h3>
+
+        <div class="side-meta-list">
+          <div class="side-meta-item">
+            <span class="side-meta-label">User Role</span>
+            <span class="side-meta-value highlight">{{ authService.currentUser()?.roleName || 'Super Admin' }}</span>
+          </div>
+          <div class="side-meta-item">
+            <span class="side-meta-label">Access Level</span>
+            <span class="side-meta-value">Full Management</span>
+          </div>
+          <div class="side-meta-item">
+            <span class="side-meta-label">Authentication</span>
+            <span class="side-meta-value status-secure">
+              <span class="dot-secure"></span> Password & Token
+            </span>
+          </div>
+          <div class="side-meta-item">
+            <span class="side-meta-label">Status</span>
+            <span class="side-meta-value status-active">Active</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Guidance Card -->
+      <div class="info-card glass-panel guidance-card">
+        <div class="guidance-icon-box">
+          <app-icon name="shield" [size]="20" class="text-cyan"></app-icon>
+        </div>
+        <h4 class="guidance-title">Security Recommendation</h4>
+        <p class="guidance-text">Use a strong, unique password with letters, numbers, and symbols to ensure maximum system protection.</p>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
