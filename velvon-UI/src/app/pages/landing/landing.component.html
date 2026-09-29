@@ -1,205 +1,379 @@
 <div class="landing-page">
-  
+
   <!-- ================= NAVBAR ================= -->
   <header class="landing-navbar glass-panel">
     <div class="nav-container">
-      <a routerLink="/" class="brand-link">
+      
+      <!-- Brand Logo -->
+      <a routerLink="/" class="brand-link" (click)="scrollToTop()">
         <app-logo size="md" [animated]="true"></app-logo>
       </a>
 
-      <!-- Center Nav Links -->
+      <!-- Clean 4-Link Center Navigation -->
       <nav class="nav-menu">
-        <a href="#solutions" class="nav-link">Solutions</a>
-        <a href="#features" class="nav-link">Features</a>
-        <a href="#stats" class="nav-link">Metrics</a>
-        <a href="#contact" class="nav-link">Contact</a>
+        <a href="#about" (click)="scrollToSection('about')" class="nav-link">About Us</a>
+        <a href="#services" (click)="scrollToSection('services')" class="nav-link">Services</a>
+        <a href="#portfolio" (click)="scrollToSection('portfolio')" class="nav-link">Portfolio</a>
+        <a href="#contact" (click)="scrollToSection('contact')" class="nav-link">Contact</a>
       </nav>
 
-      <!-- Right Actions (Theme + Login / Register) -->
+      <!-- Right Header Actions -->
       <div class="nav-actions">
+        <!-- Theme Toggle -->
         <button 
           type="button" 
           class="theme-toggle-btn"
           (click)="themeService.toggleTheme()"
-          [title]="'Toggle theme (' + themeService.currentTheme() + ')'">
-          <app-icon [name]="themeService.isDark() ? 'sun' : 'moon'" [size]="18"></app-icon>
+          [title]="'Theme: ' + themeService.currentTheme()">
+          <app-icon [name]="themeService.currentTheme() === 'dark' ? 'sun' : (themeService.currentTheme() === 'light' ? 'moon' : 'sparkles')" [size]="18"></app-icon>
         </button>
 
+        <!-- Auth Navigation -->
         @if (authService.isLoggedIn()) {
           <a routerLink="/admin/dashboard" class="btn-dashboard-pill">
             <app-icon name="grid" [size]="16"></app-icon>
-            <span>Open Dashboard</span>
+            <span>Client Portal</span>
           </a>
         } @else {
           <button type="button" class="btn-login-outline" (click)="navigateToLogin()">
             <app-icon name="user" [size]="16"></app-icon>
-            <span>Login</span>
+            <span>Client Login</span>
           </button>
-          <button type="button" class="btn-register-neon" (click)="navigateToRegister()">
-            <app-icon name="check-circle" [size]="16"></app-icon>
-            <span>Register</span>
+          <button type="button" class="btn-register-neon" (click)="scrollToSection('contact')">
+            <app-icon name="send" [size]="16"></app-icon>
+            <span>Get in Touch</span>
           </button>
         }
+
+        <!-- Mobile Menu Toggle Button -->
+        <button 
+          type="button" 
+          class="mobile-menu-btn" 
+          (click)="toggleMobileMenu()" 
+          [attr.aria-expanded]="mobileMenuOpen()"
+          aria-label="Toggle Navigation Menu">
+          <app-icon [name]="mobileMenuOpen() ? 'x' : 'grid'" [size]="20"></app-icon>
+        </button>
       </div>
+
     </div>
   </header>
 
+  <!-- ================= MOBILE DRAWER MENU ================= -->
+  @if (mobileMenuOpen()) {
+    <div class="mobile-drawer-overlay" (click)="closeMobileMenu()">
+      <div class="mobile-drawer-card glass-panel" (click)="$event.stopPropagation()">
+        <div class="drawer-header">
+          <app-logo size="sm" [animated]="true"></app-logo>
+          <button type="button" class="drawer-close-btn" (click)="closeMobileMenu()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <div class="drawer-links">
+          <a href="#about" (click)="scrollToSection('about')" class="drawer-link">
+            <app-icon name="info" [size]="16"></app-icon>
+            <span>About Us</span>
+          </a>
+          <a href="#services" (click)="scrollToSection('services')" class="drawer-link">
+            <app-icon name="layers" [size]="16"></app-icon>
+            <span>Enterprise Services</span>
+          </a>
+          <a href="#portfolio" (click)="scrollToSection('portfolio')" class="drawer-link">
+            <app-icon name="award" [size]="16"></app-icon>
+            <span>Portfolio & Case Studies</span>
+          </a>
+          <a href="#contact" (click)="scrollToSection('contact')" class="drawer-link">
+            <app-icon name="mail" [size]="16"></app-icon>
+            <span>Contact & Inquiries</span>
+          </a>
+        </div>
+
+        <div class="drawer-footer">
+          @if (authService.isLoggedIn()) {
+            <a routerLink="/admin/dashboard" class="btn-register-neon w-full justify-center" (click)="closeMobileMenu()">
+              <app-icon name="grid" [size]="16"></app-icon>
+              <span>Open Client Dashboard</span>
+            </a>
+          } @else {
+            <button type="button" class="btn-login-outline w-full justify-center" (click)="navigateToLogin(); closeMobileMenu()">
+              <app-icon name="user" [size]="16"></app-icon>
+              <span>Client Login</span>
+            </button>
+            <button type="button" class="btn-register-neon w-full justify-center" (click)="scrollToSection('contact'); closeMobileMenu()">
+              <app-icon name="send" [size]="16"></app-icon>
+              <span>Schedule Consultation</span>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
   <!-- ================= HERO SECTION ================= -->
-  <section class="hero-section">
+  <section id="about" class="hero-section">
     <div class="cyber-grid-overlay"></div>
     <div class="ambient-glow glow-cyan"></div>
     <div class="ambient-glow glow-purple"></div>
 
-    <div class="hero-content">
-      <!-- Top Badge -->
-      <div class="hero-badge">
+    <div class="hero-container">
+      
+      <!-- Company Badge -->
+      <div class="hero-badge animate-fade-in">
         <span class="badge-dot"></span>
-        <span>VELVION ENTERPRISE PLATFORM 2026</span>
-        <span class="badge-tag">v2.4 Online</span>
+        <span class="badge-text">VELVION TECHNOLOGIES · ENTERPRISE DIGITAL SOLUTIONS</span>
       </div>
 
       <!-- Main Headline -->
-      <h1 class="hero-title">
-        Next-Generation <br />
-        <span class="gradient-text">Intelligent Digital</span> Solutions
+      <h1 class="hero-title animate-slide-up">
+        Empowering Enterprises With <br />
+        <span class="gradient-text">Next-Generation Software</span> & Cloud Systems
       </h1>
 
-      <!-- Subtitle -->
-      <p class="hero-description">
-        Architecting robust, scalable, and secure cloud ecosystems. Built on high-performance 
-        <strong>.NET 10 Web API</strong>, <strong>Entity Framework Core</strong>, and 
-        <strong>Angular 19 Signal-Driven Architecture</strong>.
+      <!-- Company Overview Subtitle -->
+      <p class="hero-description animate-slide-up">
+        Velvion Technologies is a premier enterprise digital solutions company. We engineer custom software platforms, 
+        modernize legacy architectures, and deliver secure, high-scale cloud ecosystems that drive measurable business outcomes.
       </p>
 
-      <!-- CTA Buttons -->
-      <div class="hero-cta-group">
-        <button type="button" class="btn-hero-primary" (click)="navigateToRegister()">
-          <span>Get Started Now</span>
-          <app-icon name="chevron-right" [size]="18"></app-icon>
+      <!-- Action Buttons -->
+      <div class="hero-cta-group animate-slide-up">
+        <button type="button" class="btn-hero-primary" (click)="scrollToSection('contact')">
+          <app-icon name="sparkles" [size]="18"></app-icon>
+          <span>Schedule Discovery Call</span>
+          <app-icon name="chevron-right" [size]="16"></app-icon>
         </button>
 
-        <button type="button" class="btn-hero-secondary" (click)="navigateToLogin()">
-          <app-icon name="user" [size]="18"></app-icon>
-          <span>Sign In to Portal</span>
+        <button type="button" class="btn-hero-secondary" (click)="scrollToSection('services')">
+          <app-icon name="layers" [size]="18"></app-icon>
+          <span>Explore Services</span>
         </button>
       </div>
 
-      <!-- Quick Platform Capability Tags -->
-      <div class="capability-strip">
-        <span class="cap-item"><app-icon name="check-circle" [size]="14"></app-icon> Real-time MySQL Database Sync</span>
-        <span class="cap-item"><app-icon name="check-circle" [size]="14"></app-icon> Dynamic RBAC Permissions</span>
-        <span class="cap-item"><app-icon name="check-circle" [size]="14"></app-icon> Modular Masters Engine</span>
+      <!-- 4 Key Impact Stats -->
+      <div class="stats-grid">
+        @for (stat of companyStats; track stat.label) {
+          <div class="stat-card glass-panel">
+            <div class="stat-icon-wrap">
+              <app-icon [name]="stat.icon" [size]="22"></app-icon>
+            </div>
+            <div class="stat-number">{{ stat.value }}</div>
+            <div class="stat-label">{{ stat.label }}</div>
+            <div class="stat-sublabel">{{ stat.sublabel }}</div>
+          </div>
+        }
       </div>
+
     </div>
   </section>
 
-  <!-- ================= METRICS / STATS SECTION ================= -->
-  <section id="stats" class="stats-section">
-    <div class="stats-grid">
-      @for (stat of stats; track stat.label) {
-        <div class="stat-card glass-panel">
-          <div class="stat-icon-wrap">
-            <app-icon [name]="stat.icon" [size]="24"></app-icon>
+  <!-- ================= WHY CHOOSE VELVION (CORE PILLARS) ================= -->
+  <section class="section-container alt-bg">
+    <div class="section-header text-center">
+      <div class="section-badge">OUR CORE STRENGTHS</div>
+      <h2 class="section-title">Why Global Enterprises Partner With Us</h2>
+      <p class="section-subtitle">
+        We combine deep domain expertise, disciplined agile delivery, and enterprise governance to ensure lasting success.
+      </p>
+    </div>
+
+    <div class="pillars-grid">
+      @for (pillar of whyChooseUs; track pillar.title) {
+        <div class="pillar-card glass-panel">
+          <div class="pillar-icon-box">
+            <app-icon [name]="pillar.icon" [size]="24" color="#00f2fe"></app-icon>
           </div>
-          <div class="stat-number">{{ stat.value }}</div>
-          <div class="stat-label">{{ stat.label }}</div>
+          <h3 class="pillar-title">{{ pillar.title }}</h3>
+          <p class="pillar-desc">{{ pillar.description }}</p>
         </div>
       }
     </div>
   </section>
 
-  <!-- ================= SOLUTIONS & SERVICES SECTION ================= -->
-  <section id="solutions" class="section-container">
+  <!-- ================= CORE ENTERPRISE SERVICES ================= -->
+  <section id="services" class="section-container">
     <div class="section-header text-center">
-      <div class="section-badge">SERVICES & CAPABILITIES</div>
-      <h2 class="section-title">Engineered For Modern High-Scale Demands</h2>
+      <div class="section-badge">SERVICES & PRACTICES</div>
+      <h2 class="section-title">End-to-End Enterprise Solutions</h2>
       <p class="section-subtitle">
-        Discover our core suite of technology modules and architectural services managed directly via MySQL Masters.
+        Comprehensive technology services tailored to help your organization scale seamlessly.
       </p>
     </div>
 
     <div class="services-grid">
       @for (service of services(); track service.id) {
         <div class="service-card glass-panel">
-          <div class="service-header">
+          <div class="service-top">
             <div class="service-icon-box">
               <app-icon [name]="service.iconUrl || 'layers'" [size]="22"></app-icon>
             </div>
-            <span class="active-pill">Production Ready</span>
+            <span class="service-badge-pill">Enterprise Grade</span>
           </div>
+
           <h3 class="service-name">{{ service.serviceName }}</h3>
           <p class="service-desc">{{ service.description }}</p>
+
           <div class="service-footer">
-            <span class="explore-link">
-              <span>View Specifications</span>
-              <app-icon name="chevron-right" [size]="14"></app-icon>
-            </span>
+            <button 
+              type="button" 
+              class="service-action-btn"
+              (click)="selectServiceForInquiry(service.serviceName)">
+              <span>Inquire About Service</span>
+              <app-icon name="arrow-right" [size]="15"></app-icon>
+            </button>
           </div>
         </div>
       }
     </div>
   </section>
 
-  <!-- ================= ARCHITECTURE FEATURES ================= -->
-  <section id="features" class="section-container alt-bg">
+  <!-- ================= FEATURED WORK & CASE STUDIES ================= -->
+  <section id="portfolio" class="section-container alt-bg">
     <div class="section-header text-center">
-      <div class="section-badge">ARCHITECTURE & STACK</div>
-      <h2 class="section-title">End-To-End Enterprise Stack</h2>
+      <div class="section-badge">PROVEN RESULTS</div>
+      <h2 class="section-title">Featured Enterprise Case Studies</h2>
       <p class="section-subtitle">
-        Everything designed from the ground up for zero latency, audit-ready compliance, and rapid administrative control.
+        Explore how our solutions have delivered real-world impact across global industries.
       </p>
     </div>
 
-    <div class="features-grid">
-      @for (feature of features; track feature.title) {
-        <div class="feature-box glass-panel">
-          <div class="feature-icon">
-            <app-icon [name]="feature.icon" [size]="26"></app-icon>
+    <div class="portfolios-grid">
+      @for (item of portfolios(); track item.id) {
+        <div class="portfolio-card glass-panel">
+          
+          <div class="portfolio-image-wrapper">
+            <img [src]="item.thumbnailUrl" [alt]="item.title" class="portfolio-img" loading="lazy" />
+            <div class="portfolio-overlay">
+              <span class="client-pill">{{ item.clientName }}</span>
+            </div>
           </div>
-          <h3 class="feature-title">{{ feature.title }}</h3>
-          <p class="feature-desc">{{ feature.description }}</p>
+
+          <div class="portfolio-body">
+            <div class="portfolio-meta">
+              <span class="portfolio-category">{{ item.category }}</span>
+              <span class="verified-tag">
+                <app-icon name="check-circle" [size]="13"></app-icon>
+                <span>Verified Delivery</span>
+              </span>
+            </div>
+
+            <h3 class="portfolio-title">{{ item.title }}</h3>
+            <p class="portfolio-desc">{{ item.description }}</p>
+
+            <div class="portfolio-footer">
+              <button 
+                type="button" 
+                class="portfolio-link-btn"
+                (click)="selectServiceForInquiry(item.title)">
+                <span>Consult on this Scope</span>
+                <app-icon name="arrow-right" [size]="14"></app-icon>
+              </button>
+            </div>
+          </div>
+
         </div>
       }
     </div>
   </section>
 
-  <!-- ================= CONTACT / INQUIRY FORM ================= -->
-  <section id="contact" class="section-container">
+  <!-- ================= CLIENT TESTIMONIALS ================= -->
+  <section class="section-container">
+    <div class="section-header text-center">
+      <div class="section-badge">TESTIMONIALS</div>
+      <h2 class="section-title">What Our Clients Say</h2>
+      <p class="section-subtitle">
+        Endorsements from CTOs and engineering leaders who rely on Velvion Technologies.
+      </p>
+    </div>
+
+    <div class="testimonials-grid">
+      @for (testi of testimonials(); track testi.id) {
+        <div class="testimonial-card glass-panel">
+          
+          <div class="rating-stars">
+            @for (star of [1,2,3,4,5]; track star) {
+              <app-icon name="star" [size]="16" color="#f59e0b"></app-icon>
+            }
+          </div>
+
+          <p class="testimonial-quote">
+            &ldquo;{{ testi.feedbackText }}&rdquo;
+          </p>
+
+          <div class="testimonial-author">
+            <div class="author-avatar-fallback">
+              {{ testi.clientName.charAt(0) }}
+            </div>
+            <div class="author-details">
+              <span class="author-name">{{ testi.clientName }}</span>
+              <span class="author-role">{{ testi.clientDesignation }} · {{ testi.companyName }}</span>
+            </div>
+          </div>
+
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ================= DIRECT CONTACT SECTION ================= -->
+  <section id="contact" class="section-container alt-bg">
     <div class="contact-card-wrapper glass-panel">
       <div class="contact-grid">
         
-        <!-- Left info column -->
+        <!-- Left Info Column -->
         <div class="contact-info-col">
           <app-logo size="md" [animated]="true"></app-logo>
-          <h2 class="contact-headline">Initiate Your Enterprise Solution</h2>
+          
+          <h2 class="contact-headline">Partner With Velvion Technologies</h2>
           <p class="contact-p">
-            Send an inquiry directly into our live database. Our engineering leads will review your requirements and provide an architecture blueprint.
+            Ready to build or scale your enterprise software? Our senior technical architects will review your requirements and provide a customized project blueprint.
           </p>
 
           <div class="contact-details-list">
             <div class="detail-item">
-              <app-icon name="mail" [size]="18" class="text-cyan"></app-icon>
-              <span>contact&#64;velvion.com</span>
+              <div class="detail-icon-box">
+                <app-icon name="mail" [size]="18" color="#00f2fe"></app-icon>
+              </div>
+              <div class="detail-text">
+                <span class="d-label">Email Inquiries</span>
+                <span class="d-val">contact&#64;velvion.com</span>
+              </div>
             </div>
+
             <div class="detail-item">
-              <app-icon name="phone" [size]="18" class="text-cyan"></app-icon>
-              <span>+91 98765 43210</span>
+              <div class="detail-icon-box">
+                <app-icon name="phone" [size]="18" color="#00f2fe"></app-icon>
+              </div>
+              <div class="detail-text">
+                <span class="d-label">Direct Hotline</span>
+                <span class="d-val">+91 98765 43210</span>
+              </div>
             </div>
+
             <div class="detail-item">
-              <app-icon name="database" [size]="18" class="text-cyan"></app-icon>
-              <span>Connected directly to VelvionDB</span>
+              <div class="detail-icon-box">
+                <app-icon name="globe" [size]="18" color="#00f2fe"></app-icon>
+              </div>
+              <div class="detail-text">
+                <span class="d-label">Corporate Office</span>
+                <span class="d-val">Velvion Tech Park, Sector 62, Noida, India</span>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Right Form Column -->
         <div class="contact-form-col">
-          <form [formGroup]="inquiryForm" (ngSubmit)="onSubmitInquiry()" class="inquiry-form">
-            <h3 class="form-title">Send Direct Database Inquiry</h3>
+          <form [formGroup]="inquiryForm" (ngSubmit)="onSubmitInquiry()" class="inquiry-form glass-panel">
+            <h3 class="form-title">Send Enterprise Inquiry</h3>
+            <p class="form-subtitle">We typically respond within 4 business hours.</p>
 
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label" for="inq-fullname">Full Name *</label>
+                <label class="form-label" for="inq-fullname">
+                  <span>Full Name</span>
+                  <span class="required">*</span>
+                </label>
                 <input 
                   id="inq-fullname"
                   type="text" 
@@ -208,8 +382,12 @@
                   formControlName="fullName"
                   [class.is-invalid]="inquiryForm.get('fullName')?.touched && inquiryForm.get('fullName')?.invalid" />
               </div>
+
               <div class="form-group">
-                <label class="form-label" for="inq-email">Email Address *</label>
+                <label class="form-label" for="inq-email">
+                  <span>Corporate Email</span>
+                  <span class="required">*</span>
+                </label>
                 <input 
                   id="inq-email"
                   type="email" 
@@ -222,31 +400,39 @@
 
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label" for="inq-phone">Phone / Mobile</label>
+                <label class="form-label" for="inq-phone">Phone Number</label>
                 <input 
                   id="inq-phone"
-                  type="text" 
+                  type="tel" 
                   class="form-control" 
-                  placeholder="+91..." 
+                  placeholder="+91 98765 43210" 
                   formControlName="phone" />
               </div>
+
               <div class="form-group">
-                <label class="form-label" for="inq-subject">Subject</label>
+                <label class="form-label" for="inq-subject">
+                  <span>Subject</span>
+                  <span class="required">*</span>
+                </label>
                 <input 
                   id="inq-subject"
                   type="text" 
                   class="form-control" 
+                  placeholder="e.g. Custom Platform Development" 
                   formControlName="subject" />
               </div>
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="inq-msg">Project Requirements / Message *</label>
+              <label class="form-label" for="inq-msg">
+                <span>Project Requirements</span>
+                <span class="required">*</span>
+              </label>
               <textarea 
                 id="inq-msg"
                 rows="4" 
                 class="form-control" 
-                placeholder="Describe your tech stack, timeline, or consultation scope..." 
+                placeholder="Tell us about your project requirements, timeline, or objectives..." 
                 formControlName="message"
                 [class.is-invalid]="inquiryForm.get('message')?.touched && inquiryForm.get('message')?.invalid"></textarea>
             </div>
@@ -256,11 +442,13 @@
               class="btn-primary-neon submit-inquiry-btn" 
               [disabled]="inquirySubmitting()">
               @if (inquirySubmitting()) {
-                <span class="spinner-sm"></span>
-                <span>Saving to Database...</span>
+                <span class="animate-spin mr-2">
+                  <app-icon name="loader" [size]="16"></app-icon>
+                </span>
+                <span>Submitting...</span>
               } @else {
                 <app-icon name="send" [size]="16"></app-icon>
-                <span>Submit Inquiry to Database</span>
+                <span>Submit Inquiry</span>
               }
             </button>
           </form>
@@ -273,31 +461,64 @@
   <!-- ================= FOOTER ================= -->
   <footer class="landing-footer">
     <div class="footer-container">
+      
+      <!-- Column 1: Brand -->
       <div class="footer-brand-col">
-        <app-logo size="sm"></app-logo>
+        <app-logo size="sm" [animated]="true"></app-logo>
         <p class="footer-desc">
-          Next-generation scalable architectures, microservices, and modern UI engineering systems.
+          Velvion Technologies — Premier global software engineering and digital transformation partner.
         </p>
       </div>
 
+      <!-- Column 2: Quick Links -->
       <div class="footer-links-col">
-        <span class="footer-heading">Portals</span>
-        <a routerLink="/auth" [queryParams]="{mode: 'login'}" class="footer-link">Admin Login</a>
-        <a routerLink="/auth" [queryParams]="{mode: 'register'}" class="footer-link">User Registration</a>
+        <span class="footer-heading">Navigation</span>
+        <a href="#about" (click)="scrollToSection('about')" class="footer-link">About Us</a>
+        <a href="#services" (click)="scrollToSection('services')" class="footer-link">Services</a>
+        <a href="#portfolio" (click)="scrollToSection('portfolio')" class="footer-link">Portfolio</a>
+        <a href="#contact" (click)="scrollToSection('contact')" class="footer-link">Contact</a>
+      </div>
+
+      <!-- Column 3: Portals -->
+      <div class="footer-links-col">
+        <span class="footer-heading">Client Area</span>
+        <a routerLink="/auth" [queryParams]="{mode: 'login'}" class="footer-link">Client Login</a>
+        <a routerLink="/auth" [queryParams]="{mode: 'register'}" class="footer-link">Register Account</a>
         <a routerLink="/admin/dashboard" class="footer-link">Control Center</a>
       </div>
 
+      <!-- Column 4: Locations -->
       <div class="footer-links-col">
-        <span class="footer-heading">Platform Architecture</span>
-        <span class="footer-item">.NET 10 Web API</span>
-        <span class="footer-item">MySQL Pomelo EF Core</span>
-        <span class="footer-item">Angular 19 Signals</span>
+        <span class="footer-heading">Contact</span>
+        <span class="footer-item">Noida Tech Park, Sector 62, India</span>
+        <span class="footer-item">Email: contact&#64;velvion.com</span>
+        <span class="footer-item">Phone: +91 98765 43210</span>
       </div>
+
     </div>
 
+    <!-- Bottom Bar -->
     <div class="footer-bottom">
-      <p>&copy; 2026 Velvion Technologies. All rights reserved. Enterprise Grade Security.</p>
+      <div class="footer-bottom-container">
+        <p>&copy; 2026 Velvion Technologies Pvt Ltd. All rights reserved.</p>
+        <div class="footer-bottom-badges">
+          <span class="sec-badge">
+            <app-icon name="shield" [size]="12" color="#00f2fe"></app-icon>
+            <span>ISO & SOC-2 Ready</span>
+          </span>
+        </div>
+      </div>
     </div>
   </footer>
+
+  <!-- Floating Scroll To Top -->
+  <button 
+    type="button" 
+    class="floating-top-btn" 
+    (click)="scrollToTop()" 
+    title="Back to Top"
+    aria-label="Scroll to top">
+    <app-icon name="chevron-up" [size]="18"></app-icon>
+  </button>
 
 </div>

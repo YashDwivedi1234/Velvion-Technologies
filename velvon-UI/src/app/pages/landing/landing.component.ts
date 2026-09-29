@@ -1,6 +1,6 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnInit, inject, signal, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AdminDataService } from '../../core/services/admin-data.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -13,6 +13,7 @@ import { ServiceMasterDto, PortfolioDto, TestimonialDto } from '../../core/model
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     RouterLink,
     LogoComponent,
     IconComponent
@@ -27,41 +28,46 @@ export class LandingComponent implements OnInit {
   public authService = inject(AuthService);
   private toastService = inject(ToastService);
   public themeService = inject(ThemeService);
+  private platformId = inject(PLATFORM_ID);
 
+  // Mobile menu toggle
+  mobileMenuOpen = signal<boolean>(false);
+
+  // Forms
   inquiryForm!: FormGroup;
   inquirySubmitting = signal<boolean>(false);
+  newsletterEmail = signal<string>('');
+  newsletterSubmitting = signal<boolean>(false);
 
+  // Dynamic Data Signals
   services = signal<ServiceMasterDto[]>([]);
   portfolios = signal<PortfolioDto[]>([]);
   testimonials = signal<TestimonialDto[]>([]);
 
-  stats = [
-    { value: '99.99%', label: 'Cloud Uptime SLA', icon: 'shield' },
-    { value: '< 15ms', label: 'Microservice Latency', icon: 'zap' },
-    { value: '500K+', label: 'Concurrent Transactions', icon: 'layers' },
-    { value: '100%', label: 'REST & OpenAPI Standard', icon: 'check-circle' }
+  // Key Company Stats
+  companyStats = [
+    { value: '150+', label: 'Enterprise Deliveries', sublabel: 'Across Global Markets', icon: 'award' },
+    { value: '99.9%', label: 'Client Satisfaction', sublabel: 'Long-term Partnerships', icon: 'shield' },
+    { value: '50+', label: 'Technical Specialists', sublabel: 'Senior Engineers & Leads', icon: 'users' },
+    { value: '45%', label: 'Operational Cost Reduction', sublabel: 'Through Intelligent Tech', icon: 'zap' }
   ];
 
-  features = [
+  // Why Choose Us Pillars
+  whyChooseUs = [
     {
-      title: 'Fullstack .NET & Angular',
-      description: 'Engineered with C# 13, .NET 10 Web API, Entity Framework Core, MySQL, and Angular 19 Signals.',
+      title: 'Architectural Excellence',
+      description: 'We engineer robust, scalable systems built for high-throughput and zero-downtime enterprise operations.',
       icon: 'layers'
     },
     {
-      title: 'Dynamic RBAC Security',
-      description: 'Granular permissions matrix per role for menu access, create, edit, and deletion capabilities.',
+      title: 'Zero-Trust Security & RBAC',
+      description: 'Enterprise governance with dynamic role authorization, cryptographic data encryption, and full auditability.',
       icon: 'shield'
     },
     {
-      title: 'Comprehensive Masters System',
-      description: 'Centralized master controllers and responsive UI forms for roles, menus, services, and system settings.',
-      icon: 'grid'
-    },
-    {
-      title: 'Real-time Database Sync',
-      description: 'End-to-end relational data integrity with Pomelo MySQL EF Core and responsive state notifications.',
-      icon: 'database'
+      title: 'Agile Dedicated Teams',
+      description: 'Senior engineering pods that integrate seamlessly with your organization to deliver rapid, measurable results.',
+      icon: 'zap'
     }
   ];
 
@@ -74,79 +80,215 @@ export class LandingComponent implements OnInit {
     this.inquiryForm = this.fb.group({
       fullName: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      phone: [''],
-      subject: ['Enterprise Architecture Consultation', Validators.required],
+      phone: ['', [Validators.pattern(/^[0-9+() -]{7,20}$/)]],
+      subject: ['Enterprise Digital Transformation Consultation', Validators.required],
       message: ['', [Validators.required, Validators.minLength(10)]]
     });
   }
 
   private loadData(): void {
-    // Load Services
-    this.adminDataService.getServices(true).subscribe(res => {
-      if (res.success && res.data && res.data.length > 0) {
-        this.services.set(res.data);
-      } else {
-        // Fallback default services
-        this.services.set([
-          {
-            id: 1,
-            serviceName: 'Enterprise Cloud Architecture',
-            description: 'Scalable distributed systems, microservices orchestration, and high-availability cloud infrastructure.',
-            iconUrl: 'cloud',
-            isActive: true,
-            createdAt: '',
-            updatedAt: ''
-          },
-          {
-            id: 2,
-            serviceName: 'AI & Data Engineering',
-            description: 'Predictive intelligence pipelines, LLM integration, and big data real-time streaming analytics.',
-            iconUrl: 'zap',
-            isActive: true,
-            createdAt: '',
-            updatedAt: ''
-          },
-          {
-            id: 3,
-            serviceName: 'Modern Full-Stack Engineering',
-            description: 'High performance web applications using Angular 19 Signals, ASP.NET Core, and robust relational schemas.',
-            iconUrl: 'layers',
-            isActive: true,
-            createdAt: '',
-            updatedAt: ''
-          },
-          {
-            id: 4,
-            serviceName: 'Cybersecurity & Zero Trust RBAC',
-            description: 'End-to-end cryptographic hashing, role-based permission matrices, and compliant audit trails.',
-            iconUrl: 'shield',
-            isActive: true,
-            createdAt: '',
-            updatedAt: ''
-          }
-        ]);
-      }
+    // 1. Services
+    this.adminDataService.getServices(true).subscribe({
+      next: (res) => {
+        if (res.success && res.data && res.data.length > 0) {
+          this.services.set(res.data);
+        } else {
+          this.setDefaultServices();
+        }
+      },
+      error: () => this.setDefaultServices()
     });
 
-    // Load Portfolios
-    this.adminDataService.getPortfolios(true).subscribe(res => {
-      if (res.success && res.data && res.data.length > 0) {
-        this.portfolios.set(res.data);
-      }
+    // 2. Portfolios
+    this.adminDataService.getPortfolios(true).subscribe({
+      next: (res) => {
+        if (res.success && res.data && res.data.length > 0) {
+          this.portfolios.set(res.data);
+        } else {
+          this.setDefaultPortfolios();
+        }
+      },
+      error: () => this.setDefaultPortfolios()
     });
 
-    // Load Testimonials
-    this.adminDataService.getTestimonials(true).subscribe(res => {
-      if (res.success && res.data && res.data.length > 0) {
-        this.testimonials.set(res.data);
-      }
+    // 3. Testimonials
+    this.adminDataService.getTestimonials(true).subscribe({
+      next: (res) => {
+        if (res.success && res.data && res.data.length > 0) {
+          this.testimonials.set(res.data);
+        } else {
+          this.setDefaultTestimonials();
+        }
+      },
+      error: () => this.setDefaultTestimonials()
     });
+  }
+
+  private setDefaultServices(): void {
+    this.services.set([
+      {
+        id: 1,
+        serviceName: 'Enterprise Custom Software Development',
+        description: 'Bespoke, scalable digital platforms designed to streamline mission-critical business workflows and drive growth.',
+        iconUrl: 'layers',
+        isActive: true,
+        createdAt: '',
+        updatedAt: ''
+      },
+      {
+        id: 2,
+        serviceName: 'Cloud Infrastructure & DevOps',
+        description: 'Multi-region cloud architectures, containerized microservices, CI/CD automation, and 99.99% high-availability SLA.',
+        iconUrl: 'cloud',
+        isActive: true,
+        createdAt: '',
+        updatedAt: ''
+      },
+      {
+        id: 3,
+        serviceName: 'AI & Business Process Automation',
+        description: 'Intelligent decision pipelines, automated document processing, and predictive analytics for operational efficiency.',
+        iconUrl: 'zap',
+        isActive: true,
+        createdAt: '',
+        updatedAt: ''
+      },
+      {
+        id: 4,
+        serviceName: 'Legacy Modernization & Migration',
+        description: 'Phased migration of legacy systems to modern, agile microservices with zero downtime or business disruption.',
+        iconUrl: 'refresh',
+        isActive: true,
+        createdAt: '',
+        updatedAt: ''
+      }
+    ]);
+  }
+
+  private setDefaultPortfolios(): void {
+    this.portfolios.set([
+      {
+        id: 1,
+        title: 'Apex Financial Core Modernization',
+        description: 'Transformed core transaction ecosystem processing $400M+ in daily volume with 99.999% uptime.',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80',
+        projectUrl: 'https://velvion.com',
+        clientName: 'Apex Financial Services',
+        category: 'FinTech Platform',
+        technologies: 'Microservices, Real-Time Sync, Zero-Trust RBAC',
+        completionDate: '2026-01-15',
+        isActive: true,
+        createdAt: '',
+        updatedAt: ''
+      },
+      {
+        id: 2,
+        title: 'Vitalis Health Telemetry Hub',
+        description: 'HIPAA-compliant healthcare portal coordinating 250,000+ active patients and medical staff across 40 hospitals.',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&auto=format&fit=crop&q=80',
+        projectUrl: 'https://velvion.com',
+        clientName: 'Vitalis Health Network',
+        category: 'HealthTech Platform',
+        technologies: 'HIPAA Cloud, EHR Masters, Real-Time Telemetry',
+        completionDate: '2026-02-20',
+        isActive: true,
+        createdAt: '',
+        updatedAt: ''
+      },
+      {
+        id: 3,
+        title: 'OmniChain Global Supply Logistics',
+        description: 'Supply chain command center orchestrating 120+ international distribution hubs with automated dispatch.',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&auto=format&fit=crop&q=80',
+        projectUrl: 'https://velvion.com',
+        clientName: 'OmniLogistics Corp',
+        category: 'Supply Chain & IoT',
+        technologies: 'IoT Telematics, Multi-Hub ERP, Dispatch Engine',
+        completionDate: '2026-03-01',
+        isActive: true,
+        createdAt: '',
+        updatedAt: ''
+      }
+    ]);
+  }
+
+  private setDefaultTestimonials(): void {
+    this.testimonials.set([
+      {
+        id: 1,
+        clientName: 'Dr. Sarah Jenkins',
+        clientDesignation: 'Chief Technology Officer',
+        companyName: 'Apex Financial Services',
+        feedbackText: 'Velvion Technologies transformed our core architecture, reducing transaction latency by 65% while providing bulletproof security governance.',
+        avatarUrl: '',
+        rating: 5,
+        isActive: true,
+        createdAt: '',
+        updatedAt: ''
+      },
+      {
+        id: 2,
+        clientName: 'Vikram Malhotra',
+        clientDesignation: 'VP of Engineering',
+        companyName: 'CloudScale Enterprises',
+        feedbackText: 'The architectural precision and delivery discipline at Velvion are outstanding. Their team delivered our enterprise platform ahead of schedule.',
+        avatarUrl: '',
+        rating: 5,
+        isActive: true,
+        createdAt: '',
+        updatedAt: ''
+      },
+      {
+        id: 3,
+        clientName: 'Elena Rostova',
+        clientDesignation: 'Director of Digital Innovation',
+        companyName: 'Nexus Global Logistics',
+        feedbackText: 'Velvion brought unmatched domain expertise to our supply chain transformation. We have seen a 40% gain in operational efficiency.',
+        avatarUrl: '',
+        rating: 5,
+        isActive: true,
+        createdAt: '',
+        updatedAt: ''
+      }
+    ]);
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update(v => !v);
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
+  }
+
+  selectServiceForInquiry(serviceName: string): void {
+    this.inquiryForm.patchValue({
+      subject: `Enterprise Consultation: ${serviceName}`
+    });
+    this.scrollToSection('contact');
+    this.toastService.info(`Selected "${serviceName}". Complete your project details below.`, 'Service Selected');
+  }
+
+  scrollToSection(sectionId: string): void {
+    this.closeMobileMenu();
+    if (isPlatformBrowser(this.platformId) && typeof document !== 'undefined') {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }
+
+  scrollToTop(): void {
+    if (isPlatformBrowser(this.platformId) && typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   onSubmitInquiry(): void {
     if (this.inquiryForm.invalid) {
       this.inquiryForm.markAllAsTouched();
-      this.toastService.error('Please fill in your name, email, and message correctly.', 'Form Incomplete');
+      this.toastService.error('Please fill in your name, corporate email, and project requirements.', 'Form Incomplete');
       return;
     }
 
@@ -156,26 +298,44 @@ export class LandingComponent implements OnInit {
     this.adminDataService.saveInquiry({
       fullName: val.fullName.trim(),
       email: val.email.trim(),
-      phone: val.phone?.trim(),
+      phone: val.phone?.trim() || '',
       subject: val.subject,
       message: val.message.trim()
     }).subscribe({
       next: (res) => {
         this.inquirySubmitting.set(false);
         if (res.success) {
-          this.toastService.success('Thank you! Your inquiry has been recorded in the database. Our team will contact you shortly.', 'Inquiry Sent');
+          this.toastService.success(
+            'Thank you! Your inquiry has been received. Our team will contact you shortly.',
+            'Inquiry Received'
+          );
           this.inquiryForm.reset({
-            subject: 'Enterprise Architecture Consultation'
+            subject: 'Enterprise Digital Transformation Consultation'
           });
         } else {
-          this.toastService.error(res.message || 'Failed to submit inquiry.', 'Error');
+          this.toastService.error(res.message || 'Failed to submit inquiry.', 'Submission Error');
         }
       },
       error: () => {
         this.inquirySubmitting.set(false);
-        this.toastService.error('Connection error while sending inquiry.', 'Network Error');
+        this.toastService.error('Connection timeout to server. Please try again.', 'Network Error');
       }
     });
+  }
+
+  onSubmitNewsletter(): void {
+    const email = this.newsletterEmail().trim();
+    if (!email || !email.includes('@')) {
+      this.toastService.error('Please provide a valid corporate email address.', 'Invalid Email');
+      return;
+    }
+
+    this.newsletterSubmitting.set(true);
+    setTimeout(() => {
+      this.newsletterSubmitting.set(false);
+      this.newsletterEmail.set('');
+      this.toastService.success('Thank you for subscribing to Velvion Enterprise Insights!', 'Subscribed');
+    }, 600);
   }
 
   navigateToLogin(): void {
