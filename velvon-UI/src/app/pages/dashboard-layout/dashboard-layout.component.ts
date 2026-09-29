@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal, computed, HostListener } from '@angu
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterOutlet, RouterLinkActive, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { ThemeService, LogoComponent, IconComponent, ToastService } from '../../shared';
+import { ThemeService, LogoComponent, IconComponent, ToastService, ConfirmService } from '../../shared';
 
 interface PageInfo {
   section: string;
@@ -48,7 +48,9 @@ export class DashboardLayoutComponent implements OnInit {
   public themeService = inject(ThemeService);
   private router = inject(Router);
   private toastService = inject(ToastService);
+  private confirmService = inject(ConfirmService);
 
+  currentYear = new Date().getFullYear();
   sidebarCollapsed = signal<boolean>(false);
   mobileNavOpen = signal<boolean>(false);
   userDropdownOpen = signal<boolean>(false);
@@ -163,9 +165,20 @@ export class DashboardLayoutComponent implements OnInit {
     }
   }
 
-  logout(): void {
+  async logout(): Promise<void> {
     this.userDropdownOpen.set(false);
-    this.toastService.info('You have logged out securely.', 'Session Ended');
-    this.authService.logout();
+    const confirmed = await this.confirmService.confirm({
+      title: 'Logout Confirmation',
+      message: 'Are you sure you want to logout ?',
+      confirmText: 'Logout',
+      cancelText: 'Cancel',
+      type: 'warning',
+      icon: 'power'
+    });
+
+    if (confirmed) {
+      this.toastService.info('You have logged out securely.', 'Session Ended');
+      this.authService.logout();
+    }
   }
 }

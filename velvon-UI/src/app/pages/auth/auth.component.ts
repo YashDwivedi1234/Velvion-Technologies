@@ -41,6 +41,7 @@ export class AuthComponent implements OnInit {
   roles = signal<RoleDto[]>([]);
   roleOptions = signal<DropdownOption[]>([]);
   selectedRole = signal<number>(1);
+  currentYear = new Date().getFullYear();
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {

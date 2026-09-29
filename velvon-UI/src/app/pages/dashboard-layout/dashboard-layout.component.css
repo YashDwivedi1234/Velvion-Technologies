@@ -645,12 +645,12 @@
 /* Admin Content View */
 .admin-content-view {
   flex: 1;
-  padding: var(--space-2xl);
+  padding: var(--space-2xl) var(--space-2xl) var(--space-xl);
   max-width: 1440px;
   width: 100%;
   margin: 0 auto;
   position: relative;
-  min-height: calc(100vh - 70px);
+  min-height: calc(100vh - 125px);
 }
 
 /* Page Center Loader with Logo "V" */
@@ -742,10 +742,44 @@
     background: rgba(0, 0, 0, 0.7);
     z-index: 490;
   }
-  .admin-content-view {
-    padding: var(--space-lg);
-  }
   .action-text {
     display: none;
   }
 }
+
+/* ================= ADMIN DASHBOARD FOOTER (FIXED BOTTOM & CENTERED) ================= */
+.admin-dashboard-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 350;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0.75rem 2rem;
+  border-top: 1px solid var(--border-glass);
+  background: var(--bg-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.35);
+  margin-top: auto;
+  transition: background var(--transition-normal);
+}
+
+.footer-copyright {
+  font-weight: 500;
+  color: var(--text-muted);
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 640px) {
+  .admin-dashboard-footer {
+    padding: 0.65rem 1rem;
+    font-size: 0.75rem;
+  }
+}
+
+
