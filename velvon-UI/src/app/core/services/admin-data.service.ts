@@ -15,7 +15,10 @@ import {
   TeamMemberDto, SaveTeamMemberDto,
   TestimonialDto, SaveTestimonialDto,
   ContactInquiryDto, SaveContactInquiryDto,
-  AuditLogDto
+  AuditLogDto,
+  JobPostingDto, SaveJobPostingDto,
+  JobApplicationDto, SaveJobApplicationDto,
+  DashboardStatsDto
 } from '../models/api.models';
 
 @Injectable({
@@ -23,6 +26,11 @@ import {
 })
 export class AdminDataService {
   private api = inject(ApiService);
+
+  // ==================== DASHBOARD ====================
+  getDashboardStats(): Observable<ApiResponse<DashboardStatsDto>> {
+    return this.api.get<DashboardStatsDto>('Dashboard/stats');
+  }
 
   // ==================== USERS ====================
   getUsers(activeOnly = false): Observable<ApiResponse<UserDto[]>> {
@@ -123,6 +131,10 @@ export class AdminDataService {
     return this.api.get<BlogDto[]>('Blogs', { activeOnly });
   }
 
+  getBlogById(id: number): Observable<ApiResponse<BlogDto>> {
+    return this.api.get<BlogDto>(`Blogs/${id}`);
+  }
+
   saveBlog(dto: SaveBlogDto): Observable<ApiResponse<BlogDto>> {
     return this.api.post<BlogDto>('Blogs/save', dto);
   }
@@ -134,6 +146,10 @@ export class AdminDataService {
   // ==================== PORTFOLIO ====================
   getPortfolios(activeOnly = false): Observable<ApiResponse<PortfolioDto[]>> {
     return this.api.get<PortfolioDto[]>('Portfolio', { activeOnly });
+  }
+
+  getPortfolioById(id: number): Observable<ApiResponse<PortfolioDto>> {
+    return this.api.get<PortfolioDto>(`Portfolio/${id}`);
   }
 
   savePortfolio(dto: SavePortfolioDto): Observable<ApiResponse<PortfolioDto>> {
@@ -149,6 +165,10 @@ export class AdminDataService {
     return this.api.get<TeamMemberDto[]>('TeamMembers', { activeOnly });
   }
 
+  getTeamMemberById(id: number): Observable<ApiResponse<TeamMemberDto>> {
+    return this.api.get<TeamMemberDto>(`TeamMembers/${id}`);
+  }
+
   saveTeamMember(dto: SaveTeamMemberDto): Observable<ApiResponse<TeamMemberDto>> {
     return this.api.post<TeamMemberDto>('TeamMembers/save', dto);
   }
@@ -160,6 +180,10 @@ export class AdminDataService {
   // ==================== TESTIMONIALS ====================
   getTestimonials(activeOnly = false): Observable<ApiResponse<TestimonialDto[]>> {
     return this.api.get<TestimonialDto[]>('Testimonials', { activeOnly });
+  }
+
+  getTestimonialById(id: number): Observable<ApiResponse<TestimonialDto>> {
+    return this.api.get<TestimonialDto>(`Testimonials/${id}`);
   }
 
   saveTestimonial(dto: SaveTestimonialDto): Observable<ApiResponse<TestimonialDto>> {
@@ -175,8 +199,16 @@ export class AdminDataService {
     return this.api.get<ContactInquiryDto[]>('ContactInquiries', { activeOnly });
   }
 
+  getInquiryById(id: number): Observable<ApiResponse<ContactInquiryDto>> {
+    return this.api.get<ContactInquiryDto>(`ContactInquiries/${id}`);
+  }
+
   saveInquiry(dto: SaveContactInquiryDto): Observable<ApiResponse<ContactInquiryDto>> {
     return this.api.post<ContactInquiryDto>('ContactInquiries/save', dto);
+  }
+
+  markInquiryResolved(id: number): Observable<ApiResponse<boolean>> {
+    return this.api.post<boolean>(`ContactInquiries/resolve/${id}`, {});
   }
 
   deleteInquiry(id: number): Observable<ApiResponse<boolean>> {
@@ -186,5 +218,43 @@ export class AdminDataService {
   // ==================== AUDIT LOGS ====================
   getAuditLogs(limit = 100): Observable<ApiResponse<AuditLogDto[]>> {
     return this.api.get<AuditLogDto[]>('AuditLogs', { limit });
+  }
+
+  // ==================== JOB POSTINGS ====================
+  getJobPostings(activeOnly = false): Observable<ApiResponse<JobPostingDto[]>> {
+    return this.api.get<JobPostingDto[]>('JobPostings', { activeOnly });
+  }
+
+  getJobPostingById(id: number): Observable<ApiResponse<JobPostingDto>> {
+    return this.api.get<JobPostingDto>(`JobPostings/${id}`);
+  }
+
+  saveJobPosting(dto: SaveJobPostingDto): Observable<ApiResponse<JobPostingDto>> {
+    return this.api.post<JobPostingDto>('JobPostings/save', dto);
+  }
+
+  deleteJobPosting(id: number): Observable<ApiResponse<boolean>> {
+    return this.api.post<boolean>(`JobPostings/delete/${id}`, {});
+  }
+
+  // ==================== JOB APPLICATIONS ====================
+  getJobApplications(jobPostingId?: number): Observable<ApiResponse<JobApplicationDto[]>> {
+    return this.api.get<JobApplicationDto[]>('JobApplications', jobPostingId ? { jobPostingId } : {});
+  }
+
+  getJobApplicationById(id: number): Observable<ApiResponse<JobApplicationDto>> {
+    return this.api.get<JobApplicationDto>(`JobApplications/${id}`);
+  }
+
+  saveJobApplication(dto: SaveJobApplicationDto): Observable<ApiResponse<JobApplicationDto>> {
+    return this.api.post<JobApplicationDto>('JobApplications/save', dto);
+  }
+
+  updateApplicationStatus(id: number, status: string, notes?: string): Observable<ApiResponse<boolean>> {
+    return this.api.post<boolean>(`JobApplications/status/${id}`, {}, { status, notes });
+  }
+
+  deleteJobApplication(id: number): Observable<ApiResponse<boolean>> {
+    return this.api.post<boolean>(`JobApplications/delete/${id}`, {});
   }
 }

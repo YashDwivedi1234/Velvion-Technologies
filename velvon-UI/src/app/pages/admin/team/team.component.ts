@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AdminDataService } from '../../../core/services/admin-data.service';
 import { ToastService, ConfirmService, IconComponent, ToggleComponent, PaginationComponent } from '../../../shared';
-import { TeamMemberDto, SaveTeamMemberDto } from '../../../core/models/api.models';
+import { TeamMemberDto, SaveTeamMemberDto, RoleDto } from '../../../core/models/api.models';
 
 @Component({
   selector: 'app-team',
@@ -20,6 +20,7 @@ export class TeamComponent implements OnInit {
 
   loading = signal<boolean>(false);
   teamMembers = signal<TeamMemberDto[]>([]);
+  roles = signal<RoleDto[]>([]);
 
   // Sorting state
   sortColumn = signal<string>('fullName');
@@ -63,10 +64,12 @@ export class TeamComponent implements OnInit {
       this.sortDirection.set('asc');
     }
   }
+
   isModalOpen = signal<boolean>(false);
   isEditMode = signal<boolean>(false);
   currentMemberId = signal<number>(0);
   modalSubmitting = signal<boolean>(false);
+  showPassword = signal<boolean>(false);
   memberForm!: FormGroup;
 
   // View Modal State
@@ -86,6 +89,7 @@ export class TeamComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.loadTeam();
+    this.loadRoles();
   }
 
   private initForm(): void {
@@ -94,10 +98,24 @@ export class TeamComponent implements OnInit {
       designation: ['', [Validators.required]],
       department: ['Engineering'],
       email: ['', [Validators.email]],
+      mobile: [''],
       bio: [''],
       linkedInUrl: [''],
       githubUrl: [''],
+      enableLoginAccess: [true],
+      roleId: [null],
+      password: [''],
       isActive: [true]
+    });
+  }
+
+  loadRoles(): void {
+    this.adminDataService.getRoles().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.roles.set(res.data);
+        }
+      }
     });
   }
 
@@ -119,14 +137,24 @@ export class TeamComponent implements OnInit {
   openAddModal(): void {
     this.isEditMode.set(false);
     this.currentMemberId.set(0);
+    this.showPassword.set(false);
+
+    // Default to a non-admin role or first available
+    const availableRoles = this.roles();
+    const defaultRole = availableRoles.find(r => /employee|team|staff|user/i.test(r.roleName)) || availableRoles[0];
+
     this.memberForm.reset({
       fullName: '',
       designation: '',
       department: 'Engineering',
       email: '',
+      mobile: '',
       bio: '',
       linkedInUrl: '',
       githubUrl: '',
+      enableLoginAccess: true,
+      roleId: defaultRole ? defaultRole.id : null,
+      password: '',
       isActive: true
     });
     this.isModalOpen.set(true);
@@ -135,14 +163,20 @@ export class TeamComponent implements OnInit {
   openEditModal(m: TeamMemberDto): void {
     this.isEditMode.set(true);
     this.currentMemberId.set(m.id);
+    this.showPassword.set(false);
+
     this.memberForm.reset({
       fullName: m.fullName,
       designation: m.designation,
       department: m.department || 'Engineering',
       email: m.email || '',
+      mobile: m.mobile || '',
       bio: m.bio || '',
       linkedInUrl: m.linkedInUrl || '',
       githubUrl: m.githubUrl || '',
+      enableLoginAccess: m.hasLoginAccess ?? !!m.userId,
+      roleId: m.roleId || null,
+      password: '',
       isActive: m.isActive
     });
     this.isModalOpen.set(true);
@@ -168,9 +202,13 @@ export class TeamComponent implements OnInit {
       designation: val.designation.trim(),
       department: val.department?.trim(),
       email: val.email?.trim(),
+      mobile: val.mobile?.trim(),
       bio: val.bio?.trim(),
       linkedInUrl: val.linkedInUrl?.trim(),
       githubUrl: val.githubUrl?.trim(),
+      enableLoginAccess: val.enableLoginAccess,
+      roleId: val.roleId ? Number(val.roleId) : undefined,
+      password: val.password?.trim() || undefined,
       isActive: val.isActive
     };
 
@@ -179,7 +217,9 @@ export class TeamComponent implements OnInit {
         this.modalSubmitting.set(false);
         if (res.success) {
           this.toastService.success(
-            this.isEditMode() ? `Team member "${val.fullName}" updated.` : `Team member "${val.fullName}" added.`,
+            this.isEditMode()
+              ? `Team member "${val.fullName}" updated & login credentials synced.`
+              : `Team member "${val.fullName}" added & login account created in User directory.`,
             'Saved to Database'
           );
           this.closeModal();

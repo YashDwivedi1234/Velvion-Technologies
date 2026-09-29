@@ -151,6 +151,36 @@
           }
         </div>
 
+        <!-- CAREERS & HIRING -->
+        <div class="nav-section">
+          @if (!sidebarCollapsed()) {
+            <button type="button" class="nav-section-title-btn" (click)="toggleNavSection('careers')">
+              <span>CAREERS & HIRING</span>
+              <app-icon [name]="isSectionOpen('careers') ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
+            </button>
+          }
+
+          @if (isSectionOpen('careers') || sidebarCollapsed()) {
+            <div class="nav-submenu">
+              <!-- Job Openings -->
+              <a routerLink="/admin/careers/job-postings" routerLinkActive="active-nav" class="nav-sublink" title="Job Postings">
+                <app-icon name="briefcase" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Job Openings</span>
+                }
+              </a>
+
+              <!-- ATS Applications -->
+              <a routerLink="/admin/careers/job-applications" routerLinkActive="active-nav" class="nav-sublink" title="Job Applications ATS">
+                <app-icon name="users" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Applications (ATS)</span>
+                }
+              </a>
+            </div>
+          }
+        </div>
+
         <!-- 5) OPERATIONS & AUDIT -->
         <div class="nav-section">
           @if (!sidebarCollapsed()) {

@@ -989,6 +989,59 @@
         }
       }
     },
+    "/api/ContactInquiries/resolve/{id}": {
+      "post": {
+        "tags": [
+          "ContactInquiries"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "updatedBy",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/ContactInquiries/delete/{id}": {
       "post": {
         "tags": [
@@ -1128,6 +1181,470 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/JobPostings": {
+      "get": {
+        "tags": [
+          "JobPostings"
+        ],
+        "parameters": [
+          {
+            "name": "activeOnly",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfJobPostingDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfJobPostingDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfJobPostingDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/JobPostings/{id}": {
+      "get": {
+        "tags": [
+          "JobPostings"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfJobPostingDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfJobPostingDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfJobPostingDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/JobPostings/save": {
+      "post": {
+        "tags": [
+          "JobPostings"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveJobPostingDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveJobPostingDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveJobPostingDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfJobPostingDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfJobPostingDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfJobPostingDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/JobPostings/delete/{id}": {
+      "post": {
+        "tags": [
+          "JobPostings"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "updatedBy",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/JobApplications": {
+      "get": {
+        "tags": [
+          "JobApplications"
+        ],
+        "parameters": [
+          {
+            "name": "jobPostingId",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfJobApplicationDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfJobApplicationDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfJobApplicationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/JobApplications/{id}": {
+      "get": {
+        "tags": [
+          "JobApplications"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfJobApplicationDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfJobApplicationDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfJobApplicationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/JobApplications/save": {
+      "post": {
+        "tags": [
+          "JobApplications"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveJobApplicationDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveJobApplicationDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveJobApplicationDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfJobApplicationDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfJobApplicationDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfJobApplicationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/JobApplications/status/{id}": {
+      "post": {
+        "tags": [
+          "JobApplications"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "notes",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "updatedBy",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/JobApplications/delete/{id}": {
+      "post": {
+        "tags": [
+          "JobApplications"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "updatedBy",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Dashboard/stats": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfDashboardStatsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfDashboardStatsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfDashboardStatsDto"
                 }
               }
             }
@@ -2407,6 +2924,120 @@
           }
         }
       },
+      "ApiResponseOfDashboardStatsDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/DashboardStatsDto"
+              }
+            ]
+          },
+          "errors": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "statusCode": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "ApiResponseOfJobApplicationDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/JobApplicationDto"
+              }
+            ]
+          },
+          "errors": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "statusCode": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "ApiResponseOfJobPostingDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/JobPostingDto"
+              }
+            ]
+          },
+          "errors": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "statusCode": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
       "ApiResponseOfListOfAuditLogDto": {
         "type": "object",
         "properties": {
@@ -2497,6 +3128,80 @@
             ],
             "items": {
               "$ref": "#/components/schemas/ContactInquiryDto"
+            }
+          },
+          "errors": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "statusCode": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "ApiResponseOfListOfJobApplicationDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/JobApplicationDto"
+            }
+          },
+          "errors": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "statusCode": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "ApiResponseOfListOfJobPostingDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/JobPostingDto"
             }
           },
           "errors": {
@@ -3272,14 +3977,20 @@
           "title": {
             "type": "string"
           },
-          "content": {
-            "type": "string"
-          },
-          "imageUrl": {
+          "slug": {
             "type": [
               "null",
               "string"
             ]
+          },
+          "summary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "content": {
+            "type": "string"
           },
           "authorId": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
@@ -3295,6 +4006,34 @@
               "null",
               "string"
             ]
+          },
+          "category": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tags": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "bannerImage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isPublished": {
+            "type": "boolean"
+          },
+          "publishedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "isActive": {
             "type": "boolean"
@@ -3351,14 +4090,11 @@
             ],
             "format": "int32"
           },
-          "customerName": {
+          "fullName": {
             "type": "string"
           },
           "email": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": "string"
           },
           "phone": {
             "type": [
@@ -3366,13 +4102,16 @@
               "string"
             ]
           },
-          "message": {
+          "subject": {
             "type": [
               "null",
               "string"
             ]
           },
-          "isActive": {
+          "message": {
+            "type": "string"
+          },
+          "isResolved": {
             "type": "boolean"
           },
           "createdAt": {
@@ -3432,6 +4171,263 @@
           }
         }
       },
+      "DashboardStatsDto": {
+        "type": "object",
+        "properties": {
+          "totalUsers": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalRoles": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalBlogs": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "publishedBlogs": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalPortfolios": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalTeamMembers": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalTestimonials": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalInquiries": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "unresolvedInquiries": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "activeJobPostings": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalJobApplications": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "recentInquiries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactInquiryDto"
+            }
+          },
+          "recentAuditLogs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuditLogDto"
+            }
+          }
+        }
+      },
+      "JobApplicationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "jobPostingId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "jobTitle": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "applicantName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resumeUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "coverLetter": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "notes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "JobPostingDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "jobTitle": {
+            "type": "string"
+          },
+          "department": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "location": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "jobType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "experienceLevel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requiredSkills": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "salaryRange": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastDateToApply": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "applicationCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "LoginDto": {
         "required": [
           "email",
@@ -3474,6 +4470,12 @@
           },
           "roleName": {
             "type": "string"
+          },
+          "token": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -3567,7 +4569,7 @@
             ],
             "format": "int32"
           },
-          "projectName": {
+          "title": {
             "type": "string"
           },
           "clientName": {
@@ -3576,7 +4578,19 @@
               "string"
             ]
           },
-          "techStack": {
+          "category": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "projectUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "thumbnailUrl": {
             "type": [
               "null",
               "string"
@@ -3588,11 +4602,18 @@
               "string"
             ]
           },
-          "imageUrl": {
+          "technologies": {
             "type": [
               "null",
               "string"
             ]
+          },
+          "completionDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "isActive": {
             "type": "boolean"
@@ -3713,11 +4734,39 @@
             "maxLength": 255,
             "type": "string"
           },
+          "slug": {
+            "maxLength": 300,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "summary": {
+            "maxLength": 500,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "content": {
             "type": "string"
           },
-          "imageUrl": {
-            "maxLength": 255,
+          "category": {
+            "maxLength": 100,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tags": {
+            "maxLength": 500,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "bannerImage": {
+            "maxLength": 500,
             "type": [
               "null",
               "string"
@@ -3731,6 +4780,9 @@
               "string"
             ],
             "format": "int32"
+          },
+          "isPublished": {
+            "type": "boolean"
           },
           "isActive": {
             "type": "boolean"
@@ -3748,7 +4800,9 @@
       },
       "SaveContactInquiryDto": {
         "required": [
-          "customerName"
+          "fullName",
+          "email",
+          "message"
         ],
         "type": "object",
         "properties": {
@@ -3760,16 +4814,13 @@
             ],
             "format": "int32"
           },
-          "customerName": {
+          "fullName": {
             "maxLength": 100,
             "type": "string"
           },
           "email": {
             "maxLength": 100,
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": "string"
           },
           "phone": {
             "maxLength": 20,
@@ -3778,11 +4829,174 @@
               "string"
             ]
           },
-          "message": {
+          "subject": {
+            "maxLength": 255,
             "type": [
               "null",
               "string"
             ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "isResolved": {
+            "type": "boolean"
+          },
+          "updatedBy": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "SaveJobApplicationDto": {
+        "required": [
+          "jobPostingId",
+          "applicantName",
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "jobPostingId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "applicantName": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "phone": {
+            "maxLength": 20,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resumeUrl": {
+            "maxLength": 255,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "coverLetter": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "maxLength": 50,
+            "type": "string"
+          },
+          "notes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "updatedBy": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "SaveJobPostingDto": {
+        "required": [
+          "jobTitle"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "jobTitle": {
+            "maxLength": 150,
+            "type": "string"
+          },
+          "department": {
+            "maxLength": 100,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "location": {
+            "maxLength": 100,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "jobType": {
+            "maxLength": 50,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "experienceLevel": {
+            "maxLength": 50,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requiredSkills": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "salaryRange": {
+            "maxLength": 100,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastDateToApply": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "isActive": {
             "type": "boolean"
@@ -3855,7 +5069,7 @@
       },
       "SavePortfolioDto": {
         "required": [
-          "projectName"
+          "title"
         ],
         "type": "object",
         "properties": {
@@ -3867,7 +5081,7 @@
             ],
             "format": "int32"
           },
-          "projectName": {
+          "title": {
             "maxLength": 150,
             "type": "string"
           },
@@ -3878,7 +5092,21 @@
               "string"
             ]
           },
-          "techStack": {
+          "category": {
+            "maxLength": 100,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "projectUrl": {
+            "maxLength": 255,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "thumbnailUrl": {
             "maxLength": 255,
             "type": [
               "null",
@@ -3891,12 +5119,19 @@
               "string"
             ]
           },
-          "imageUrl": {
-            "maxLength": 255,
+          "technologies": {
+            "maxLength": 500,
             "type": [
               "null",
               "string"
             ]
+          },
+          "completionDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           },
           "isActive": {
             "type": "boolean"
@@ -4034,7 +5269,7 @@
       },
       "SaveTeamMemberDto": {
         "required": [
-          "name",
+          "fullName",
           "designation"
         ],
         "type": "object",
@@ -4047,7 +5282,7 @@
             ],
             "format": "int32"
           },
-          "name": {
+          "fullName": {
             "maxLength": 100,
             "type": "string"
           },
@@ -4055,8 +5290,35 @@
             "maxLength": 100,
             "type": "string"
           },
-          "imageUrl": {
+          "department": {
+            "maxLength": 100,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "email": {
+            "maxLength": 100,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "mobile": {
+            "maxLength": 20,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "profileImage": {
             "maxLength": 255,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "bio": {
             "type": [
               "null",
               "string"
@@ -4064,6 +5326,31 @@
           },
           "linkedInUrl": {
             "maxLength": 255,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "githubUrl": {
+            "maxLength": 255,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "enableLoginAccess": {
+            "type": "boolean"
+          },
+          "roleId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "password": {
             "type": [
               "null",
               "string"
@@ -4086,7 +5373,7 @@
       "SaveTestimonialDto": {
         "required": [
           "clientName",
-          "review"
+          "feedbackText"
         ],
         "type": "object",
         "properties": {
@@ -4102,6 +5389,13 @@
             "maxLength": 100,
             "type": "string"
           },
+          "clientDesignation": {
+            "maxLength": 100,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "companyName": {
             "maxLength": 100,
             "type": [
@@ -4109,10 +5403,7 @@
               "string"
             ]
           },
-          "review": {
-            "type": "string"
-          },
-          "imageUrl": {
+          "avatarUrl": {
             "maxLength": 255,
             "type": [
               "null",
@@ -4124,11 +5415,13 @@
             "minimum": 1,
             "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
-              "null",
               "integer",
               "string"
             ],
             "format": "int32"
+          },
+          "feedbackText": {
+            "type": "string"
           },
           "isActive": {
             "type": "boolean"
@@ -4289,13 +5582,37 @@
             ],
             "format": "int32"
           },
-          "name": {
+          "fullName": {
             "type": "string"
           },
           "designation": {
             "type": "string"
           },
-          "imageUrl": {
+          "department": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "mobile": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "profileImage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "bio": {
             "type": [
               "null",
               "string"
@@ -4306,6 +5623,39 @@
               "null",
               "string"
             ]
+          },
+          "githubUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "userId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "roleId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "roleName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "hasLoginAccess": {
+            "type": "boolean"
           },
           "isActive": {
             "type": "boolean"
@@ -4334,16 +5684,19 @@
           "clientName": {
             "type": "string"
           },
+          "clientDesignation": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "companyName": {
             "type": [
               "null",
               "string"
             ]
           },
-          "review": {
-            "type": "string"
-          },
-          "imageUrl": {
+          "avatarUrl": {
             "type": [
               "null",
               "string"
@@ -4352,11 +5705,13 @@
           "rating": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
-              "null",
               "integer",
               "string"
             ],
             "format": "int32"
+          },
+          "feedbackText": {
+            "type": "string"
           },
           "isActive": {
             "type": "boolean"
@@ -4472,6 +5827,15 @@
     },
     {
       "name": "AuditLogs"
+    },
+    {
+      "name": "JobPostings"
+    },
+    {
+      "name": "JobApplications"
+    },
+    {
+      "name": "Dashboard"
     },
     {
       "name": "Master"

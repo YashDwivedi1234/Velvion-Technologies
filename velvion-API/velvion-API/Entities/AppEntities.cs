@@ -66,6 +66,9 @@ public class RoleMenuPermission
     public virtual Menu? Menu { get; set; }
 }
 
+// ==========================================
+// BLOG — Enhanced with slug, summary, category, tags, publish status
+// ==========================================
 [Table("tbl_blogs")]
 public class Blog
 {
@@ -76,13 +79,28 @@ public class Blog
     [MaxLength(255)]
     public string Title { get; set; } = string.Empty;
 
+    [MaxLength(300)]
+    public string? Slug { get; set; }
+
+    [MaxLength(500)]
+    public string? Summary { get; set; }
+
     [Required]
     public string Content { get; set; } = string.Empty;
 
-    [MaxLength(255)]
-    public string? ImageUrl { get; set; }
+    [MaxLength(100)]
+    public string? Category { get; set; }
+
+    [MaxLength(500)]
+    public string? Tags { get; set; }
+
+    [MaxLength(500)]
+    public string? BannerImage { get; set; }
 
     public int? AuthorId { get; set; }
+
+    public bool IsPublished { get; set; } = false;
+    public DateTime? PublishedAt { get; set; }
 
     public bool IsActive { get; set; } = true;
     public bool IsDeleted { get; set; } = false;
@@ -94,6 +112,9 @@ public class Blog
     public virtual User? Author { get; set; }
 }
 
+// ==========================================
+// PORTFOLIO — Enhanced with category, tech stack, project URL
+// ==========================================
 [Table("tbl_portfolio")]
 public class Portfolio
 {
@@ -102,18 +123,26 @@ public class Portfolio
 
     [Required]
     [MaxLength(150)]
-    public string ProjectName { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
 
     [MaxLength(100)]
     public string? ClientName { get; set; }
 
+    [MaxLength(100)]
+    public string? Category { get; set; }
+
     [MaxLength(255)]
-    public string? TechStack { get; set; }
+    public string? ProjectUrl { get; set; }
+
+    [MaxLength(255)]
+    public string? ThumbnailUrl { get; set; }
 
     public string? Description { get; set; }
 
-    [MaxLength(255)]
-    public string? ImageUrl { get; set; }
+    [MaxLength(500)]
+    public string? Technologies { get; set; }
+
+    public DateTime? CompletionDate { get; set; }
 
     public bool IsActive { get; set; } = true;
     public bool IsDeleted { get; set; } = false;
@@ -122,6 +151,9 @@ public class Portfolio
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
 
+// ==========================================
+// TEAM MEMBER — Enhanced with department, bio, email, github
+// ==========================================
 [Table("tbl_team_members")]
 public class TeamMember
 {
@@ -130,25 +162,44 @@ public class TeamMember
 
     [Required]
     [MaxLength(100)]
-    public string Name { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(100)]
     public string Designation { get; set; } = string.Empty;
 
+    [MaxLength(100)]
+    public string? Department { get; set; }
+
+    [MaxLength(100)]
+    public string? Email { get; set; }
+
     [MaxLength(255)]
-    public string? ImageUrl { get; set; }
+    public string? ProfileImage { get; set; }
+
+    public string? Bio { get; set; }
 
     [MaxLength(255)]
     public string? LinkedInUrl { get; set; }
+
+    [MaxLength(255)]
+    public string? GithubUrl { get; set; }
+
+    public int? UserId { get; set; }
 
     public bool IsActive { get; set; } = true;
     public bool IsDeleted { get; set; } = false;
     public int? UpdatedBy { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    [ForeignKey(nameof(UserId))]
+    public virtual User? User { get; set; }
 }
 
+// ==========================================
+// TESTIMONIAL — Enhanced with designation, feedbackText, avatarUrl
+// ==========================================
 [Table("tbl_testimonials")]
 public class Testimonial
 {
@@ -160,15 +211,18 @@ public class Testimonial
     public string ClientName { get; set; } = string.Empty;
 
     [MaxLength(100)]
+    public string? ClientDesignation { get; set; }
+
+    [MaxLength(100)]
     public string? CompanyName { get; set; }
 
-    [Required]
-    public string Review { get; set; } = string.Empty;
-
     [MaxLength(255)]
-    public string? ImageUrl { get; set; }
+    public string? AvatarUrl { get; set; }
 
-    public int? Rating { get; set; } = 5;
+    public int Rating { get; set; } = 5;
+
+    [Required]
+    public string FeedbackText { get; set; } = string.Empty;
 
     public bool IsActive { get; set; } = true;
     public bool IsDeleted { get; set; } = false;
@@ -177,6 +231,9 @@ public class Testimonial
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
 
+// ==========================================
+// CONTACT INQUIRY — Enhanced with fullName, subject, isResolved
+// ==========================================
 [Table("tbl_contact_inquiries")]
 public class ContactInquiry
 {
@@ -185,23 +242,31 @@ public class ContactInquiry
 
     [Required]
     [MaxLength(100)]
-    public string CustomerName { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
 
+    [Required]
     [MaxLength(100)]
-    public string? Email { get; set; }
+    public string Email { get; set; } = string.Empty;
 
     [MaxLength(20)]
     public string? Phone { get; set; }
 
-    public string? Message { get; set; }
+    [MaxLength(255)]
+    public string? Subject { get; set; }
 
-    public bool IsActive { get; set; } = true;
+    public string Message { get; set; } = string.Empty;
+
+    public bool IsResolved { get; set; } = false;
+
     public bool IsDeleted { get; set; } = false;
     public int? UpdatedBy { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
 
+// ==========================================
+// AUDIT LOG
+// ==========================================
 [Table("tbl_audit_logs")]
 public class AuditLog
 {
@@ -227,4 +292,89 @@ public class AuditLog
 
     [ForeignKey(nameof(UserId))]
     public virtual User? User { get; set; }
+}
+
+// ==========================================
+// JOB POSTING — New entity for Careers page
+// ==========================================
+[Table("tbl_job_postings")]
+public class JobPosting
+{
+    [Key]
+    public int Id { get; set; }
+
+    [Required]
+    [MaxLength(150)]
+    public string JobTitle { get; set; } = string.Empty;
+
+    [MaxLength(100)]
+    public string? Department { get; set; }
+
+    [MaxLength(100)]
+    public string? Location { get; set; }
+
+    [MaxLength(50)]
+    public string? JobType { get; set; } // Full-time, Part-time, Remote, Contract
+
+    [MaxLength(50)]
+    public string? ExperienceLevel { get; set; } // Fresher, 1-3 yrs, 3-6 yrs, 6+
+
+    public string? Description { get; set; }
+
+    public string? RequiredSkills { get; set; }
+
+    [MaxLength(100)]
+    public string? SalaryRange { get; set; }
+
+    public DateTime? LastDateToApply { get; set; }
+
+    public bool IsActive { get; set; } = true;
+    public bool IsDeleted { get; set; } = false;
+    public int? UpdatedBy { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    public virtual ICollection<JobApplication> Applications { get; set; } = new List<JobApplication>();
+}
+
+// ==========================================
+// JOB APPLICATION — New entity for ATS
+// ==========================================
+[Table("tbl_job_applications")]
+public class JobApplication
+{
+    [Key]
+    public int Id { get; set; }
+
+    [Required]
+    public int JobPostingId { get; set; }
+
+    [Required]
+    [MaxLength(100)]
+    public string ApplicantName { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(100)]
+    public string Email { get; set; } = string.Empty;
+
+    [MaxLength(20)]
+    public string? Phone { get; set; }
+
+    [MaxLength(255)]
+    public string? ResumeUrl { get; set; }
+
+    public string? CoverLetter { get; set; }
+
+    [MaxLength(50)]
+    public string Status { get; set; } = "Applied"; // Applied, Shortlisted, Interview, Rejected, Hired
+
+    public string? Notes { get; set; }
+
+    public bool IsDeleted { get; set; } = false;
+    public int? UpdatedBy { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    [ForeignKey(nameof(JobPostingId))]
+    public virtual JobPosting? JobPosting { get; set; }
 }

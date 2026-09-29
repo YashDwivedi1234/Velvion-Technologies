@@ -57,10 +57,33 @@ public interface IContactInquiryService
     Task<ApiResponse<ContactInquiryDto>> GetInquiryByIdAsync(int id);
     Task<ApiResponse<ContactInquiryDto>> SaveInquiryAsync(SaveContactInquiryDto dto);
     Task<ApiResponse<bool>> DeleteInquiryAsync(int id, int? updatedBy = null);
+    Task<ApiResponse<bool>> MarkResolvedAsync(int id, int? updatedBy = null);
 }
 
 public interface IAuditLogService
 {
     Task<ApiResponse<List<AuditLogDto>>> GetLogsAsync(int limit = 100);
     Task<ApiResponse<bool>> CreateLogAsync(CreateAuditLogDto dto);
+}
+
+public interface IJobPostingService
+{
+    Task<ApiResponse<List<JobPostingDto>>> GetJobPostingsAsync(bool activeOnly = false);
+    Task<ApiResponse<JobPostingDto>> GetJobPostingByIdAsync(int id);
+    Task<ApiResponse<JobPostingDto>> SaveJobPostingAsync(SaveJobPostingDto dto);
+    Task<ApiResponse<bool>> DeleteJobPostingAsync(int id, int? updatedBy = null);
+}
+
+public interface IJobApplicationService
+{
+    Task<ApiResponse<List<JobApplicationDto>>> GetApplicationsAsync(int? jobPostingId = null);
+    Task<ApiResponse<JobApplicationDto>> GetApplicationByIdAsync(int id);
+    Task<ApiResponse<JobApplicationDto>> SaveApplicationAsync(SaveJobApplicationDto dto);
+    Task<ApiResponse<bool>> UpdateApplicationStatusAsync(int id, string status, string? notes, int? updatedBy = null);
+    Task<ApiResponse<bool>> DeleteApplicationAsync(int id, int? updatedBy = null);
+}
+
+public interface IDashboardService
+{
+    Task<ApiResponse<DashboardStatsDto>> GetDashboardStatsAsync();
 }

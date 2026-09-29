@@ -25,6 +25,10 @@ public class AppDbContext : DbContext
     public DbSet<ContactInquiry> ContactInquiries => Set<ContactInquiry>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
+    // New — Careers / ATS
+    public DbSet<JobPosting> JobPostings => Set<JobPosting>();
+    public DbSet<JobApplication> JobApplications => Set<JobApplication>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -41,6 +45,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<TeamMember>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Testimonial>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<ContactInquiry>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<JobPosting>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<JobApplication>().HasQueryFilter(e => !e.IsDeleted);
 
         // Setting unique index
         modelBuilder.Entity<Setting>()
@@ -51,5 +57,18 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<User>()
             .HasIndex(u => u.Email)
             .IsUnique();
+
+        // Blog slug unique index
+        modelBuilder.Entity<Blog>()
+            .HasIndex(b => b.Slug)
+            .IsUnique()
+            .HasFilter("Slug IS NOT NULL AND Slug != ''");
+
+        // JobApplication → JobPosting relationship
+        modelBuilder.Entity<JobApplication>()
+            .HasOne(a => a.JobPosting)
+            .WithMany(j => j.Applications)
+            .HasForeignKey(a => a.JobPostingId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

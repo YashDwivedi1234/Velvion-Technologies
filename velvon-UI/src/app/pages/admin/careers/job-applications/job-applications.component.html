@@ -1,0 +1,263 @@
+<div class="applications-page-view">
+
+  <!-- Filter Bar -->
+  <div class="filter-bar glass-panel">
+    <div class="filter-left">
+      <app-icon name="filter" [size]="16" class="text-muted"></app-icon>
+      <span class="filter-label">Filter by Job:</span>
+      <select class="filter-select" (change)="filterByJob($any($event.target).value)">
+        <option value="">All Job Postings ({{ applications().length }} applications)</option>
+        @for (job of jobPostings(); track job.id) {
+          <option [value]="job.id">{{ job.jobTitle }} ({{ job.applicationCount }})</option>
+        }
+      </select>
+    </div>
+    <div class="filter-stats">
+      <span class="stat-pill stat-total">
+        <app-icon name="users" [size]="12"></app-icon>
+        Total: {{ applications().length }}
+      </span>
+      <span class="stat-pill stat-new">
+        Applied: {{ countApplied() }}
+      </span>
+      <span class="stat-pill stat-interview">
+        Shortlisted: {{ countShortlisted() }}
+      </span>
+      <span class="stat-pill stat-hired">
+        Hired: {{ countHired() }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Applications Table -->
+  <div class="table-card glass-panel">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Sr. No.</th>
+            <th class="sortable" (click)="toggleSort('applicantName')">
+              <div class="th-sort-wrap">
+                <span>Applicant</span>
+                @if (sortColumn() === 'applicantName') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th>Job Applied For</th>
+            <th class="sortable" (click)="toggleSort('status')">
+              <div class="th-sort-wrap">
+                <span>Status</span>
+                @if (sortColumn() === 'status') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('createdAt')">
+              <div class="th-sort-wrap">
+                <span>Applied On</span>
+                @if (sortColumn() === 'createdAt') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            @for (i of [1,2,3,4,5]; track i) {
+              <tr><td colspan="6"><div class="skeleton-row"></div></td></tr>
+            }
+          }
+          @for (app of paginatedApplications(); track app.id; let i = $index) {
+            <tr>
+              <td class="font-mono text-muted">{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
+              <td>
+                <div class="applicant-cell">
+                  <div class="applicant-avatar">{{ app.applicantName.charAt(0).toUpperCase() }}</div>
+                  <div class="applicant-info">
+                    <span class="font-bold text-white">{{ app.applicantName }}</span>
+                    <span class="text-muted font-xs">{{ app.email }}</span>
+                    @if (app.phone) {
+                      <span class="text-muted font-xs">{{ app.phone }}</span>
+                    }
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="job-ref">{{ app.jobTitle || 'Job #' + app.jobPostingId }}</span>
+              </td>
+              <td>
+                <span class="ats-status-pill {{ getStatusClass(app.status) }}">{{ app.status }}</span>
+              </td>
+              <td class="text-muted font-sm">{{ app.createdAt | date:'mediumDate' }}</td>
+              <td class="text-right">
+                <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon view" (click)="openViewModal(app)" title="View Application">
+                    <app-icon name="eye" [size]="15"></app-icon>
+                  </button>
+                  <button type="button" class="btn-action-icon status-btn" (click)="openStatusModal(app)" title="Update Status">
+                    <app-icon name="refresh-cw" [size]="14"></app-icon>
+                  </button>
+                  <button type="button" class="btn-action-icon delete" (click)="deleteApplication(app)" title="Delete">
+                    <app-icon name="trash" [size]="15"></app-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @if (applications().length === 0 && !loading()) {
+            <tr>
+              <td colspan="6" class="empty-state">
+                <app-icon name="inbox" [size]="40" class="empty-icon"></app-icon>
+                <p>No applications received yet.</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <app-pagination
+      [totalItems]="applications().length"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      (pageChange)="currentPage.set($event)"
+      (pageSizeChange)="pageSize.set($event)">
+    </app-pagination>
+  </div>
+
+  <!-- View Application Modal -->
+  @if (isViewModalOpen() && currentApplication(); as app) {
+    <div class="modal-backdrop" (click)="closeViewModal()">
+      <div class="modal-card modal-wide view-modal-card animate-scale" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="view-icon-badge">{{ app.applicantName.charAt(0).toUpperCase() }}</div>
+            <div>
+              <h3 class="modal-title">{{ app.applicantName }}</h3>
+              <span class="text-muted font-sm">{{ app.email }} · Applied for <strong>{{ app.jobTitle }}</strong></span>
+            </div>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeViewModal()">
+            <app-icon name="x" [size]="20"></app-icon>
+          </button>
+        </div>
+
+        <div class="view-modal-body">
+          <div class="view-info-grid">
+            <div class="view-item">
+              <span class="view-label">Email</span>
+              <span class="view-value">{{ app.email }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Phone</span>
+              <span class="view-value">{{ app.phone || '—' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Current Status</span>
+              <span class="ats-status-pill {{ getStatusClass(app.status) }}">{{ app.status }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Applied On</span>
+              <span class="view-value">{{ app.createdAt | date:'medium' }}</span>
+            </div>
+            @if (app.resumeUrl) {
+              <div class="view-item full-width">
+                <span class="view-label">Resume</span>
+                <a [href]="app.resumeUrl" target="_blank" class="resume-link">
+                  <app-icon name="file-text" [size]="14"></app-icon>
+                  View Resume / Download
+                </a>
+              </div>
+            }
+            @if (app.coverLetter) {
+              <div class="view-item full-width">
+                <span class="view-label">Cover Letter</span>
+                <p class="view-description">{{ app.coverLetter }}</p>
+              </div>
+            }
+            @if (app.notes) {
+              <div class="view-item full-width">
+                <span class="view-label">Internal Notes</span>
+                <p class="view-description notes-text">{{ app.notes }}</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeViewModal()">Close</button>
+          <button type="button" class="btn-primary-neon" (click)="closeViewModal(); openStatusModal(app)">
+            <app-icon name="refresh-cw" [size]="15"></app-icon>
+            <span>Update Status</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Update Status Modal -->
+  @if (isStatusModalOpen() && currentApplication(); as app) {
+    <div class="modal-backdrop" (click)="closeStatusModal()">
+      <div class="modal-card animate-scale" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <app-icon name="refresh-cw" [size]="18" class="text-cyan"></app-icon>
+            <div>
+              <h3 class="modal-title">Update Application Status</h3>
+              <span class="text-muted font-sm">{{ app.applicantName }}</span>
+            </div>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeStatusModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="statusForm" (ngSubmit)="updateStatus()" class="modal-form">
+          <div class="form-group">
+            <label class="form-label">New Status *</label>
+            <div class="status-selector">
+              @for (status of statusOptions; track status) {
+                <button type="button" class="status-option"
+                  [class.selected]="statusForm.get('status')?.value === status"
+                  [class]="statusForm.get('status')?.value === status ? 'status-option selected ' + getStatusClass(status) : 'status-option'"
+                  (click)="statusForm.patchValue({ status: status })">
+                  {{ status }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="status-notes">Internal Notes (optional)</label>
+            <textarea id="status-notes" class="form-control" rows="3"
+              placeholder="Add notes for your team..."
+              formControlName="notes"></textarea>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeStatusModal()">Cancel</button>
+            <button type="submit" class="btn-primary-neon" [disabled]="statusSubmitting() || statusForm.invalid">
+              @if (statusSubmitting()) {
+                <span class="spinner-sm"></span>
+                <span>Updating...</span>
+              } @else {
+                <app-icon name="check-circle" [size]="16"></app-icon>
+                <span>Update Status</span>
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+</div>

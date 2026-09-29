@@ -22,6 +22,8 @@ const ROUTE_MAP: Record<string, PageInfo> = {
   '/admin/portfolios': { section: 'Content & Media', breadcrumb: 'Showcase Portfolio', title: 'Portfolio Projects' },
   '/admin/team': { section: 'Operations & HR', breadcrumb: 'Company Team', title: 'Team Members' },
   '/admin/testimonials': { section: 'Content & Media', breadcrumb: 'Client Reviews', title: 'Client Testimonials' },
+  '/admin/careers/job-postings': { section: 'Careers & Hiring', breadcrumb: 'Job Openings', title: 'Job Postings' },
+  '/admin/careers/job-applications': { section: 'Careers & Hiring', breadcrumb: 'Applications ATS', title: 'Candidate Applications' },
   '/admin/inquiries': { section: 'Operations & Leads', breadcrumb: 'Customer Inquiries', title: 'Customer Inquiries' },
   '/admin/audit-logs': { section: 'System & Security', breadcrumb: 'Audit Logs', title: 'Database Audit Trails' },
   '/admin/profile': { section: 'Account & Settings', breadcrumb: 'My Profile', title: 'User Profile & Settings' }
@@ -69,6 +71,7 @@ export class DashboardLayoutComponent implements OnInit {
   userMgmtOpen = computed<boolean>(() => this.isSectionOpen('user-mgmt'));
   mastersOpen = computed<boolean>(() => this.isSectionOpen('masters'));
   contentOpen = computed<boolean>(() => this.isSectionOpen('content'));
+  careersOpen = computed<boolean>(() => this.isSectionOpen('careers'));
   operationsOpen = computed<boolean>(() => this.isSectionOpen('operations'));
 
   toggleNavSection(section: string): void {
@@ -90,6 +93,8 @@ export class DashboardLayoutComponent implements OnInit {
       this.activeNavSection.set('masters');
     } else if (url.includes('/admin/blogs') || url.includes('/admin/portfolios') || url.includes('/admin/team') || url.includes('/admin/testimonials')) {
       this.activeNavSection.set('content');
+    } else if (url.includes('/admin/careers')) {
+      this.activeNavSection.set('careers');
     } else if (url.includes('/admin/inquiries') || url.includes('/admin/audit-logs')) {
       this.activeNavSection.set('operations');
     }

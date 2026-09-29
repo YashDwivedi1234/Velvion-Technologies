@@ -81,6 +81,14 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/admin/audit-logs/audit-logs.component').then(m => m.AuditLogsComponent)
       },
       {
+        path: 'careers/job-postings',
+        loadComponent: () => import('./pages/admin/careers/job-postings/job-postings.component').then(m => m.JobPostingsComponent)
+      },
+      {
+        path: 'careers/job-applications',
+        loadComponent: () => import('./pages/admin/careers/job-applications/job-applications.component').then(m => m.JobApplicationsComponent)
+      },
+      {
         path: 'profile',
         loadComponent: () => import('./pages/admin/my-profile/my-profile.component').then(m => m.MyProfileComponent)
       }

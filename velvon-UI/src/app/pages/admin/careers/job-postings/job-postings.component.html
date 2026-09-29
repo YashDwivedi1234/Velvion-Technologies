@@ -1,0 +1,342 @@
+<div class="jobs-page-view">
+
+  <!-- Top Action Bar -->
+  <div class="page-top-actions">
+    <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+      <app-icon name="plus" [size]="16"></app-icon>
+      <span>Post New Job</span>
+    </button>
+  </div>
+
+  <!-- Jobs Table -->
+  <div class="table-card glass-panel">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Sr. No.</th>
+            <th class="sortable" (click)="toggleSort('jobTitle')">
+              <div class="th-sort-wrap">
+                <span>Job Title</span>
+                @if (sortColumn() === 'jobTitle') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('department')">
+              <div class="th-sort-wrap">
+                <span>Department</span>
+                @if (sortColumn() === 'department') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th>Job Type</th>
+            <th>Applications</th>
+            <th class="sortable" (click)="toggleSort('isActive')">
+              <div class="th-sort-wrap">
+                <span>Status</span>
+                @if (sortColumn() === 'isActive') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('lastDateToApply')">
+              <div class="th-sort-wrap">
+                <span>Last Date</span>
+                @if (sortColumn() === 'lastDateToApply') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            @for (i of [1,2,3,4,5]; track i) {
+              <tr>
+                <td colspan="8"><div class="skeleton-row"></div></td>
+              </tr>
+            }
+          }
+          @for (job of paginatedJobs(); track job.id; let i = $index) {
+            <tr>
+              <td class="font-mono text-muted">{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
+              <td>
+                <div class="job-cell">
+                  <div class="job-icon-badge">
+                    <app-icon name="briefcase" [size]="15"></app-icon>
+                  </div>
+                  <div class="job-info">
+                    <span class="font-bold text-white">{{ job.jobTitle }}</span>
+                    <span class="text-muted font-xs">{{ job.location || 'Location TBD' }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="dept-tag">{{ job.department || '—' }}</span>
+              </td>
+              <td>
+                <span class="job-type-tag" [class]="getJobTypeClass(job.jobType)">
+                  {{ job.jobType || '—' }}
+                </span>
+              </td>
+              <td>
+                <span class="app-count-badge" [class.has-apps]="job.applicationCount > 0">
+                  <app-icon name="users" [size]="12"></app-icon>
+                  {{ job.applicationCount }}
+                </span>
+              </td>
+              <td>
+                <span class="status-pill" [class.active]="job.isActive">
+                  <span class="status-dot"></span>
+                  {{ job.isActive ? 'Active' : 'Closed' }}
+                </span>
+              </td>
+              <td class="text-muted font-sm">
+                {{ job.lastDateToApply ? (job.lastDateToApply | date:'mediumDate') : '—' }}
+              </td>
+              <td class="text-right">
+                <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon view" (click)="openViewModal(job)" title="View Details">
+                    <app-icon name="eye" [size]="15"></app-icon>
+                  </button>
+                  <button type="button" class="btn-action-icon edit" (click)="openEditModal(job)" title="Edit Job">
+                    <app-icon name="edit" [size]="15"></app-icon>
+                  </button>
+                  <button type="button" class="btn-action-icon delete" (click)="deleteJob(job)" title="Delete Job">
+                    <app-icon name="trash" [size]="15"></app-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @if (jobs().length === 0 && !loading()) {
+            <tr>
+              <td colspan="8" class="empty-state">
+                <app-icon name="briefcase" [size]="40" class="empty-icon"></app-icon>
+                <p>No job postings yet. Post your first opening!</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <app-pagination
+      [totalItems]="jobs().length"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      (pageChange)="currentPage.set($event)"
+      (pageSizeChange)="pageSize.set($event)">
+    </app-pagination>
+  </div>
+
+  <!-- Create/Edit Modal -->
+  @if (isModalOpen()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <div class="modal-card modal-wide glass-panel animate-scale" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <app-icon name="briefcase" [size]="20" class="text-cyan"></app-icon>
+            <h2 class="modal-title">{{ isEditMode() ? 'Edit Job Posting' : 'Post New Job Opening' }}</h2>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="jobForm" (ngSubmit)="saveJob()" class="modal-form">
+          
+          <!-- Row 1 -->
+          <div class="form-row">
+            <div class="form-group flex-2">
+              <label class="form-label" for="job-title">Job Title *</label>
+              <input id="job-title" type="text" class="form-control" placeholder="e.g. Senior Angular Developer"
+                formControlName="jobTitle"
+                [class.is-invalid]="jobForm.get('jobTitle')?.touched && jobForm.get('jobTitle')?.invalid" />
+              @if (jobForm.get('jobTitle')?.touched && jobForm.get('jobTitle')?.invalid) {
+                <span class="field-error">Job title is required</span>
+              }
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="job-dept">Department</label>
+              <select id="job-dept" class="form-control" formControlName="department">
+                @for (dept of departments; track dept) {
+                  <option [value]="dept">{{ dept }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <!-- Row 2 -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="job-location">Location</label>
+              <input id="job-location" type="text" class="form-control" placeholder="e.g. Ahmedabad, Remote"
+                formControlName="location" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="job-type">Job Type</label>
+              <select id="job-type" class="form-control" formControlName="jobType">
+                @for (type of jobTypes; track type) {
+                  <option [value]="type">{{ type }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="job-exp">Experience Level</label>
+              <select id="job-exp" class="form-control" formControlName="experienceLevel">
+                @for (level of experienceLevels; track level) {
+                  <option [value]="level">{{ level }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="job-salary">Salary Range</label>
+              <input id="job-salary" type="text" class="form-control" placeholder="e.g. ₹6-10 LPA"
+                formControlName="salaryRange" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="job-last-date">Last Date to Apply</label>
+              <input id="job-last-date" type="date" class="form-control" formControlName="lastDateToApply" />
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="form-group">
+            <label class="form-label" for="job-desc">Job Description *</label>
+            <textarea id="job-desc" class="form-control" rows="5"
+              placeholder="Describe the role, responsibilities, and what makes this exciting..."
+              formControlName="description"
+              [class.is-invalid]="jobForm.get('description')?.touched && jobForm.get('description')?.invalid"></textarea>
+            @if (jobForm.get('description')?.touched && jobForm.get('description')?.invalid) {
+              <span class="field-error">Job description is required</span>
+            }
+          </div>
+
+          <!-- Required Skills -->
+          <div class="form-group">
+            <label class="form-label" for="job-skills">Required Skills</label>
+            <textarea id="job-skills" class="form-control" rows="3"
+              placeholder="e.g. Angular 17+, TypeScript, .NET Core, SQL, REST APIs, Git"
+              formControlName="requiredSkills"></textarea>
+          </div>
+
+          <!-- Active Toggle -->
+          <div class="form-group toggle-row">
+            <label class="form-label">Job Status</label>
+            <app-toggle formControlName="isActive" label="Active — visible on careers page"></app-toggle>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
+            <button type="submit" class="btn-primary-neon" [disabled]="modalSubmitting()">
+              @if (modalSubmitting()) {
+                <span class="spinner-sm"></span>
+                <span>Saving...</span>
+              } @else {
+                <app-icon name="check-circle" [size]="16"></app-icon>
+                <span>{{ isEditMode() ? 'Update Job' : 'Post Job' }}</span>
+              }
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  }
+
+  <!-- View Job Modal -->
+  @if (isViewModalOpen() && viewingJob(); as job) {
+    <div class="modal-backdrop" (click)="closeViewModal()">
+      <div class="modal-card modal-wide view-modal-card animate-scale" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="view-icon-badge">
+              <app-icon name="briefcase" [size]="18"></app-icon>
+            </div>
+            <div>
+              <h3 class="modal-title">{{ job.jobTitle }}</h3>
+              <span class="text-muted font-sm">{{ job.department }} · {{ job.jobType }} · {{ job.location }}</span>
+            </div>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeViewModal()">
+            <app-icon name="x" [size]="20"></app-icon>
+          </button>
+        </div>
+
+        <div class="view-modal-body">
+          <div class="view-info-grid">
+            <div class="view-item">
+              <span class="view-label">Experience</span>
+              <span class="view-value">{{ job.experienceLevel || '—' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Salary Range</span>
+              <span class="view-value">{{ job.salaryRange || 'Competitive' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Applications Received</span>
+              <span class="view-value text-cyan font-bold">{{ job.applicationCount }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Last Date to Apply</span>
+              <span class="view-value">{{ job.lastDateToApply ? (job.lastDateToApply | date:'mediumDate') : 'Open' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Status</span>
+              <span class="status-pill" [class.active]="job.isActive">
+                <span class="status-dot"></span>
+                {{ job.isActive ? 'Active' : 'Closed' }}
+              </span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Posted On</span>
+              <span class="view-value">{{ job.createdAt | date:'medium' }}</span>
+            </div>
+            @if (job.description) {
+              <div class="view-item full-width">
+                <span class="view-label">Job Description</span>
+                <span class="view-value view-description">{{ job.description }}</span>
+              </div>
+            }
+            @if (job.requiredSkills) {
+              <div class="view-item full-width">
+                <span class="view-label">Required Skills</span>
+                <div class="skills-chip-wrap">
+                  @for (skill of job.requiredSkills.split(','); track skill) {
+                    <span class="skill-chip">{{ skill.trim() }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeViewModal()">Close</button>
+          <button type="button" class="btn-primary-neon" (click)="closeViewModal(); openEditModal(job)">
+            <app-icon name="edit" [size]="15"></app-icon>
+            <span>Edit Job</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

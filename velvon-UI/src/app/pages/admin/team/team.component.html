@@ -46,7 +46,7 @@
             </th>
             <th class="sortable" (click)="toggleSort('email')">
               <div class="th-sort-wrap">
-                <span>Email</span>
+                <span>Work Email</span>
                 @if (sortColumn() === 'email') {
                   <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
                 } @else {
@@ -54,6 +54,7 @@
                 }
               </div>
             </th>
+            <th>Portal Access</th>
             <th class="sortable" (click)="toggleSort('isActive')">
               <div class="th-sort-wrap">
                 <span>Status</span>
@@ -83,6 +84,19 @@
               <td class="text-muted">{{ m.department || 'Engineering' }}</td>
               <td class="text-muted font-mono font-sm">{{ m.email || '—' }}</td>
               <td>
+                @if (m.hasLoginAccess || m.userId) {
+                  <span class="login-badge active" title="Active login credentials in tbl_users">
+                    <app-icon name="shield" [size]="12"></app-icon>
+                    <span>{{ m.roleName || 'Team User' }}</span>
+                  </span>
+                } @else {
+                  <span class="login-badge inactive" title="No system login account">
+                    <app-icon name="lock" [size]="12"></app-icon>
+                    <span>No Login</span>
+                  </span>
+                }
+              </td>
+              <td>
                 <span class="status-pill" [class.active]="m.isActive">
                   <span class="status-dot"></span>
                   {{ m.isActive ? 'Active' : 'Inactive' }}
@@ -105,7 +119,7 @@
           }
           @if (teamMembers().length === 0 && !loading()) {
             <tr>
-              <td colspan="7" class="text-center py-5 text-muted">
+              <td colspan="8" class="text-center py-5 text-muted">
                 No team members recorded in database.
               </td>
             </tr>
@@ -135,7 +149,7 @@
             </div>
             <div>
               <h2 class="modal-title">Team Member Profile</h2>
-              <p class="text-xs text-muted">Detailed view of member credentials and department info</p>
+              <p class="text-xs text-muted">Detailed view of member credentials and portal login status</p>
             </div>
           </div>
           <button type="button" class="modal-close-btn" (click)="closeViewModal()">
@@ -149,34 +163,57 @@
               <span class="view-label">Full Name</span>
               <span class="view-value text-white font-bold">{{ member.fullName }}</span>
             </div>
+
             <div class="view-item">
               <span class="view-label">Designation</span>
               <span class="view-value text-cyan">{{ member.designation }}</span>
             </div>
+
             <div class="view-item">
               <span class="view-label">Department</span>
-              <span class="view-value text-white">{{ member.department || 'Engineering' }}</span>
+              <span class="view-value text-muted">{{ member.department || '—' }}</span>
             </div>
+
             <div class="view-item">
               <span class="view-label">Work Email</span>
-              <span class="view-value text-muted font-mono">{{ member.email || '—' }}</span>
+              <span class="view-value font-mono text-white">{{ member.email || '—' }}</span>
             </div>
+
             <div class="view-item">
-              <span class="view-label">Status</span>
+              <span class="view-label">Mobile Number</span>
+              <span class="view-value font-mono text-muted">{{ member.mobile || '—' }}</span>
+            </div>
+
+            <div class="view-item">
+              <span class="view-label">Portal Login Account</span>
+              <span class="view-value">
+                @if (member.hasLoginAccess || member.userId) {
+                  <span class="login-badge active">
+                    <app-icon name="shield" [size]="12"></app-icon>
+                    <span>User: {{ member.roleName || 'Team User' }} (Active in tbl_users)</span>
+                  </span>
+                } @else {
+                  <span class="login-badge inactive">
+                    <app-icon name="lock" [size]="12"></app-icon>
+                    <span>No Portal Login</span>
+                  </span>
+                }
+              </span>
+            </div>
+
+            <div class="view-item">
+              <span class="view-label">Public Status</span>
               <span class="view-value">
                 <span class="status-pill" [class.active]="member.isActive">
                   <span class="status-dot"></span>
-                  {{ member.isActive ? 'Active' : 'Inactive' }}
+                  {{ member.isActive ? 'Active (Public)' : 'Inactive' }}
                 </span>
               </span>
             </div>
-            <div class="view-item">
-              <span class="view-label">Record ID</span>
-              <span class="view-value font-mono text-muted text-xs">#{{ member.id }}</span>
-            </div>
+
             <div class="view-item full-width" *ngIf="member.bio">
-              <span class="view-label">Bio & Summary</span>
-              <div class="view-bio-box">{{ member.bio }}</div>
+              <span class="view-label">Professional Bio</span>
+              <p class="view-bio">{{ member.bio }}</p>
             </div>
           </div>
         </div>
@@ -192,15 +229,15 @@
     </div>
   }
 
-  <!-- Modal -->
+  <!-- Add / Edit Modal -->
   @if (isModalOpen()) {
     <div class="modal-backdrop" (click)="closeModal()">
-      <div class="modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+      <div class="modal-card modal-card-wide glass-panel animate-scale" (click)="$event.stopPropagation()">
         
         <div class="modal-header">
           <div class="modal-title-group">
-            <app-icon name="user" [size]="20" class="text-cyan"></app-icon>
-            <h2 class="modal-title">{{ isEditMode() ? 'Edit Team Member' : 'Add Team Member' }}</h2>
+            <app-icon name="user-check" [size]="20" class="text-cyan"></app-icon>
+            <h2 class="modal-title">{{ isEditMode() ? 'Edit Team Member & Login Account' : 'Add Team Member (Auto-Sync User)' }}</h2>
           </div>
           <button type="button" class="modal-close-btn" (click)="closeModal()">
             <app-icon name="x" [size]="18"></app-icon>
@@ -208,6 +245,8 @@
         </div>
 
         <form [formGroup]="memberForm" (ngSubmit)="saveMember()" class="modal-form">
+          
+          <!-- Basic Profile Row -->
           <div class="form-row-2">
             <div class="form-group">
               <label class="form-label" for="tm-name">Full Name *</label>
@@ -215,7 +254,7 @@
                 id="tm-name"
                 type="text" 
                 class="form-control" 
-                placeholder="e.g. Elena Rostova" 
+                placeholder="e.g. John Doe" 
                 formControlName="fullName"
                 [class.is-invalid]="memberForm.get('fullName')?.touched && memberForm.get('fullName')?.invalid" />
             </div>
@@ -226,7 +265,7 @@
                 id="tm-desig"
                 type="text" 
                 class="form-control" 
-                placeholder="Principal Cloud Architect" 
+                placeholder="Senior Full Stack Engineer" 
                 formControlName="designation"
                 [class.is-invalid]="memberForm.get('designation')?.touched && memberForm.get('designation')?.invalid" />
             </div>
@@ -239,34 +278,105 @@
                 id="tm-dept"
                 type="text" 
                 class="form-control" 
-                placeholder="Engineering, Strategy, Security" 
+                placeholder="Engineering, Design, DevOps, QA" 
                 formControlName="department" />
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="tm-email">Work Email</label>
+              <label class="form-label" for="tm-email">Work Email * (Used for Login)</label>
               <input 
                 id="tm-email"
                 type="email" 
                 class="form-control" 
-                placeholder="name@velvion.com" 
-                formControlName="email" />
+                placeholder="john.doe@velvion.com" 
+                formControlName="email"
+                [class.is-invalid]="memberForm.get('email')?.touched && memberForm.get('email')?.invalid" />
             </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="tm-mobile">Mobile / Phone</label>
+              <input 
+                id="tm-mobile"
+                type="text" 
+                class="form-control" 
+                placeholder="+91 98765 43210" 
+                formControlName="mobile" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="tm-linkedin">LinkedIn Profile URL</label>
+              <input 
+                id="tm-linkedin"
+                type="url" 
+                class="form-control" 
+                placeholder="https://linkedin.com/in/..." 
+                formControlName="linkedInUrl" />
+            </div>
+          </div>
+
+          <!-- LOGIN & USER ACCOUNT SYNC BOX -->
+          <div class="auth-sync-card">
+            <div class="auth-sync-header">
+              <div class="auth-sync-title">
+                <app-icon name="shield" [size]="16" class="text-cyan"></app-icon>
+                <span>Portal Login & User Synchronization</span>
+              </div>
+              <app-toggle formControlName="enableLoginAccess" label="Enable Login Account"></app-toggle>
+            </div>
+
+            @if (memberForm.get('enableLoginAccess')?.value) {
+              <div class="auth-sync-body animate-fadeIn">
+                <p class="auth-sync-hint">
+                  <app-icon name="info" [size]="14"></app-icon>
+                  <span>This member will be stored in <code>tbl_users</code> and can log into the platform with this email.</span>
+                </p>
+
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label class="form-label" for="tm-role">System Role *</label>
+                    <select id="tm-role" class="form-control" formControlName="roleId">
+                      @for (role of roles(); track role.id) {
+                        <option [value]="role.id">{{ role.roleName }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="tm-pwd">
+                      Login Password {{ isEditMode() ? '(Leave blank to keep current)' : '(Optional)' }}
+                    </label>
+                    <div class="password-input-wrap">
+                      <input 
+                        id="tm-pwd"
+                        [type]="showPassword() ? 'text' : 'password'" 
+                        class="form-control" 
+                        placeholder="{{ isEditMode() ? '••••••••' : 'Default: Velvion@2026' }}" 
+                        formControlName="password" />
+                      <button type="button" class="btn-toggle-eye" (click)="showPassword.set(!showPassword())" tabindex="-1">
+                        <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" [size]="15"></app-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
           </div>
 
           <div class="form-group">
             <label class="form-label" for="tm-bio">Short Bio & Focus Area</label>
             <textarea 
               id="tm-bio"
-              rows="3" 
+              rows="2" 
               class="form-control" 
-              placeholder="Summary of experience, patents, tech leadership..." 
+              placeholder="Summary of tech leadership, architecture, domain expertise..." 
               formControlName="bio"></textarea>
           </div>
 
           <div class="form-group toggle-row">
-            <label class="form-label">Active State</label>
-            <app-toggle formControlName="isActive" label="Listed on public company team page"></app-toggle>
+            <label class="form-label">Company Public Listing</label>
+            <app-toggle formControlName="isActive" label="Show on company website team section"></app-toggle>
           </div>
 
           <div class="modal-footer">
@@ -277,7 +387,7 @@
                 <span>Saving to Database...</span>
               } @else {
                 <app-icon name="check-circle" [size]="16"></app-icon>
-                <span>{{ isEditMode() ? 'Update Member' : 'Save Member' }}</span>
+                <span>{{ isEditMode() ? 'Update Member & User' : 'Save Member & User' }}</span>
               }
             </button>
           </div>

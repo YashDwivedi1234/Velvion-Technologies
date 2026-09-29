@@ -1,3 +1,6 @@
+// ==========================================
+// COMMON
+// ==========================================
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
@@ -6,7 +9,9 @@ export interface ApiResponse<T> {
   statusCode: number;
 }
 
-// User Models
+// ==========================================
+// USER MODELS
+// ==========================================
 export interface UserDto {
   id: number;
   roleId: number;
@@ -44,7 +49,9 @@ export interface LoginResponseDto {
   token?: string;
 }
 
-// Role Models
+// ==========================================
+// ROLE MODELS
+// ==========================================
 export interface RoleDto {
   id: number;
   roleName: string;
@@ -60,7 +67,9 @@ export interface SaveRoleDto {
   updatedBy?: number;
 }
 
-// Menu Models
+// ==========================================
+// MENU MODELS
+// ==========================================
 export interface MenuDto {
   id: number;
   menuName: string;
@@ -83,7 +92,9 @@ export interface SaveMenuDto {
   updatedBy?: number;
 }
 
-// Permission Models
+// ==========================================
+// PERMISSION MODELS
+// ==========================================
 export interface RoleMenuPermissionDto {
   id: number;
   roleId: number;
@@ -113,7 +124,9 @@ export interface BulkSaveRolePermissionDto {
   updatedBy?: number;
 }
 
-// Service Master Models
+// ==========================================
+// SERVICE MASTER MODELS
+// ==========================================
 export interface ServiceMasterDto {
   id: number;
   serviceName: string;
@@ -133,7 +146,9 @@ export interface SaveServiceMasterDto {
   updatedBy?: number;
 }
 
-// Setting Models
+// ==========================================
+// SETTING MODELS
+// ==========================================
 export interface SettingDto {
   id: number;
   settingKey: string;
@@ -161,7 +176,9 @@ export interface AllMastersDto {
   settings: SettingDto[];
 }
 
-// Blog Models
+// ==========================================
+// BLOG MODELS — Synced with API
+// ==========================================
 export interface BlogDto {
   id: number;
   title: string;
@@ -175,6 +192,7 @@ export interface BlogDto {
   bannerImage?: string;
   isPublished: boolean;
   publishedAt?: string;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -190,10 +208,13 @@ export interface SaveBlogDto {
   tags?: string;
   bannerImage?: string;
   isPublished: boolean;
+  isActive?: boolean;
   updatedBy?: number;
 }
 
-// Portfolio Models
+// ==========================================
+// PORTFOLIO MODELS — Synced with API
+// ==========================================
 export interface PortfolioDto {
   id: number;
   title: string;
@@ -223,17 +244,24 @@ export interface SavePortfolioDto {
   updatedBy?: number;
 }
 
-// Team Member Models
+// ==========================================
+// TEAM MEMBER MODELS — Synced with API & User Login
+// ==========================================
 export interface TeamMemberDto {
   id: number;
   fullName: string;
   designation: string;
   department?: string;
   email?: string;
+  mobile?: string;
   profileImage?: string;
   bio?: string;
   linkedInUrl?: string;
   githubUrl?: string;
+  userId?: number;
+  roleId?: number;
+  roleName?: string;
+  hasLoginAccess?: boolean;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -245,15 +273,21 @@ export interface SaveTeamMemberDto {
   designation: string;
   department?: string;
   email?: string;
+  mobile?: string;
   profileImage?: string;
   bio?: string;
   linkedInUrl?: string;
   githubUrl?: string;
+  enableLoginAccess?: boolean;
+  roleId?: number;
+  password?: string;
   isActive: boolean;
   updatedBy?: number;
 }
 
-// Testimonial Models
+// ==========================================
+// TESTIMONIAL MODELS — Synced with API
+// ==========================================
 export interface TestimonialDto {
   id: number;
   clientName: string;
@@ -279,7 +313,9 @@ export interface SaveTestimonialDto {
   updatedBy?: number;
 }
 
-// Contact Inquiry Models
+// ==========================================
+// CONTACT INQUIRY MODELS — Synced with API
+// ==========================================
 export interface ContactInquiryDto {
   id: number;
   fullName: string;
@@ -300,17 +336,105 @@ export interface SaveContactInquiryDto {
   subject?: string;
   message: string;
   isResolved?: boolean;
+  updatedBy?: number;
 }
 
-// Audit Log Model
+// ==========================================
+// AUDIT LOG MODEL
+// ==========================================
 export interface AuditLogDto {
   id: number;
-  action: string;
-  tableName: string;
-  recordId?: number;
   userId?: number;
-  userEmail?: string;
-  details?: string;
-  ipAddress?: string;
+  userName?: string;
+  actionName?: string;
+  tableName?: string;
+  recordId?: number;
+  logDetails?: string;
+  iPAddress?: string;
   createdAt: string;
+}
+
+// ==========================================
+// JOB POSTING MODELS — New
+// ==========================================
+export interface JobPostingDto {
+  id: number;
+  jobTitle: string;
+  department?: string;
+  location?: string;
+  jobType?: string;
+  experienceLevel?: string;
+  description?: string;
+  requiredSkills?: string;
+  salaryRange?: string;
+  lastDateToApply?: string;
+  applicationCount: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SaveJobPostingDto {
+  id?: number;
+  jobTitle: string;
+  department?: string;
+  location?: string;
+  jobType?: string;
+  experienceLevel?: string;
+  description?: string;
+  requiredSkills?: string;
+  salaryRange?: string;
+  lastDateToApply?: string;
+  isActive: boolean;
+  updatedBy?: number;
+}
+
+// ==========================================
+// JOB APPLICATION MODELS — New
+// ==========================================
+export interface JobApplicationDto {
+  id: number;
+  jobPostingId: number;
+  jobTitle?: string;
+  applicantName: string;
+  email: string;
+  phone?: string;
+  resumeUrl?: string;
+  coverLetter?: string;
+  status: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SaveJobApplicationDto {
+  id?: number;
+  jobPostingId: number;
+  applicantName: string;
+  email: string;
+  phone?: string;
+  resumeUrl?: string;
+  coverLetter?: string;
+  status?: string;
+  notes?: string;
+  updatedBy?: number;
+}
+
+// ==========================================
+// DASHBOARD STATS — New
+// ==========================================
+export interface DashboardStatsDto {
+  totalUsers: number;
+  totalRoles: number;
+  totalBlogs: number;
+  publishedBlogs: number;
+  totalPortfolios: number;
+  totalTeamMembers: number;
+  totalTestimonials: number;
+  totalInquiries: number;
+  unresolvedInquiries: number;
+  activeJobPostings: number;
+  totalJobApplications: number;
+  recentInquiries: ContactInquiryDto[];
+  recentAuditLogs: AuditLogDto[];
 }
