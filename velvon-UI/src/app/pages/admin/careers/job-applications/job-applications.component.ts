@@ -1,14 +1,14 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { AdminDataService } from '../../../../core/services/admin-data.service';
 import { ToastService, ConfirmService, IconComponent, PaginationComponent } from '../../../../shared';
-import { JobApplicationDto, JobPostingDto } from '../../../../core/models/api.models';
+import { JobApplicationDto, JobPostingDto, SaveJobApplicationDto } from '../../../../core/models/api.models';
 
 @Component({
   selector: 'app-job-applications',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, IconComponent, PaginationComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, IconComponent, PaginationComponent],
   templateUrl: './job-applications.component.html',
   styleUrls: ['./job-applications.component.css']
 })
@@ -23,20 +23,28 @@ export class JobApplicationsComponent implements OnInit {
   jobPostings = signal<JobPostingDto[]>([]);
 
   selectedJobId = signal<number | null>(null);
+  searchQuery = signal<string>('');
   sortColumn = signal<string>('createdAt');
   sortDirection = signal<'asc' | 'desc'>('desc');
   currentPage = signal<number>(1);
   pageSize = signal<number>(10);
 
+  // Computed counters based on loaded applications
   countApplied = computed(() => this.applications().filter(a => a.status === 'Applied').length);
   countShortlisted = computed(() => this.applications().filter(a => a.status === 'Shortlisted').length);
+  countInterview = computed(() => this.applications().filter(a => a.status === 'Interview Scheduled').length);
   countHired = computed(() => this.applications().filter(a => a.status === 'Hired').length);
 
   isStatusModalOpen = signal<boolean>(false);
   isViewModalOpen = signal<boolean>(false);
+  isAddModalOpen = signal<boolean>(false);
   currentApplication = signal<JobApplicationDto | null>(null);
+  
   statusSubmitting = signal<boolean>(false);
+  addSubmitting = signal<boolean>(false);
+  
   statusForm!: FormGroup;
+  addForm!: FormGroup;
 
   readonly statusOptions = ['Applied', 'Shortlisted', 'Interview Scheduled', 'Rejected', 'Hired'];
 
@@ -48,8 +56,24 @@ export class JobApplicationsComponent implements OnInit {
     'Hired': 'status-hired'
   };
 
-  sortedApplications = computed(() => {
+  filteredApplications = computed(() => {
     let list = this.applications();
+    const query = this.searchQuery().trim().toLowerCase();
+
+    if (query) {
+      list = list.filter(a =>
+        a.applicantName.toLowerCase().includes(query) ||
+        a.email.toLowerCase().includes(query) ||
+        (a.phone && a.phone.toLowerCase().includes(query)) ||
+        (a.jobTitle && a.jobTitle.toLowerCase().includes(query)) ||
+        (a.status && a.status.toLowerCase().includes(query))
+      );
+    }
+    return list;
+  });
+
+  sortedApplications = computed(() => {
+    let list = this.filteredApplications();
     const col = this.sortColumn();
     const dir = this.sortDirection() === 'asc' ? 1 : -1;
     if (col) {
@@ -79,14 +103,25 @@ export class JobApplicationsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.initStatusForm();
+    this.initForms();
     this.loadJobPostings();
     this.loadApplications();
   }
 
-  private initStatusForm(): void {
+  private initForms(): void {
     this.statusForm = this.fb.group({
       status: ['', Validators.required],
+      notes: ['']
+    });
+
+    this.addForm = this.fb.group({
+      jobPostingId: ['', Validators.required],
+      applicantName: ['', [Validators.required, Validators.maxLength(100)]],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
+      phone: ['', [Validators.maxLength(20)]],
+      resumeUrl: ['', [Validators.maxLength(255)]],
+      coverLetter: [''],
+      status: ['Applied', Validators.required],
       notes: ['']
     });
   }
@@ -94,7 +129,13 @@ export class JobApplicationsComponent implements OnInit {
   loadJobPostings(): void {
     this.adminDataService.getJobPostings().subscribe({
       next: (res) => {
-        if (res.success && res.data) this.jobPostings.set(res.data);
+        if (res.success && res.data) {
+          this.jobPostings.set(res.data);
+          // Auto select first job posting in add form if available
+          if (res.data.length > 0 && !this.addForm.get('jobPostingId')?.value) {
+            this.addForm.patchValue({ jobPostingId: res.data[0].id });
+          }
+        }
       }
     });
   }
@@ -122,6 +163,71 @@ export class JobApplicationsComponent implements OnInit {
   filterByJob(jobId: string): void {
     this.selectedJobId.set(jobId ? Number(jobId) : null);
     this.loadApplications();
+  }
+
+  onSearchChange(text: string): void {
+    this.searchQuery.set(text);
+    this.currentPage.set(1);
+  }
+
+  openAddModal(): void {
+    const defaultJobId = this.selectedJobId() || (this.jobPostings().length > 0 ? this.jobPostings()[0].id : '');
+    this.addForm.reset({
+      jobPostingId: defaultJobId,
+      applicantName: '',
+      email: '',
+      phone: '',
+      resumeUrl: '',
+      coverLetter: '',
+      status: 'Applied',
+      notes: ''
+    });
+    this.isAddModalOpen.set(true);
+  }
+
+  closeAddModal(): void {
+    this.isAddModalOpen.set(false);
+    this.addForm.reset();
+  }
+
+  saveApplication(): void {
+    if (this.addForm.invalid) {
+      this.addForm.markAllAsTouched();
+      this.toastService.warning('Please fill in all required fields accurately.', 'Validation Warning');
+      return;
+    }
+
+    this.addSubmitting.set(true);
+    const formVal = this.addForm.value;
+    const dto: SaveJobApplicationDto = {
+      id: 0,
+      jobPostingId: Number(formVal.jobPostingId),
+      applicantName: formVal.applicantName.trim(),
+      email: formVal.email.trim(),
+      phone: formVal.phone?.trim() || null,
+      resumeUrl: formVal.resumeUrl?.trim() || null,
+      coverLetter: formVal.coverLetter?.trim() || null,
+      status: formVal.status,
+      notes: formVal.notes?.trim() || null
+    };
+
+    this.adminDataService.saveJobApplication(dto).subscribe({
+      next: (res) => {
+        this.addSubmitting.set(false);
+        if (res.success) {
+          this.toastService.success(`Application for "${dto.applicantName}" added successfully!`, 'Success');
+          this.closeAddModal();
+          this.loadApplications();
+          this.loadJobPostings();
+        } else {
+          this.toastService.error(res.message || 'Failed to save application', 'Error');
+        }
+      },
+      error: () => {
+        this.addSubmitting.set(false);
+        this.toastService.error('Error connecting to server while saving application', 'Network Error');
+      }
+    });
   }
 
   openViewModal(app: JobApplicationDto): void {
@@ -160,6 +266,7 @@ export class JobApplicationsComponent implements OnInit {
           this.toastService.success(`Status updated to "${val.status}"`, 'Updated');
           this.closeStatusModal();
           this.loadApplications();
+          this.loadJobPostings();
         } else {
           this.toastService.error(res.message || 'Failed to update status', 'Error');
         }
@@ -183,6 +290,7 @@ export class JobApplicationsComponent implements OnInit {
           if (res.success) {
             this.toastService.success('Application deleted successfully.', 'Deleted');
             this.loadApplications();
+            this.loadJobPostings();
           } else {
             this.toastService.error(res.message || 'Failed to delete application', 'Error');
           }

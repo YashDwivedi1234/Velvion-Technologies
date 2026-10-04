@@ -1,31 +1,62 @@
 <div class="applications-page-view">
 
-  <!-- Filter Bar -->
+  <!-- Top Action & Filter Bar -->
   <div class="filter-bar glass-panel">
     <div class="filter-left">
-      <app-icon name="filter" [size]="16" class="text-muted"></app-icon>
-      <span class="filter-label">Filter by Job:</span>
-      <select class="filter-select" (change)="filterByJob($any($event.target).value)">
-        <option value="">All Job Postings ({{ applications().length }} applications)</option>
-        @for (job of jobPostings(); track job.id) {
-          <option [value]="job.id">{{ job.jobTitle }} ({{ job.applicationCount }})</option>
+      <!-- Search Input -->
+      <div class="search-input-wrap">
+        <app-icon name="search" [size]="15" class="search-icon"></app-icon>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Search by name, email, role..." 
+          [ngModel]="searchQuery()" 
+          (ngModelChange)="onSearchChange($event)" />
+        @if (searchQuery()) {
+          <button type="button" class="search-clear-btn" (click)="onSearchChange('')" title="Clear search">
+            <app-icon name="x" [size]="14"></app-icon>
+          </button>
         }
-      </select>
+      </div>
+
+      <!-- Job Filter Select -->
+      <div class="select-filter-wrap">
+        <app-icon name="filter" [size]="15" class="text-muted"></app-icon>
+        <select class="filter-select" (change)="filterByJob($any($event.target).value)">
+          <option value="">All Job Postings ({{ applications().length }})</option>
+          @for (job of jobPostings(); track job.id) {
+            <option [value]="job.id">{{ job.jobTitle }} ({{ job.applicationCount }})</option>
+          }
+        </select>
+      </div>
     </div>
-    <div class="filter-stats">
-      <span class="stat-pill stat-total">
-        <app-icon name="users" [size]="12"></app-icon>
-        Total: {{ applications().length }}
-      </span>
-      <span class="stat-pill stat-new">
-        Applied: {{ countApplied() }}
-      </span>
-      <span class="stat-pill stat-interview">
-        Shortlisted: {{ countShortlisted() }}
-      </span>
-      <span class="stat-pill stat-hired">
-        Hired: {{ countHired() }}
-      </span>
+
+    <div class="filter-right">
+      <!-- Dynamic Stats Badges -->
+      <div class="filter-stats">
+        <span class="stat-pill stat-total">
+          <app-icon name="users" [size]="12"></app-icon>
+          Total: {{ applications().length }}
+        </span>
+        <span class="stat-pill stat-new">
+          Applied: {{ countApplied() }}
+        </span>
+        <span class="stat-pill stat-interview">
+          Shortlisted: {{ countShortlisted() }}
+        </span>
+        <span class="stat-pill stat-scheduled">
+          Interview: {{ countInterview() }}
+        </span>
+        <span class="stat-pill stat-hired">
+          Hired: {{ countHired() }}
+        </span>
+      </div>
+
+      <!-- Add Candidate Button -->
+      <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+        <app-icon name="plus" [size]="16"></app-icon>
+        <span>Add Application</span>
+      </button>
     </div>
   </div>
 
@@ -113,11 +144,11 @@
               </td>
             </tr>
           }
-          @if (applications().length === 0 && !loading()) {
+          @if (filteredApplications().length === 0 && !loading()) {
             <tr>
               <td colspan="6" class="empty-state">
                 <app-icon name="inbox" [size]="40" class="empty-icon"></app-icon>
-                <p>No applications received yet.</p>
+                <p>No applications found.</p>
               </td>
             </tr>
           }
@@ -126,13 +157,116 @@
     </div>
 
     <app-pagination
-      [totalItems]="applications().length"
+      [totalItems]="filteredApplications().length"
       [pageSize]="pageSize()"
       [currentPage]="currentPage()"
       (pageChange)="currentPage.set($event)"
       (pageSizeChange)="pageSize.set($event)">
     </app-pagination>
   </div>
+
+  <!-- Add Candidate Application Modal -->
+  @if (isAddModalOpen()) {
+    <div class="modal-backdrop" (click)="closeAddModal()">
+      <div class="modal-card modal-wide animate-scale" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <app-icon name="user-plus" [size]="20" class="text-cyan"></app-icon>
+            <div>
+              <h3 class="modal-title">New Candidate Application</h3>
+              <span class="text-muted font-sm">Register a job application manually into the ATS system</span>
+            </div>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeAddModal()">
+            <app-icon name="x" [size]="20"></app-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="addForm" (ngSubmit)="saveApplication()" class="modal-form">
+          <div class="form-grid-2">
+            <!-- Job Opening Selector -->
+            <div class="form-group full-col">
+              <label class="form-label" for="add-jobPostingId">Target Job Opening *</label>
+              <select id="add-jobPostingId" class="form-control" formControlName="jobPostingId">
+                <option value="" disabled>Select Job Opening</option>
+                @for (job of jobPostings(); track job.id) {
+                  <option [value]="job.id">{{ job.jobTitle }} ({{ job.department || 'General' }} - {{ job.location || 'Remote' }})</option>
+                }
+              </select>
+              @if (addForm.get('jobPostingId')?.invalid && addForm.get('jobPostingId')?.touched) {
+                <span class="form-error">Please select a job opening.</span>
+              }
+            </div>
+
+            <!-- Candidate Name -->
+            <div class="form-group">
+              <label class="form-label" for="add-applicantName">Candidate Full Name *</label>
+              <input id="add-applicantName" type="text" class="form-control" placeholder="e.g. John Doe" formControlName="applicantName" />
+              @if (addForm.get('applicantName')?.invalid && addForm.get('applicantName')?.touched) {
+                <span class="form-error">Applicant name is required.</span>
+              }
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+              <label class="form-label" for="add-email">Email Address *</label>
+              <input id="add-email" type="email" class="form-control" placeholder="candidate@example.com" formControlName="email" />
+              @if (addForm.get('email')?.invalid && addForm.get('email')?.touched) {
+                <span class="form-error">Valid email address is required.</span>
+              }
+            </div>
+
+            <!-- Phone -->
+            <div class="form-group">
+              <label class="form-label" for="add-phone">Phone Number</label>
+              <input id="add-phone" type="text" class="form-control" placeholder="+91 98765 43210" formControlName="phone" />
+            </div>
+
+            <!-- Initial Status -->
+            <div class="form-group">
+              <label class="form-label" for="add-status">Application Status *</label>
+              <select id="add-status" class="form-control" formControlName="status">
+                @for (status of statusOptions; track status) {
+                  <option [value]="status">{{ status }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Resume / Portfolio URL -->
+            <div class="form-group full-col">
+              <label class="form-label" for="add-resumeUrl">Resume / Portfolio Link</label>
+              <input id="add-resumeUrl" type="url" class="form-control" placeholder="https://drive.google.com/... or https://portfolio.com" formControlName="resumeUrl" />
+            </div>
+
+            <!-- Cover Letter / Notes -->
+            <div class="form-group full-col">
+              <label class="form-label" for="add-coverLetter">Cover Letter / Candidate Introduction</label>
+              <textarea id="add-coverLetter" class="form-control" rows="3" placeholder="Brief summary of candidate background and skills..." formControlName="coverLetter"></textarea>
+            </div>
+
+            <!-- Internal Team Notes -->
+            <div class="form-group full-col">
+              <label class="form-label" for="add-notes">Internal HR Notes (Optional)</label>
+              <textarea id="add-notes" class="form-control" rows="2" placeholder="Referral notes, initial evaluation, etc." formControlName="notes"></textarea>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeAddModal()">Cancel</button>
+            <button type="submit" class="btn-primary-neon" [disabled]="addSubmitting()">
+              @if (addSubmitting()) {
+                <span class="spinner-sm"></span>
+                <span>Saving Candidate...</span>
+              } @else {
+                <app-icon name="check" [size]="16"></app-icon>
+                <span>Save Application</span>
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
 
   <!-- View Application Modal -->
   @if (isViewModalOpen() && currentApplication(); as app) {
@@ -261,3 +395,4 @@
   }
 
 </div>
+

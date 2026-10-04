@@ -121,4 +121,3 @@ D:\velvion-technologies\velvion-API\velvion-API\bin\Debug\net10.0\ru\Microsoft.C
 D:\velvion-technologies\velvion-API\velvion-API\bin\Debug\net10.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 D:\velvion-technologies\velvion-API\velvion-API\bin\Debug\net10.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 D:\velvion-technologies\velvion-API\velvion-API\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
-D:\velvion-technologies\velvion-API\velvion-API\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt

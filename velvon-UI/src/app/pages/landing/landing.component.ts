@@ -5,7 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AdminDataService } from '../../core/services/admin-data.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService, LogoComponent, IconComponent, ThemeService } from '../../shared';
-import { ServiceMasterDto, PortfolioDto, TestimonialDto } from '../../core/models/api.models';
+import { ServiceMasterDto, PortfolioDto, TestimonialDto, JobPostingDto, SaveJobApplicationDto } from '../../core/models/api.models';
 
 @Component({
   selector: 'app-landing',
@@ -39,10 +39,17 @@ export class LandingComponent implements OnInit {
   newsletterEmail = signal<string>('');
   newsletterSubmitting = signal<boolean>(false);
 
+  // Job Application Modal Form
+  applyForm!: FormGroup;
+  applySubmitting = signal<boolean>(false);
+  isApplyModalOpen = signal<boolean>(false);
+  selectedJobForApply = signal<JobPostingDto | null>(null);
+
   // Dynamic Data Signals
   services = signal<ServiceMasterDto[]>([]);
   portfolios = signal<PortfolioDto[]>([]);
   testimonials = signal<TestimonialDto[]>([]);
+  jobPostings = signal<JobPostingDto[]>([]);
 
   // Key Company Stats
   companyStats = [
@@ -84,6 +91,15 @@ export class LandingComponent implements OnInit {
       subject: ['Enterprise Digital Transformation Consultation', Validators.required],
       message: ['', [Validators.required, Validators.minLength(10)]]
     });
+
+    this.applyForm = this.fb.group({
+      jobPostingId: ['', Validators.required],
+      applicantName: ['', [Validators.required, Validators.maxLength(100)]],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
+      phone: ['', [Validators.maxLength(20)]],
+      resumeUrl: ['', [Validators.maxLength(255)]],
+      coverLetter: ['']
+    });
   }
 
   private loadData(): void {
@@ -121,6 +137,19 @@ export class LandingComponent implements OnInit {
         }
       },
       error: () => this.setDefaultTestimonials()
+    });
+
+    // 4. Active Job Postings
+    this.adminDataService.getJobPostings(true).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.jobPostings.set(res.data);
+        }
+      },
+      error: () => {
+        // Fallback demo job if offline
+        this.jobPostings.set([]);
+      }
     });
   }
 
@@ -338,6 +367,65 @@ export class LandingComponent implements OnInit {
     }, 600);
   }
 
+  openApplyModal(job: JobPostingDto): void {
+    this.selectedJobForApply.set(job);
+    this.applyForm.reset({
+      jobPostingId: job.id,
+      applicantName: '',
+      email: '',
+      phone: '',
+      resumeUrl: '',
+      coverLetter: ''
+    });
+    this.isApplyModalOpen.set(true);
+  }
+
+  closeApplyModal(): void {
+    this.isApplyModalOpen.set(false);
+    this.selectedJobForApply.set(null);
+    this.applyForm.reset();
+  }
+
+  onSubmitJobApplication(): void {
+    if (this.applyForm.invalid) {
+      this.applyForm.markAllAsTouched();
+      this.toastService.warning('Please provide your full name, email, and required details.', 'Validation Warning');
+      return;
+    }
+
+    this.applySubmitting.set(true);
+    const formVal = this.applyForm.value;
+    const dto: SaveJobApplicationDto = {
+      id: 0,
+      jobPostingId: Number(formVal.jobPostingId),
+      applicantName: formVal.applicantName.trim(),
+      email: formVal.email.trim(),
+      phone: formVal.phone?.trim() || null,
+      resumeUrl: formVal.resumeUrl?.trim() || null,
+      coverLetter: formVal.coverLetter?.trim() || null,
+      status: 'Applied'
+    };
+
+    this.adminDataService.saveJobApplication(dto).subscribe({
+      next: (res) => {
+        this.applySubmitting.set(false);
+        if (res.success) {
+          this.toastService.success(
+            `Thank you, ${dto.applicantName}! Your application has been submitted successfully. Our talent team will review it shortly.`,
+            'Application Submitted!'
+          );
+          this.closeApplyModal();
+        } else {
+          this.toastService.error(res.message || 'Failed to submit application', 'Error');
+        }
+      },
+      error: () => {
+        this.applySubmitting.set(false);
+        this.toastService.error('Error connecting to server. Please try again later.', 'Network Error');
+      }
+    });
+  }
+
   navigateToLogin(): void {
     this.router.navigate(['/auth'], { queryParams: { mode: 'login' } });
   }
@@ -346,3 +434,4 @@ export class LandingComponent implements OnInit {
     this.router.navigate(['/auth'], { queryParams: { mode: 'register' } });
   }
 }
+

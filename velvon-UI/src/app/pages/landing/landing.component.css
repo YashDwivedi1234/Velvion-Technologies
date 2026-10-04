@@ -1203,6 +1203,146 @@ html[data-theme="light"] .landing-footer {
   box-shadow: 0 6px 20px rgba(0, 242, 254, 0.4);
 }
 
+/* ================= CAREERS / HIRING SECTION ================= */
+.careers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: var(--space-xl);
+  margin-top: var(--space-2xl);
+}
+
+.job-card {
+  padding: var(--space-2xl);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-glass);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  transition: var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.job-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #00f2fe, #4facfe, #a855f7);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.job-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(0, 242, 254, 0.3);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), 0 0 25px rgba(0, 242, 254, 0.12);
+}
+
+.job-card:hover::before {
+  opacity: 1;
+}
+
+.job-card-top {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.job-badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.job-dept-badge {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(99, 102, 241, 0.12);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.job-type-badge {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(0, 242, 254, 0.1);
+  color: #67e8f9;
+  border: 1px solid rgba(0, 242, 254, 0.25);
+}
+
+.job-title-text {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.job-meta-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.job-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.job-desc-text {
+  font-size: 0.9rem;
+  color: var(--text-body);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.job-card-footer {
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-glass);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.job-apply-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.no-openings-card {
+  grid-column: 1 / -1;
+  padding: 3.5rem 2rem;
+  border-radius: var(--radius-xl);
+  color: var(--text-muted);
+}
+
+/* Apply Modal */
+.job-apply-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: rgba(0, 242, 254, 0.12);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 /* ================= ANIMATIONS ================= */
 .animate-fade-in {
   animation: fadeIn 0.4s ease-out forwards;
@@ -1211,3 +1351,4 @@ html[data-theme="light"] .landing-footer {
 .animate-slide-up {
   animation: slideUp 0.5s ease-out forwards;
 }
+

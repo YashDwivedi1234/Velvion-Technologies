@@ -9,11 +9,12 @@
         <app-logo size="md" [animated]="true"></app-logo>
       </a>
 
-      <!-- Clean 4-Link Center Navigation -->
+      <!-- Clean 5-Link Center Navigation -->
       <nav class="nav-menu">
         <a href="#about" (click)="scrollToSection('about')" class="nav-link">About Us</a>
         <a href="#services" (click)="scrollToSection('services')" class="nav-link">Services</a>
         <a href="#portfolio" (click)="scrollToSection('portfolio')" class="nav-link">Portfolio</a>
+        <a href="#careers" (click)="scrollToSection('careers')" class="nav-link">Careers</a>
         <a href="#contact" (click)="scrollToSection('contact')" class="nav-link">Contact</a>
       </nav>
 
@@ -315,6 +316,67 @@
     </div>
   </section>
 
+  <!-- ================= CAREERS / OPEN ROLES ================= -->
+  <section id="careers" class="section-container">
+    <div class="section-header text-center">
+      <div class="section-badge">WE'RE HIRING</div>
+      <h2 class="section-title">Open Positions at Velvion</h2>
+      <p class="section-subtitle">
+        Join an agile engineering ecosystem solving complex enterprise challenges worldwide.
+      </p>
+    </div>
+
+    <div class="careers-grid">
+      @for (job of jobPostings(); track job.id) {
+        <div class="job-card glass-panel">
+          <div class="job-card-top">
+            <div class="job-badge-wrap">
+              <span class="job-dept-badge">{{ job.department || 'Engineering' }}</span>
+              <span class="job-type-badge">{{ job.jobType || 'Full-time' }}</span>
+            </div>
+            <h3 class="job-title-text">{{ job.jobTitle }}</h3>
+            <div class="job-meta-row">
+              <span class="job-meta-item">
+                <app-icon name="map-pin" [size]="14" color="#00f2fe"></app-icon>
+                <span>{{ job.location || 'Remote / Hybrid' }}</span>
+              </span>
+              @if (job.experienceLevel) {
+                <span class="job-meta-item">
+                  <app-icon name="briefcase" [size]="14" color="#a5b4fc"></app-icon>
+                  <span>{{ job.experienceLevel }}</span>
+                </span>
+              }
+              @if (job.salaryRange) {
+                <span class="job-meta-item">
+                  <app-icon name="tag" [size]="14" color="#34d399"></app-icon>
+                  <span>{{ job.salaryRange }}</span>
+                </span>
+              }
+            </div>
+          </div>
+
+          @if (job.description) {
+            <p class="job-desc-text">{{ job.description }}</p>
+          }
+
+          <div class="job-card-footer">
+            <button type="button" class="btn-primary-neon job-apply-btn" (click)="openApplyModal(job)">
+              <app-icon name="send" [size]="15"></app-icon>
+              <span>Apply Now</span>
+            </button>
+          </div>
+        </div>
+      }
+      @if (jobPostings().length === 0) {
+        <div class="no-openings-card glass-panel text-center">
+          <app-icon name="briefcase" [size]="36" class="text-muted mb-3"></app-icon>
+          <h3>No Active Openings Right Now</h3>
+          <p class="text-muted">We are always scouting exceptional talent. Send your CV to <strong>careers&#64;velvion.com</strong>.</p>
+        </div>
+      }
+    </div>
+  </section>
+
   <!-- ================= DIRECT CONTACT SECTION ================= -->
   <section id="contact" class="section-container alt-bg">
     <div class="contact-card-wrapper glass-panel">
@@ -520,5 +582,75 @@
     aria-label="Scroll to top">
     <app-icon name="chevron-up" [size]="18"></app-icon>
   </button>
+
+  <!-- Job Application Modal -->
+  @if (isApplyModalOpen() && selectedJobForApply(); as job) {
+    <div class="modal-backdrop" (click)="closeApplyModal()">
+      <div class="modal-card modal-wide animate-scale" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="job-apply-icon-box">
+              <app-icon name="briefcase" [size]="20" color="#00f2fe"></app-icon>
+            </div>
+            <div>
+              <h3 class="modal-title">Apply for {{ job.jobTitle }}</h3>
+              <span class="text-muted font-sm">{{ job.department || 'Engineering' }} · {{ job.location || 'Remote' }}</span>
+            </div>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeApplyModal()">
+            <app-icon name="x" [size]="20"></app-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="applyForm" (ngSubmit)="onSubmitJobApplication()" class="modal-form">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="cand-name">Full Name *</label>
+              <input id="cand-name" type="text" class="form-control" placeholder="e.g. Yash Sharma" formControlName="applicantName" />
+              @if (applyForm.get('applicantName')?.touched && applyForm.get('applicantName')?.invalid) {
+                <span class="form-error">Full name is required.</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="cand-email">Email Address *</label>
+              <input id="cand-email" type="email" class="form-control" placeholder="name@example.com" formControlName="email" />
+              @if (applyForm.get('email')?.touched && applyForm.get('email')?.invalid) {
+                <span class="form-error">Valid email address is required.</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="cand-phone">Phone Number</label>
+              <input id="cand-phone" type="tel" class="form-control" placeholder="+91 98765 43210" formControlName="phone" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="cand-resume">Resume / Portfolio Link</label>
+              <input id="cand-resume" type="url" class="form-control" placeholder="https://drive.google.com/... or GitHub / LinkedIn" formControlName="resumeUrl" />
+            </div>
+
+            <div class="form-group full-col">
+              <label class="form-label" for="cand-letter">Cover Letter / Why You're a Great Fit</label>
+              <textarea id="cand-letter" class="form-control" rows="3" placeholder="Tell us about your background, tech stack, and achievements..." formControlName="coverLetter"></textarea>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeApplyModal()">Cancel</button>
+            <button type="submit" class="btn-primary-neon" [disabled]="applySubmitting()">
+              @if (applySubmitting()) {
+                <span class="spinner-sm"></span>
+                <span>Submitting Application...</span>
+              } @else {
+                <app-icon name="send" [size]="16"></app-icon>
+                <span>Submit Application</span>
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
 
 </div>
