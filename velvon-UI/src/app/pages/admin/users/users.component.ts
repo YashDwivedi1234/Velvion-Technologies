@@ -11,7 +11,7 @@ import {
   ToggleComponent,
   PaginationComponent
 } from '../../../shared';
-import { UserDto, RoleDto, SaveUserDto } from '../../../core/models/api.models';
+import { UserDto, RoleDto, DepartmentDto, DesignationDto, SaveUserDto } from '../../../core/models/api.models';
 
 @Component({
   selector: 'app-users',
@@ -38,14 +38,31 @@ export class UsersComponent implements OnInit {
   users = signal<UserDto[]>([]);
   filteredUsers = signal<UserDto[]>([]);
   roles = signal<RoleDto[]>([]);
+  departments = signal<DepartmentDto[]>([]);
+  designations = signal<DesignationDto[]>([]);
+
+  // Filter Dropdown Options
   roleDropdownOptions = signal<DropdownOption[]>([
     { label: 'All Roles', value: 'all', icon: 'shield' }
   ]);
+
+  departmentFilterOptions = signal<DropdownOption[]>([
+    { label: 'All Departments', value: 'all', icon: 'briefcase' }
+  ]);
+
+  // Modal Form Options
   modalRoleDropdownOptions = signal<DropdownOption[]>([]);
+  modalDepartmentOptions = signal<DropdownOption[]>([
+    { label: 'Select Department (Optional)', value: 0, icon: 'briefcase' }
+  ]);
+  modalDesignationOptions = signal<DropdownOption[]>([
+    { label: 'Select Designation (Optional)', value: 0, icon: 'award' }
+  ]);
 
   // Search & Filter state
   searchQuery = signal<string>('');
   selectedRoleFilter = signal<string>('all');
+  selectedDeptFilter = signal<string>('all');
 
   // Sorting state
   sortColumn = signal<string>('fullName');
@@ -85,6 +102,8 @@ export class UsersComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.loadRoles();
+    this.loadDepartments();
+    this.loadDesignations();
     this.loadUsers();
   }
 
@@ -94,8 +113,15 @@ export class UsersComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       mobile: [''],
       roleId: [1, Validators.required],
+      departmentId: [0],
+      designationId: [0],
       password: [''],
       isActive: [true]
+    });
+
+    // React to department changes to filter designation dropdown
+    this.userForm.get('departmentId')?.valueChanges.subscribe(deptId => {
+      this.updateModalDesignationOptions(Number(deptId) || 0);
     });
   }
 
@@ -123,6 +149,59 @@ export class UsersComponent implements OnInit {
     });
   }
 
+  loadDepartments(): void {
+    this.adminDataService.getDepartments(true).subscribe(res => {
+      if (res.success && res.data) {
+        this.departments.set(res.data);
+        
+        this.departmentFilterOptions.set([
+          { label: 'All Departments', value: 'all', icon: 'briefcase' },
+          ...res.data.map(d => ({
+            label: d.departmentName,
+            value: d.id.toString(),
+            icon: 'briefcase'
+          }))
+        ]);
+
+        this.modalDepartmentOptions.set([
+          { label: 'Select Department (Optional)', value: 0, icon: 'briefcase' },
+          ...res.data.map(d => ({
+            label: d.departmentName,
+            value: d.id,
+            icon: 'briefcase'
+          }))
+        ]);
+      }
+    });
+  }
+
+  loadDesignations(): void {
+    this.adminDataService.getDesignations(true).subscribe(res => {
+      if (res.success && res.data) {
+        this.designations.set(res.data);
+        this.updateModalDesignationOptions(this.userForm?.get('departmentId')?.value || 0);
+      }
+    });
+  }
+
+  private updateModalDesignationOptions(departmentId: number): void {
+    let desigs = this.designations();
+    if (departmentId > 0) {
+      // Show designations belonging to selected department or global designations (without dept)
+      desigs = desigs.filter(d => !d.departmentId || d.departmentId === departmentId);
+    }
+
+    const options: DropdownOption[] = [
+      { label: 'Select Designation (Optional)', value: 0, icon: 'award' },
+      ...desigs.map(d => ({
+        label: d.departmentName ? `${d.designationName} (${d.departmentName})` : d.designationName,
+        value: d.id,
+        icon: 'award'
+      }))
+    ];
+    this.modalDesignationOptions.set(options);
+  }
+
   loadUsers(): void {
     this.loading.set(true);
     this.adminDataService.getUsers().subscribe({
@@ -145,6 +224,7 @@ export class UsersComponent implements OnInit {
   applyFilter(): void {
     const q = this.searchQuery().toLowerCase().trim();
     const roleF = this.selectedRoleFilter();
+    const deptF = this.selectedDeptFilter();
 
     let list = this.users();
 
@@ -153,12 +233,19 @@ export class UsersComponent implements OnInit {
       list = list.filter(u => u.roleId === roleId);
     }
 
+    if (deptF !== 'all') {
+      const deptId = Number(deptF);
+      list = list.filter(u => u.departmentId === deptId);
+    }
+
     if (q) {
       list = list.filter(u => 
         u.fullName.toLowerCase().includes(q) ||
         u.email.toLowerCase().includes(q) ||
         (u.mobile && u.mobile.toLowerCase().includes(q)) ||
-        u.roleName.toLowerCase().includes(q)
+        u.roleName.toLowerCase().includes(q) ||
+        (u.departmentName && u.departmentName.toLowerCase().includes(q)) ||
+        (u.designationName && u.designationName.toLowerCase().includes(q))
       );
     }
 
@@ -198,6 +285,12 @@ export class UsersComponent implements OnInit {
     this.applyFilter();
   }
 
+  onDeptSelect(value: any): void {
+    const val = value !== null && value !== undefined ? value.toString() : 'all';
+    this.selectedDeptFilter.set(val);
+    this.applyFilter();
+  }
+
   onSearchChange(event: Event): void {
     const val = (event.target as HTMLInputElement).value;
     this.searchQuery.set(val);
@@ -207,6 +300,7 @@ export class UsersComponent implements OnInit {
   resetFilters(): void {
     this.searchQuery.set('');
     this.selectedRoleFilter.set('all');
+    this.selectedDeptFilter.set('all');
     this.applyFilter();
   }
 
@@ -215,10 +309,13 @@ export class UsersComponent implements OnInit {
     this.currentUserId.set(0);
     this.userForm.reset({
       roleId: this.roles().length > 0 ? this.roles()[0].id : 1,
+      departmentId: 0,
+      designationId: 0,
       isActive: true
     });
     this.userForm.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
     this.userForm.get('password')?.updateValueAndValidity();
+    this.updateModalDesignationOptions(0);
     this.isModalOpen.set(true);
   }
 
@@ -230,12 +327,15 @@ export class UsersComponent implements OnInit {
       email: user.email,
       mobile: user.mobile || '',
       roleId: user.roleId,
+      departmentId: user.departmentId || 0,
+      designationId: user.designationId || 0,
       password: '',
       isActive: user.isActive
     });
     // Password is optional on update
     this.userForm.get('password')?.clearValidators();
     this.userForm.get('password')?.updateValueAndValidity();
+    this.updateModalDesignationOptions(user.departmentId || 0);
     this.isModalOpen.set(true);
   }
 
@@ -256,6 +356,8 @@ export class UsersComponent implements OnInit {
     const dto: SaveUserDto = {
       id: this.currentUserId(),
       roleId: Number(val.roleId),
+      departmentId: Number(val.departmentId) > 0 ? Number(val.departmentId) : undefined,
+      designationId: Number(val.designationId) > 0 ? Number(val.designationId) : undefined,
       fullName: val.fullName.trim(),
       email: val.email.trim().toLowerCase(),
       mobile: val.mobile?.trim(),

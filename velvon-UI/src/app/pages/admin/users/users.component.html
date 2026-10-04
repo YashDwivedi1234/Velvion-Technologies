@@ -1,17 +1,23 @@
 <div class="users-page-view">
   
-  <!-- Top Action Bar -->
+  <!-- Unified Top Action & Filter Toolbar -->
   <div class="page-top-actions">
-    <button type="button" class="btn-primary-neon" (click)="openAddModal()">
-      <app-icon name="plus" [size]="16"></app-icon>
-      <span>Add New User</span>
-    </button>
-  </div>
+    <div class="filters-row">
+      
+      <!-- Live Search Box -->
+      <div class="search-box">
+        <app-icon name="search" [size]="15" class="search-icon"></app-icon>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Search name, email, department, designation..." 
+          [value]="searchQuery()"
+          (input)="onSearchChange($event)"
+          (keyup.enter)="applyFilter()" />
+      </div>
 
-  <!-- Search & Filter Controls -->
-  <div class="filters-panel glass-panel">
-    <div class="filters-left">
-      <div class="filter-dropdown-wrap">
+      <!-- Role Filter Dropdown -->
+      <div class="filter-dropdown-item role-dropdown-wrap">
         <app-dropdown
           [options]="roleDropdownOptions()"
           [ngModel]="selectedRoleFilter()"
@@ -23,29 +29,34 @@
         </app-dropdown>
       </div>
 
-      <button type="button" class="btn-filter-search" (click)="applyFilter()" title="Search & Filter">
-        <app-icon name="search" [size]="15"></app-icon>
-        <span>Search</span>
-      </button>
-
-      <button type="button" class="btn-filter-reset" (click)="resetFilters()" title="Reset Filters">
-        <app-icon name="rotate-ccw" [size]="15"></app-icon>
-        <span>Reset</span>
-      </button>
-    </div>
-
-    <div class="filters-right">
-      <div class="search-input-wrap">
-        <app-icon name="search" [size]="16" class="search-icon"></app-icon>
-        <input 
-          type="text" 
-          class="search-input" 
-          placeholder="Search..." 
-          [value]="searchQuery()"
-          (input)="onSearchChange($event)"
-          (keyup.enter)="applyFilter()" />
+      <!-- Department Filter Dropdown -->
+      <div class="filter-dropdown-item dept-dropdown-wrap">
+        <app-dropdown
+          [options]="departmentFilterOptions()"
+          [ngModel]="selectedDeptFilter()"
+          (selectionChange)="onDeptSelect($event)"
+          [searchable]="true"
+          [clearable]="false"
+          placeholder="All Departments"
+          size="md">
+        </app-dropdown>
       </div>
+
+      <!-- Reset Button -->
+      @if (searchQuery() || selectedRoleFilter() !== 'all' || selectedDeptFilter() !== 'all') {
+        <button type="button" class="btn-filter-reset" (click)="resetFilters()" title="Reset All Filters">
+          <app-icon name="rotate-ccw" [size]="14"></app-icon>
+          <span>Reset</span>
+        </button>
+      }
+
     </div>
+
+    <!-- Add User CTA Button -->
+    <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+      <app-icon name="plus" [size]="16"></app-icon>
+      <span>Add New User</span>
+    </button>
   </div>
 
   <!-- Data Table Card -->
@@ -55,8 +66,8 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>Sr. No.</th>
-            <th class="sortable" (click)="toggleSort('fullName')">
+            <th class="th-sr">Sr. No.</th>
+            <th class="sortable th-name" (click)="toggleSort('fullName')">
               <div class="th-sort-wrap">
                 <span>Name</span>
                 @if (sortColumn() === 'fullName') {
@@ -66,7 +77,7 @@
                 }
               </div>
             </th>
-            <th class="sortable" (click)="toggleSort('email')">
+            <th class="sortable th-email" (click)="toggleSort('email')">
               <div class="th-sort-wrap">
                 <span>Email</span>
                 @if (sortColumn() === 'email') {
@@ -76,17 +87,27 @@
                 }
               </div>
             </th>
-            <th class="sortable" (click)="toggleSort('mobile')">
+            <th class="sortable th-dept" (click)="toggleSort('departmentName')">
               <div class="th-sort-wrap">
-                <span>Mobile</span>
-                @if (sortColumn() === 'mobile') {
+                <span>Department</span>
+                @if (sortColumn() === 'departmentName') {
                   <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
                 } @else {
                   <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
                 }
               </div>
             </th>
-            <th class="sortable" (click)="toggleSort('roleName')">
+            <th class="sortable th-desig" (click)="toggleSort('designationName')">
+              <div class="th-sort-wrap">
+                <span>Designation</span>
+                @if (sortColumn() === 'designationName') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable th-role" (click)="toggleSort('roleName')">
               <div class="th-sort-wrap">
                 <span>Role</span>
                 @if (sortColumn() === 'roleName') {
@@ -96,7 +117,7 @@
                 }
               </div>
             </th>
-            <th class="sortable" (click)="toggleSort('isActive')">
+            <th class="sortable th-status" (click)="toggleSort('isActive')">
               <div class="th-sort-wrap">
                 <span>Status</span>
                 @if (sortColumn() === 'isActive') {
@@ -106,30 +127,32 @@
                 }
               </div>
             </th>
-            <th class="sortable" (click)="toggleSort('createdAt')">
-              <div class="th-sort-wrap">
-                <span>Created At</span>
-                @if (sortColumn() === 'createdAt') {
-                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
-                } @else {
-                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
-                }
-              </div>
-            </th>
-            <th class="text-right">Actions</th>
+            <th class="th-actions freeze-action text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
           @for (u of paginatedUsers(); track u.id; let i = $index) {
             <tr>
-              <td class="font-mono text-muted">{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
+              <td class="font-mono text-muted text-center">{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
               <td>
                 <div class="user-identity">
+                  <div class="user-avatar-mini">
+                    <app-icon name="user" [size]="13"></app-icon>
+                  </div>
                   <span class="user-name-cell">{{ u.fullName }}</span>
                 </div>
               </td>
-              <td class="text-muted">{{ u.email }}</td>
-              <td class="text-muted">{{ u.mobile || '—' }}</td>
+              <td class="user-email-cell">{{ u.email }}</td>
+              <td>
+                <span [class.text-muted]="!u.departmentName" class="plain-text-cell">
+                  {{ u.departmentName || '—' }}
+                </span>
+              </td>
+              <td>
+                <span [class.text-muted]="!u.designationName" class="plain-text-cell">
+                  {{ u.designationName || '—' }}
+                </span>
+              </td>
               <td>
                 <span class="role-badge">{{ u.roleName || 'Unassigned' }}</span>
               </td>
@@ -139,8 +162,7 @@
                   {{ u.isActive ? 'Active' : 'Inactive' }}
                 </span>
               </td>
-              <td class="text-muted font-sm">{{ u.createdAt | date:'mediumDate' }}</td>
-              <td class="text-right">
+              <td class="td-actions freeze-action text-center">
                 <div class="action-buttons-wrap">
                   <button type="button" class="btn-action-icon view" (click)="openViewModal(u)" title="View Details">
                     <app-icon name="eye" [size]="15"></app-icon>
@@ -204,37 +226,38 @@
 
         <form [formGroup]="userForm" (ngSubmit)="saveUser()" class="modal-form">
           
-          <!-- Full Name -->
-          <div class="form-group">
-            <label class="form-label" for="u-fullname">Full Name *</label>
-            <input 
-              id="u-fullname"
-              type="text" 
-              class="form-control" 
-              placeholder="e.g. Yash Dwivedi" 
-              formControlName="fullName"
-              [class.is-invalid]="userForm.get('fullName')?.touched && userForm.get('fullName')?.invalid" />
-            @if (userForm.get('fullName')?.touched && userForm.get('fullName')?.invalid) {
-              <span class="field-error">Full name is required</span>
-            }
+          <!-- Row 1: Full Name & Email Address (2-col) -->
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="u-fullname">Full Name *</label>
+              <input 
+                id="u-fullname"
+                type="text" 
+                class="form-control" 
+                placeholder="e.g. Yash Dwivedi" 
+                formControlName="fullName"
+                [class.is-invalid]="userForm.get('fullName')?.touched && userForm.get('fullName')?.invalid" />
+              @if (userForm.get('fullName')?.touched && userForm.get('fullName')?.invalid) {
+                <span class="field-error">Full name is required (min 3 chars)</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="u-email">Email Address *</label>
+              <input 
+                id="u-email"
+                type="email" 
+                class="form-control" 
+                placeholder="name@company.com" 
+                formControlName="email"
+                [class.is-invalid]="userForm.get('email')?.touched && userForm.get('email')?.invalid" />
+              @if (userForm.get('email')?.touched && userForm.get('email')?.invalid) {
+                <span class="field-error">Valid email required</span>
+              }
+            </div>
           </div>
 
-          <!-- Email -->
-          <div class="form-group">
-            <label class="form-label" for="u-email">Email Address *</label>
-            <input 
-              id="u-email"
-              type="email" 
-              class="form-control" 
-              placeholder="name@company.com" 
-              formControlName="email"
-              [class.is-invalid]="userForm.get('email')?.touched && userForm.get('email')?.invalid" />
-            @if (userForm.get('email')?.touched && userForm.get('email')?.invalid) {
-              <span class="field-error">Please enter a valid email</span>
-            }
-          </div>
-
-          <!-- Mobile & Role 2-col -->
+          <!-- Row 2: Mobile Number & Role Assignment (2-col) -->
           <div class="form-row-2">
             <div class="form-group">
               <label class="form-label" for="u-mobile">Mobile Number</label>
@@ -260,27 +283,59 @@
             </div>
           </div>
 
-          <!-- Password -->
-          <div class="form-group">
-            <label class="form-label" for="u-password">
-              Password {{ isEditMode() ? '(Leave blank to keep existing)' : '*' }}
-            </label>
-            <input 
-              id="u-password"
-              type="password" 
-              class="form-control" 
-              placeholder="{{ isEditMode() ? '••••••••' : 'Min 6 characters' }}" 
-              formControlName="password"
-              [class.is-invalid]="userForm.get('password')?.touched && userForm.get('password')?.invalid" />
-            @if (userForm.get('password')?.touched && userForm.get('password')?.invalid) {
-              <span class="field-error">Password must be at least 6 characters</span>
-            }
+          <!-- Row 3: Department & Designation (2-col) -->
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="u-department">Department</label>
+              <app-dropdown
+                id="u-department"
+                [options]="modalDepartmentOptions()"
+                formControlName="departmentId"
+                [searchable]="true"
+                [clearable]="false"
+                placeholder="Select Department"
+                size="md">
+              </app-dropdown>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="u-designation">Designation</label>
+              <app-dropdown
+                id="u-designation"
+                [options]="modalDesignationOptions()"
+                formControlName="designationId"
+                [searchable]="true"
+                [clearable]="false"
+                placeholder="Select Designation"
+                size="md">
+              </app-dropdown>
+            </div>
           </div>
 
-          <!-- Active Status Toggle -->
-          <div class="form-group toggle-row">
-            <label class="form-label">Active Account Status</label>
-            <app-toggle formControlName="isActive" label="User can log in"></app-toggle>
+          <!-- Row 4: Password & Active Status (2-col) -->
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="u-password">
+                Password {{ isEditMode() ? '(Leave blank to keep)' : '*' }}
+              </label>
+              <input 
+                id="u-password"
+                type="password" 
+                class="form-control" 
+                placeholder="{{ isEditMode() ? '••••••••' : 'Min 6 characters' }}" 
+                formControlName="password"
+                [class.is-invalid]="userForm.get('password')?.touched && userForm.get('password')?.invalid" />
+              @if (userForm.get('password')?.touched && userForm.get('password')?.invalid) {
+                <span class="field-error">Password must be at least 6 characters</span>
+              }
+            </div>
+
+            <div class="form-group status-toggle-col">
+              <label class="form-label">Active Account Status</label>
+              <div class="status-toggle-wrapper">
+                <app-toggle formControlName="isActive" label="User can log in"></app-toggle>
+              </div>
+            </div>
           </div>
 
           <!-- Modal Footer Actions -->
@@ -310,7 +365,7 @@
         <div class="modal-header">
           <div class="modal-title-group">
             <div class="view-icon-badge">
-              <app-icon name="eye" [size]="18"></app-icon>
+              <app-icon name="user" [size]="18" class="text-cyan"></app-icon>
             </div>
             <div>
               <h3 class="modal-title">{{ user.fullName }}</h3>
@@ -326,7 +381,7 @@
           <div class="view-info-grid">
             <div class="view-item">
               <span class="view-label">Full Name</span>
-              <span class="view-value">{{ user.fullName }}</span>
+              <span class="view-value font-bold text-white">{{ user.fullName }}</span>
             </div>
             <div class="view-item">
               <span class="view-label">Email Address</span>
@@ -339,6 +394,32 @@
             <div class="view-item">
               <span class="view-label">Assigned Role</span>
               <span class="role-badge">{{ user.roleName || 'Standard Role' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Department</span>
+              <span class="view-value">
+                @if (user.departmentName) {
+                  <span class="dept-badge-sm">
+                    <app-icon name="briefcase" [size]="12" class="text-cyan"></app-icon>
+                    <span>{{ user.departmentName }}</span>
+                  </span>
+                } @else {
+                  <span class="text-muted">Unassigned</span>
+                }
+              </span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Designation</span>
+              <span class="view-value">
+                @if (user.designationName) {
+                  <span class="desig-badge-sm">
+                    <app-icon name="award" [size]="12" class="text-indigo"></app-icon>
+                    <span>{{ user.designationName }}</span>
+                  </span>
+                } @else {
+                  <span class="text-muted">Unassigned</span>
+                }
+              </span>
             </div>
             <div class="view-item">
               <span class="view-label">Account Status</span>

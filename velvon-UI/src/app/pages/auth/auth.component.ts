@@ -106,6 +106,14 @@ export class AuthComponent implements OnInit {
     this.mode.set(newMode);
   }
 
+  fillAdminCredentials(): void {
+    this.loginForm.patchValue({
+      email: 'admin@velvion.com',
+      password: 'Admin@123'
+    });
+    this.toastService.info('Admin demo credentials pre-filled', 'Demo Access');
+  }
+
   onRoleChange(val: string | string[]): void {
     const roleId = Number(val);
     this.selectedRole.set(roleId);

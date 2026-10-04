@@ -12,6 +12,9 @@ public class User
     [Required]
     public int RoleId { get; set; }
 
+    public int? DepartmentId { get; set; }
+    public int? DesignationId { get; set; }
+
     [Required]
     [MaxLength(100)]
     public string FullName { get; set; } = string.Empty;
@@ -35,6 +38,12 @@ public class User
 
     [ForeignKey(nameof(RoleId))]
     public virtual Role? Role { get; set; }
+
+    [ForeignKey(nameof(DepartmentId))]
+    public virtual DepartmentMaster? Department { get; set; }
+
+    [ForeignKey(nameof(DesignationId))]
+    public virtual DesignationMaster? Designation { get; set; }
 }
 
 [Table("tbl_role_menu_permission")]

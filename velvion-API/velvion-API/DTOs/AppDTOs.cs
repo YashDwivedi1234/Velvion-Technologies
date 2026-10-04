@@ -10,6 +10,10 @@ public class UserDto
     public int Id { get; set; }
     public int RoleId { get; set; }
     public string RoleName { get; set; } = string.Empty;
+    public int? DepartmentId { get; set; }
+    public string? DepartmentName { get; set; }
+    public int? DesignationId { get; set; }
+    public string? DesignationName { get; set; }
     public string FullName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string? Mobile { get; set; }
@@ -24,6 +28,10 @@ public class SaveUserDto
 
     [Required]
     public int RoleId { get; set; }
+
+    public int? DepartmentId { get; set; }
+
+    public int? DesignationId { get; set; }
 
     [Required]
     [MaxLength(100)]
@@ -60,6 +68,10 @@ public class LoginResponseDto
     public string Email { get; set; } = string.Empty;
     public int RoleId { get; set; }
     public string RoleName { get; set; } = string.Empty;
+    public int? DepartmentId { get; set; }
+    public string? DepartmentName { get; set; }
+    public int? DesignationId { get; set; }
+    public string? DesignationName { get; set; }
     public string? Token { get; set; }
 }
 

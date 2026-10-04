@@ -54,6 +54,7 @@
 
 .data-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 0.88rem;
 }
@@ -65,19 +66,37 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 0.85rem 1.2rem;
+  padding: 1rem 1.4rem;
   text-align: left;
   border-bottom: 1px solid var(--border-glass);
 }
 
 .data-table td {
-  padding: 1rem 1.2rem;
+  padding: 1.1rem 1.4rem;
   border-bottom: 1px solid var(--border-glass);
   color: var(--text-body);
+  vertical-align: middle;
 }
 
 .data-table tr:hover td {
   background: var(--bg-surface-hover);
+}
+
+.col-sr {
+  width: 15%;
+}
+
+.col-name {
+  width: 40%;
+}
+
+.col-status {
+  width: 25%;
+}
+
+.col-actions {
+  width: 20%;
+  text-align: right !important;
 }
 
 .role-cell {
@@ -123,13 +142,49 @@
   background: currentColor;
 }
 
-.text-right {
-  text-align: right;
+.text-right, .text-end {
+  text-align: right !important;
+}
+
+/* ================= FREEZE / STICKY ACTION COLUMN ================= */
+th.col-actions,
+th.text-right,
+th.text-end,
+th:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 5;
+  text-align: right !important;
+  padding-right: 1.4rem !important;
+  background: var(--bg-surface-elevated);
+  box-shadow: -6px 0 14px rgba(0, 0, 0, 0.4);
+}
+
+td.col-actions,
+td.text-right,
+td.text-end,
+td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 4;
+  text-align: right !important;
+  padding-right: 1.4rem !important;
+  background: var(--bg-card);
+  box-shadow: -6px 0 14px rgba(0, 0, 0, 0.4);
+}
+
+tr:hover td.col-actions,
+tr:hover td.text-right,
+tr:hover td.text-end,
+tr:hover td:last-child {
+  background: var(--bg-surface-hover);
 }
 
 .action-buttons-wrap {
   display: inline-flex;
   align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
   gap: 6px;
 }
 

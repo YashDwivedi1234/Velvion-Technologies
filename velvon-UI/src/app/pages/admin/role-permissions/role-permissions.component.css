@@ -112,9 +112,15 @@
 /* Roles Table */
 .roles-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 0.9rem;
 }
+
+.col-id { width: 14%; }
+.col-role { width: 44%; }
+.col-status { width: 22%; }
+.col-actions { width: 20%; text-align: right !important; }
 
 .roles-table th {
   background: var(--bg-surface-elevated);
@@ -135,6 +141,39 @@
 }
 
 .role-row:hover td {
+  background: var(--bg-surface-hover);
+}
+
+.roles-table th.col-actions,
+.roles-table th.text-right,
+.roles-table th.text-end,
+.roles-table th:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 5;
+  text-align: right !important;
+  padding-right: 1.4rem !important;
+  background: var(--bg-surface-elevated);
+  box-shadow: -6px 0 14px rgba(0, 0, 0, 0.4);
+}
+
+.roles-table td.col-actions,
+.roles-table td.text-right,
+.roles-table td.text-end,
+.roles-table td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 4;
+  text-align: right !important;
+  padding-right: 1.4rem !important;
+  background: var(--bg-card);
+  box-shadow: -6px 0 14px rgba(0, 0, 0, 0.4);
+}
+
+.roles-table tr:hover td.col-actions,
+.roles-table tr:hover td.text-right,
+.roles-table tr:hover td.text-end,
+.roles-table tr:hover td:last-child {
   background: var(--bg-surface-hover);
 }
 
@@ -234,7 +273,10 @@
 .action-buttons-group {
   display: inline-flex;
   align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
   gap: var(--space-sm);
+  text-align: right;
 }
 
 .btn-action {

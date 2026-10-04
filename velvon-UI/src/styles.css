@@ -621,9 +621,9 @@ h6 { font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; }
 
 .w-full { width: 100%; }
 .h-full { height: 100%; }
-.text-center { text-align: center; }
-.text-right { text-align: right; }
-.text-left { text-align: left; }
+.text-center { text-align: center !important; }
+.text-right, .text-end { text-align: right !important; }
+.text-left, .text-start { text-align: left !important; }
 .truncate {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -963,6 +963,111 @@ html[data-theme="light"] .dropdown-menu {
   font-size: 0.88rem;
   line-height: 1.6;
   color: var(--text-secondary);
+}
+
+/* ================= GLOBAL FREEZE / STICKY ACTION COLUMN ================= */
+.data-table th.col-actions,
+.data-table th.th-actions,
+.data-table th.freeze-action,
+.data-table th.text-right,
+.data-table th.text-end,
+.data-table th:last-child,
+.roles-table th.col-actions,
+.roles-table th.th-actions,
+.roles-table th.freeze-action,
+.roles-table th.text-right,
+.roles-table th.text-end,
+.roles-table th:last-child,
+.admin-table th.col-actions,
+.admin-table th.th-actions,
+.admin-table th.freeze-action,
+.admin-table th:last-child {
+  position: sticky !important;
+  right: 0 !important;
+  z-index: 10 !important;
+  background: var(--bg-surface-elevated) !important;
+  box-shadow: -6px 0 14px rgba(0, 0, 0, 0.4) !important;
+}
+
+.data-table td.col-actions,
+.data-table td.td-actions,
+.data-table td.freeze-action,
+.data-table td.text-right,
+.data-table td.text-end,
+.data-table td:last-child,
+.roles-table td.col-actions,
+.roles-table td.td-actions,
+.roles-table td.freeze-action,
+.roles-table td.text-right,
+.roles-table td.text-end,
+.roles-table td:last-child,
+.admin-table td.col-actions,
+.admin-table td.td-actions,
+.admin-table td.freeze-action,
+.admin-table td:last-child {
+  position: sticky !important;
+  right: 0 !important;
+  z-index: 9 !important;
+  background: var(--bg-card) !important;
+  box-shadow: -6px 0 14px rgba(0, 0, 0, 0.4) !important;
+}
+
+.data-table .action-buttons-wrap,
+.roles-table .action-buttons-wrap,
+.roles-table .action-buttons-group,
+.admin-table .action-buttons-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.data-table tr:hover td.col-actions,
+.data-table tr:hover td.td-actions,
+.data-table tr:hover td.freeze-action,
+.data-table tr:hover td.text-right,
+.data-table tr:hover td.text-end,
+.data-table tr:hover td:last-child,
+.roles-table tr:hover td.col-actions,
+.roles-table tr:hover td.td-actions,
+.roles-table tr:hover td.freeze-action,
+.roles-table tr:hover td.text-right,
+.roles-table tr:hover td.text-end,
+.roles-table tr:hover td:last-child,
+.admin-table tr:hover td.col-actions,
+.admin-table tr:hover td.td-actions,
+.admin-table tr:hover td.freeze-action,
+.admin-table tr:hover td:last-child {
+  background: var(--bg-surface-hover) !important;
+}
+
+html[data-theme="light"] .data-table th.col-actions,
+html[data-theme="light"] .data-table th.th-actions,
+html[data-theme="light"] .data-table th.freeze-action,
+html[data-theme="light"] .data-table th:last-child,
+html[data-theme="light"] .roles-table th:last-child,
+html[data-theme="light"] .admin-table th:last-child {
+  background: #f1f5f9 !important;
+  box-shadow: -6px 0 14px rgba(0, 0, 0, 0.08) !important;
+}
+
+html[data-theme="light"] .data-table td.col-actions,
+html[data-theme="light"] .data-table td.td-actions,
+html[data-theme="light"] .data-table td.freeze-action,
+html[data-theme="light"] .data-table td:last-child,
+html[data-theme="light"] .roles-table td:last-child,
+html[data-theme="light"] .admin-table td:last-child {
+  background: #ffffff !important;
+  box-shadow: -6px 0 14px rgba(0, 0, 0, 0.08) !important;
+}
+
+html[data-theme="light"] .data-table tr:hover td.col-actions,
+html[data-theme="light"] .data-table tr:hover td.td-actions,
+html[data-theme="light"] .data-table tr:hover td.freeze-action,
+html[data-theme="light"] .data-table tr:hover td:last-child,
+html[data-theme="light"] .roles-table tr:hover td:last-child,
+html[data-theme="light"] .admin-table tr:hover td:last-child {
+  background: #f8fafc !important;
 }
 
 

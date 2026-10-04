@@ -1,0 +1,314 @@
+<div class="master-page-view">
+  
+  <!-- Top Action Bar -->
+  <div class="page-top-actions">
+    <div class="search-box">
+      <app-icon name="search" [size]="16" class="search-icon"></app-icon>
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Search departments, roles, or leaders..." 
+        [value]="searchQuery()" 
+        (input)="searchQuery.set($any($event.target).value)" />
+    </div>
+
+    <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+      <app-icon name="plus" [size]="16"></app-icon>
+      <span>Add Department</span>
+    </button>
+  </div>
+
+  <div class="table-card glass-panel">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Sr. No.</th>
+            <th class="sortable" (click)="toggleSort('departmentName')">
+              <div class="th-sort-wrap">
+                <span>Department Name</span>
+                @if (sortColumn() === 'departmentName') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('headOfDepartment')">
+              <div class="th-sort-wrap">
+                <span>Head of Dept</span>
+                @if (sortColumn() === 'headOfDepartment') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th>Designations & Roles</th>
+            <th class="sortable" (click)="toggleSort('displayOrder')">
+              <div class="th-sort-wrap">
+                <span>Order</span>
+                @if (sortColumn() === 'displayOrder') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('isActive')">
+              <div class="th-sort-wrap">
+                <span>Status</span>
+                @if (sortColumn() === 'isActive') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (d of paginatedDepartments(); track d.id; let i = $index) {
+            <tr>
+              <td class="font-mono text-muted">{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
+              <td>
+                <div class="item-name-cell">
+                  <div class="dept-icon-box">
+                    <app-icon name="briefcase" [size]="16"></app-icon>
+                  </div>
+                  <span class="font-bold text-white">{{ d.departmentName }}</span>
+                </div>
+              </td>
+              <td>
+                @if (d.headOfDepartment) {
+                  <div class="leader-chip">
+                    <app-icon name="user" [size]="13" class="text-cyan"></app-icon>
+                    <span>{{ d.headOfDepartment }}</span>
+                  </div>
+                } @else {
+                  <span class="text-muted">—</span>
+                }
+              </td>
+              <td>
+                <div class="tags-cloud">
+                  @for (role of getDesignationList(d.designations).slice(0, 3); track role) {
+                    <span class="role-tag">{{ role }}</span>
+                  }
+                  @if (getDesignationList(d.designations).length > 3) {
+                    <span class="role-tag more">+{{ getDesignationList(d.designations).length - 3 }} more</span>
+                  }
+                </div>
+              </td>
+              <td>
+                <span class="order-badge">#{{ d.displayOrder }}</span>
+              </td>
+              <td>
+                <span class="status-pill" [class.active]="d.isActive">
+                  <span class="status-dot"></span>
+                  {{ d.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="text-right">
+                <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon view" (click)="openViewModal(d)" title="View Department">
+                    <app-icon name="eye" [size]="15"></app-icon>
+                  </button>
+                  <button type="button" class="btn-action-icon edit" (click)="openEditModal(d)" title="Edit Department">
+                    <app-icon name="edit" [size]="15"></app-icon>
+                  </button>
+                  <button type="button" class="btn-action-icon delete" (click)="deleteDepartment(d)" title="Delete Department">
+                    <app-icon name="trash" [size]="15"></app-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @if (filteredDepartments().length === 0 && !loading()) {
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">
+                No departments found matching your search criteria.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Global Pagination -->
+    <app-pagination
+      [totalItems]="filteredDepartments().length"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      (pageChange)="currentPage.set($event)"
+      (pageSizeChange)="pageSize.set($event)">
+    </app-pagination>
+  </div>
+
+  <!-- View Modal -->
+  @if (isViewModalOpen() && viewingDepartment(); as d) {
+    <div class="modal-backdrop" (click)="closeViewModal()">
+      <div class="modal-card view-modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="dept-icon-box large">
+              <app-icon name="briefcase" [size]="20"></app-icon>
+            </div>
+            <div>
+              <h2 class="modal-title">{{ d.departmentName }}</h2>
+              <p class="text-xs text-muted">Department & Designation Structure</p>
+            </div>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeViewModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <div class="view-modal-body">
+          <div class="view-info-grid">
+            <div class="view-item">
+              <span class="view-label">Department Name</span>
+              <span class="view-value text-white font-bold">{{ d.departmentName }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Head of Department</span>
+              <span class="view-value text-cyan font-bold">{{ d.headOfDepartment || 'Unassigned' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Hierarchy Order</span>
+              <span class="view-value text-cyan font-bold">#{{ d.displayOrder }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Status</span>
+              <span class="view-value">
+                <span class="status-pill" [class.active]="d.isActive">
+                  <span class="status-dot"></span>
+                  {{ d.isActive ? 'Active Operations' : 'Inactive' }}
+                </span>
+              </span>
+            </div>
+            <div class="view-item full-width">
+              <span class="view-label">Description / Mission</span>
+              <p class="view-value text-muted">{{ d.description || 'No description provided.' }}</p>
+            </div>
+            <div class="view-item full-width">
+              <span class="view-label">Designations & Standard Roles</span>
+              <div class="designations-container">
+                @for (role of getDesignationList(d.designations); track role) {
+                  <span class="role-tag-pill">
+                    <app-icon name="user-check" [size]="13" class="text-cyan"></app-icon>
+                    <span>{{ role }}</span>
+                  </span>
+                }
+                @if (getDesignationList(d.designations).length === 0) {
+                  <span class="text-muted text-sm">No designations mapped yet.</span>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeViewModal()">Close</button>
+          <button type="button" class="btn-primary-neon" (click)="closeViewModal(); openEditModal(d)">
+            <app-icon name="edit" [size]="15"></app-icon>
+            <span>Edit Department</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Add/Edit Modal -->
+  @if (isModalOpen()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <div class="modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <app-icon name="briefcase" [size]="20" class="text-cyan"></app-icon>
+            <h2 class="modal-title">{{ isEditMode() ? 'Edit Department' : 'Add New Department' }}</h2>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="departmentForm" (ngSubmit)="saveDepartment()" class="modal-form">
+          <div class="form-group">
+            <label class="form-label" for="dept-name">Department Title *</label>
+            <input 
+              id="dept-name"
+              type="text" 
+              class="form-control" 
+              placeholder="e.g. AI & Data Science" 
+              formControlName="departmentName"
+              [class.is-invalid]="departmentForm.get('departmentName')?.touched && departmentForm.get('departmentName')?.invalid" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="dept-desc">Department Description</label>
+            <textarea 
+              id="dept-desc"
+              rows="2" 
+              class="form-control" 
+              placeholder="Brief overview of department functions and goals..." 
+              formControlName="description"></textarea>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="dept-head">Head of Department</label>
+              <input 
+                id="dept-head"
+                type="text" 
+                class="form-control" 
+                placeholder="e.g. Dr. Marcus Reed" 
+                formControlName="headOfDepartment" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="dept-order">Display Order</label>
+              <input 
+                id="dept-order"
+                type="number" 
+                class="form-control" 
+                formControlName="displayOrder" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="dept-roles">Designations (Comma Separated)</label>
+            <textarea 
+              id="dept-roles"
+              rows="3" 
+              class="form-control" 
+              placeholder="Principal AI Scientist, ML Ops Engineer, NLP Researcher..." 
+              formControlName="designations"></textarea>
+            <span class="text-xs text-muted">Separate multiple role titles with commas.</span>
+          </div>
+
+          <div class="form-group toggle-row">
+            <label class="form-label">Department Status</label>
+            <app-toggle formControlName="isActive" label="Active department in enterprise hierarchy"></app-toggle>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
+            <button type="submit" class="btn-primary-neon" [disabled]="modalSubmitting()">
+              @if (modalSubmitting()) {
+                <span class="spinner-sm"></span>
+                <span>Saving to Database...</span>
+              } @else {
+                <app-icon name="check-circle" [size]="16"></app-icon>
+                <span>{{ isEditMode() ? 'Update Department' : 'Save Department' }}</span>
+              }
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  }
+
+</div>

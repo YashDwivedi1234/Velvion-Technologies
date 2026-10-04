@@ -53,6 +53,26 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/admin/masters/services-master/services-master.component').then(m => m.ServicesMasterComponent)
       },
       {
+        path: 'masters/categories',
+        loadComponent: () => import('./pages/admin/masters/categories-master/categories-master.component').then(m => m.CategoriesMasterComponent)
+      },
+      {
+        path: 'masters/departments',
+        loadComponent: () => import('./pages/admin/masters/departments-master/departments-master.component').then(m => m.DepartmentsMasterComponent)
+      },
+      {
+        path: 'masters/designations',
+        loadComponent: () => import('./pages/admin/masters/designations-master/designations-master.component').then(m => m.DesignationsMasterComponent)
+      },
+      {
+        path: 'masters/clients',
+        loadComponent: () => import('./pages/admin/masters/clients-master/clients-master.component').then(m => m.ClientsMasterComponent)
+      },
+      {
+        path: 'masters/faqs',
+        loadComponent: () => import('./pages/admin/masters/faqs-master/faqs-master.component').then(m => m.FaqsMasterComponent)
+      },
+      {
         path: 'masters/settings',
         loadComponent: () => import('./pages/admin/masters/settings-master/settings-master.component').then(m => m.SettingsMasterComponent)
       },

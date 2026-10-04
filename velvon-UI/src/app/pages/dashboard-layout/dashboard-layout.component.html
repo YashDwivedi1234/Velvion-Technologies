@@ -86,19 +86,59 @@
 
           @if (isSectionOpen('masters') || sidebarCollapsed()) {
             <div class="nav-submenu">
-              <!-- Services Master -->
-              <a routerLink="/admin/masters/services" routerLinkActive="active-nav" class="nav-sublink" title="Services Master">
+              <!-- Services -->
+              <a routerLink="/admin/masters/services" routerLinkActive="active-nav" class="nav-sublink" title="Services">
                 <app-icon name="layers" [size]="16" class="nav-icon"></app-icon>
                 @if (!sidebarCollapsed()) {
-                  <span>Services Master</span>
+                  <span>Services</span>
                 }
               </a>
 
-              <!-- Settings Master -->
-              <a routerLink="/admin/masters/settings" routerLinkActive="active-nav" class="nav-sublink" title="Settings Master">
+              <!-- Categories & Industries -->
+              <a routerLink="/admin/masters/categories" routerLinkActive="active-nav" class="nav-sublink" title="Project Categories & Industries">
+                <app-icon name="folder" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Categories & Industries</span>
+                }
+              </a>
+
+              <!-- Departments -->
+              <a routerLink="/admin/masters/departments" routerLinkActive="active-nav" class="nav-sublink" title="Departments Master">
+                <app-icon name="briefcase" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Departments</span>
+                }
+              </a>
+
+              <!-- Designations -->
+              <a routerLink="/admin/masters/designations" routerLinkActive="active-nav" class="nav-sublink" title="Designations Master">
+                <app-icon name="award" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Designations</span>
+                }
+              </a>
+
+              <!-- Clients & Partners -->
+              <a routerLink="/admin/masters/clients" routerLinkActive="active-nav" class="nav-sublink" title="Clients & Partners">
+                <app-icon name="globe" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>Clients & Partners</span>
+                }
+              </a>
+
+              <!-- FAQs & Knowledge Base -->
+              <a routerLink="/admin/masters/faqs" routerLinkActive="active-nav" class="nav-sublink" title="FAQs & Knowledge Base">
+                <app-icon name="help-circle" [size]="16" class="nav-icon"></app-icon>
+                @if (!sidebarCollapsed()) {
+                  <span>FAQs & Knowledge</span>
+                }
+              </a>
+
+              <!-- Settings -->
+              <a routerLink="/admin/masters/settings" routerLinkActive="active-nav" class="nav-sublink" title="Settings">
                 <app-icon name="settings" [size]="16" class="nav-icon"></app-icon>
                 @if (!sidebarCollapsed()) {
-                  <span>Settings Master</span>
+                  <span>Settings</span>
                 }
               </a>
             </div>

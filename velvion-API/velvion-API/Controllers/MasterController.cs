@@ -175,4 +175,174 @@ public class MasterController : ControllerBase
         var result = await _masterService.DeleteSettingAsync(id, updatedBy);
         return StatusCode(result.StatusCode, result);
     }
+
+    // ==========================================
+    // 5. CATEGORIES & INDUSTRIES (GET & POST ONLY)
+    // ==========================================
+    [HttpGet("categories")]
+    public async Task<ActionResult<ApiResponse<List<CategoryDto>>>> GetCategories([FromQuery] bool activeOnly = false)
+    {
+        var result = await _masterService.GetCategoriesAsync(activeOnly);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpGet("categories/{id:int}")]
+    public async Task<ActionResult<ApiResponse<CategoryDto>>> GetCategoryById(int id)
+    {
+        var result = await _masterService.GetCategoryByIdAsync(id);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpPost("categories/save")]
+    public async Task<ActionResult<ApiResponse<CategoryDto>>> SaveCategory([FromBody] SaveCategoryDto dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ApiResponse<CategoryDto>.FailResult("Invalid model state."));
+
+        var result = await _masterService.SaveCategoryAsync(dto);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpPost("categories/delete/{id:int}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteCategory(int id, [FromQuery] int? updatedBy = null)
+    {
+        var result = await _masterService.DeleteCategoryAsync(id, updatedBy);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    // ==========================================
+    // 6. DEPARTMENTS (GET & POST ONLY)
+    // ==========================================
+    [HttpGet("departments")]
+    public async Task<ActionResult<ApiResponse<List<DepartmentDto>>>> GetDepartments([FromQuery] bool activeOnly = false)
+    {
+        var result = await _masterService.GetDepartmentsAsync(activeOnly);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpGet("departments/{id:int}")]
+    public async Task<ActionResult<ApiResponse<DepartmentDto>>> GetDepartmentById(int id)
+    {
+        var result = await _masterService.GetDepartmentByIdAsync(id);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpPost("departments/save")]
+    public async Task<ActionResult<ApiResponse<DepartmentDto>>> SaveDepartment([FromBody] SaveDepartmentDto dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ApiResponse<DepartmentDto>.FailResult("Invalid model state."));
+
+        var result = await _masterService.SaveDepartmentAsync(dto);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpPost("departments/delete/{id:int}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteDepartment(int id, [FromQuery] int? updatedBy = null)
+    {
+        var result = await _masterService.DeleteDepartmentAsync(id, updatedBy);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    // ==========================================
+    // 6B. DESIGNATIONS (GET & POST ONLY)
+    // ==========================================
+    [HttpGet("designations")]
+    public async Task<ActionResult<ApiResponse<List<DesignationDto>>>> GetDesignations([FromQuery] bool activeOnly = false, [FromQuery] int? departmentId = null)
+    {
+        var result = await _masterService.GetDesignationsAsync(activeOnly, departmentId);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpGet("designations/{id:int}")]
+    public async Task<ActionResult<ApiResponse<DesignationDto>>> GetDesignationById(int id)
+    {
+        var result = await _masterService.GetDesignationByIdAsync(id);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpPost("designations/save")]
+    public async Task<ActionResult<ApiResponse<DesignationDto>>> SaveDesignation([FromBody] SaveDesignationDto dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ApiResponse<DesignationDto>.FailResult("Invalid model state."));
+
+        var result = await _masterService.SaveDesignationAsync(dto);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpPost("designations/delete/{id:int}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteDesignation(int id, [FromQuery] int? updatedBy = null)
+    {
+        var result = await _masterService.DeleteDesignationAsync(id, updatedBy);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    // ==========================================
+    // 7. CLIENTS & PARTNERS (GET & POST ONLY)
+    // ==========================================
+    [HttpGet("clients")]
+    public async Task<ActionResult<ApiResponse<List<ClientDto>>>> GetClients([FromQuery] bool activeOnly = false)
+    {
+        var result = await _masterService.GetClientsAsync(activeOnly);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpGet("clients/{id:int}")]
+    public async Task<ActionResult<ApiResponse<ClientDto>>> GetClientById(int id)
+    {
+        var result = await _masterService.GetClientByIdAsync(id);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpPost("clients/save")]
+    public async Task<ActionResult<ApiResponse<ClientDto>>> SaveClient([FromBody] SaveClientDto dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ApiResponse<ClientDto>.FailResult("Invalid model state."));
+
+        var result = await _masterService.SaveClientAsync(dto);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpPost("clients/delete/{id:int}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteClient(int id, [FromQuery] int? updatedBy = null)
+    {
+        var result = await _masterService.DeleteClientAsync(id, updatedBy);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    // ==========================================
+    // 8. FAQS & KNOWLEDGE BASE (GET & POST ONLY)
+    // ==========================================
+    [HttpGet("faqs")]
+    public async Task<ActionResult<ApiResponse<List<FaqDto>>>> GetFaqs([FromQuery] bool activeOnly = false, [FromQuery] string? category = null)
+    {
+        var result = await _masterService.GetFaqsAsync(activeOnly, category);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpGet("faqs/{id:int}")]
+    public async Task<ActionResult<ApiResponse<FaqDto>>> GetFaqById(int id)
+    {
+        var result = await _masterService.GetFaqByIdAsync(id);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpPost("faqs/save")]
+    public async Task<ActionResult<ApiResponse<FaqDto>>> SaveFaq([FromBody] SaveFaqDto dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ApiResponse<FaqDto>.FailResult("Invalid model state."));
+
+        var result = await _masterService.SaveFaqAsync(dto);
+        return StatusCode(result.StatusCode, result);
+    }
+
+    [HttpPost("faqs/delete/{id:int}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteFaq(int id, [FromQuery] int? updatedBy = null)
+    {
+        var result = await _masterService.DeleteFaqAsync(id, updatedBy);
+        return StatusCode(result.StatusCode, result);
+    }
 }

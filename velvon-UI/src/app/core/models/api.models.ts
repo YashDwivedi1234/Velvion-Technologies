@@ -16,6 +16,10 @@ export interface UserDto {
   id: number;
   roleId: number;
   roleName: string;
+  departmentId?: number;
+  departmentName?: string;
+  designationId?: number;
+  designationName?: string;
   fullName: string;
   email: string;
   mobile?: string;
@@ -27,6 +31,8 @@ export interface UserDto {
 export interface SaveUserDto {
   id?: number;
   roleId: number;
+  departmentId?: number;
+  designationId?: number;
   fullName: string;
   email: string;
   mobile?: string;
@@ -46,6 +52,10 @@ export interface LoginResponseDto {
   email: string;
   roleId: number;
   roleName: string;
+  departmentId?: number;
+  departmentName?: string;
+  designationId?: number;
+  designationName?: string;
   token?: string;
 }
 
@@ -168,12 +178,146 @@ export interface SaveSettingDto {
   updatedBy?: number;
 }
 
+// ==========================================
+// CATEGORY & INDUSTRY MODELS
+// ==========================================
+export interface CategoryDto {
+  id: number;
+  categoryName: string;
+  slug?: string;
+  description?: string;
+  icon?: string;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SaveCategoryDto {
+  id?: number;
+  categoryName: string;
+  slug?: string;
+  description?: string;
+  icon?: string;
+  displayOrder?: number;
+  isActive: boolean;
+  updatedBy?: number;
+}
+
+// ==========================================
+// DEPARTMENT MODELS
+// ==========================================
+export interface DepartmentDto {
+  id: number;
+  departmentName: string;
+  description?: string;
+  designations?: string;
+  headOfDepartment?: string;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SaveDepartmentDto {
+  id?: number;
+  departmentName: string;
+  description?: string;
+  designations?: string;
+  headOfDepartment?: string;
+  displayOrder?: number;
+  isActive: boolean;
+  updatedBy?: number;
+}
+
+// ==========================================
+// DESIGNATION MODELS
+// ==========================================
+export interface DesignationDto {
+  id: number;
+  designationName: string;
+  departmentId?: number;
+  departmentName?: string;
+  description?: string;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SaveDesignationDto {
+  id?: number;
+  designationName: string;
+  departmentId?: number;
+  description?: string;
+  displayOrder?: number;
+  isActive: boolean;
+  updatedBy?: number;
+}
+
+// ==========================================
+// CLIENT & PARTNER MODELS
+// ==========================================
+export interface ClientDto {
+  id: number;
+  clientName: string;
+  logoUrl?: string;
+  websiteUrl?: string;
+  industry?: string;
+  partnerTier?: string;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SaveClientDto {
+  id?: number;
+  clientName: string;
+  logoUrl?: string;
+  websiteUrl?: string;
+  industry?: string;
+  partnerTier?: string;
+  displayOrder?: number;
+  isActive: boolean;
+  updatedBy?: number;
+}
+
+// ==========================================
+// FAQ & KNOWLEDGE BASE MODELS
+// ==========================================
+export interface FaqDto {
+  id: number;
+  question: string;
+  answer: string;
+  category?: string;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SaveFaqDto {
+  id?: number;
+  question: string;
+  answer: string;
+  category?: string;
+  displayOrder?: number;
+  isActive: boolean;
+  updatedBy?: number;
+}
+
 // All Masters Overview
 export interface AllMastersDto {
   roles: RoleDto[];
   menus: MenuDto[];
   services: ServiceMasterDto[];
   settings: SettingDto[];
+  categories: CategoryDto[];
+  departments: DepartmentDto[];
+  designations: DesignationDto[];
+  clients: ClientDto[];
+  faqs: FaqDto[];
 }
 
 // ==========================================

@@ -57,10 +57,21 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
+else
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseCors("AllowAll");
-app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+// Auto-initialize DB schema & master seeds
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<AppDbContext>>();
+    await DbInitializer.InitializeAsync(context, logger);
+}
 
 app.Run();

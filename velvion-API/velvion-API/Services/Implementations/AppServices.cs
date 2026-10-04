@@ -33,15 +33,28 @@ public class UserService : IUserService
 
     public async Task<ApiResponse<List<UserDto>>> GetUsersAsync(bool activeOnly = false)
     {
-        var query = _context.Users.Include(u => u.Role).AsNoTracking();
+        var query = _context.Users
+            .Include(u => u.Role)
+            .Include(u => u.Department)
+            .Include(u => u.Designation)
+            .AsNoTracking();
         if (activeOnly) query = query.Where(u => u.IsActive);
 
         var list = await query.OrderBy(u => u.FullName).Select(u => new UserDto
         {
-            Id = u.Id, RoleId = u.RoleId,
+            Id = u.Id,
+            RoleId = u.RoleId,
             RoleName = u.Role != null ? u.Role.RoleName : string.Empty,
-            FullName = u.FullName, Email = u.Email, Mobile = u.Mobile,
-            IsActive = u.IsActive, CreatedAt = u.CreatedAt, UpdatedAt = u.UpdatedAt
+            DepartmentId = u.DepartmentId,
+            DepartmentName = u.Department != null ? u.Department.DepartmentName : null,
+            DesignationId = u.DesignationId,
+            DesignationName = u.Designation != null ? u.Designation.DesignationName : null,
+            FullName = u.FullName,
+            Email = u.Email,
+            Mobile = u.Mobile,
+            IsActive = u.IsActive,
+            CreatedAt = u.CreatedAt,
+            UpdatedAt = u.UpdatedAt
         }).ToListAsync();
 
         return ApiResponse<List<UserDto>>.SuccessResult(list, "Users fetched successfully.");
@@ -49,15 +62,29 @@ public class UserService : IUserService
 
     public async Task<ApiResponse<UserDto>> GetUserByIdAsync(int id)
     {
-        var user = await _context.Users.Include(u => u.Role).AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+        var user = await _context.Users
+            .Include(u => u.Role)
+            .Include(u => u.Department)
+            .Include(u => u.Designation)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == id);
         if (user == null) return ApiResponse<UserDto>.FailResult("User not found.", statusCode: 404);
 
         return ApiResponse<UserDto>.SuccessResult(new UserDto
         {
-            Id = user.Id, RoleId = user.RoleId,
+            Id = user.Id,
+            RoleId = user.RoleId,
             RoleName = user.Role != null ? user.Role.RoleName : string.Empty,
-            FullName = user.FullName, Email = user.Email, Mobile = user.Mobile,
-            IsActive = user.IsActive, CreatedAt = user.CreatedAt, UpdatedAt = user.UpdatedAt
+            DepartmentId = user.DepartmentId,
+            DepartmentName = user.Department != null ? user.Department.DepartmentName : null,
+            DesignationId = user.DesignationId,
+            DesignationName = user.Designation != null ? user.Designation.DesignationName : null,
+            FullName = user.FullName,
+            Email = user.Email,
+            Mobile = user.Mobile,
+            IsActive = user.IsActive,
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt
         });
     }
 
@@ -65,6 +92,21 @@ public class UserService : IUserService
     {
         var role = await _context.Roles.FirstOrDefaultAsync(r => r.Id == dto.RoleId);
         if (role == null) return ApiResponse<UserDto>.FailResult("Specified Role does not exist.", statusCode: 400);
+
+        int? targetDeptId = (dto.DepartmentId.HasValue && dto.DepartmentId.Value > 0) ? dto.DepartmentId.Value : null;
+        int? targetDesigId = (dto.DesignationId.HasValue && dto.DesignationId.Value > 0) ? dto.DesignationId.Value : null;
+
+        string? deptName = null;
+        if (targetDeptId.HasValue)
+        {
+            deptName = await _context.Departments.Where(d => d.Id == targetDeptId.Value).Select(d => d.DepartmentName).FirstOrDefaultAsync();
+        }
+
+        string? desigName = null;
+        if (targetDesigId.HasValue)
+        {
+            desigName = await _context.Designations.Where(d => d.Id == targetDesigId.Value).Select(d => d.DesignationName).FirstOrDefaultAsync();
+        }
 
         if (dto.Id <= 0)
         {
@@ -76,19 +118,36 @@ public class UserService : IUserService
 
             var user = new User
             {
-                RoleId = dto.RoleId, FullName = dto.FullName.Trim(),
-                Email = dto.Email.Trim().ToLower(), Mobile = dto.Mobile?.Trim(),
-                PasswordHash = PasswordHelper.HashPassword(dto.Password), IsActive = dto.IsActive,
-                UpdatedBy = dto.UpdatedBy, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow
+                RoleId = dto.RoleId,
+                DepartmentId = targetDeptId,
+                DesignationId = targetDesigId,
+                FullName = dto.FullName.Trim(),
+                Email = dto.Email.Trim().ToLower(),
+                Mobile = dto.Mobile?.Trim(),
+                PasswordHash = PasswordHelper.HashPassword(dto.Password),
+                IsActive = dto.IsActive,
+                UpdatedBy = dto.UpdatedBy,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
             return ApiResponse<UserDto>.SuccessResult(new UserDto
             {
-                Id = user.Id, RoleId = user.RoleId, RoleName = role.RoleName,
-                FullName = user.FullName, Email = user.Email, Mobile = user.Mobile,
-                IsActive = user.IsActive, CreatedAt = user.CreatedAt, UpdatedAt = user.UpdatedAt
+                Id = user.Id,
+                RoleId = user.RoleId,
+                RoleName = role.RoleName,
+                DepartmentId = user.DepartmentId,
+                DepartmentName = deptName,
+                DesignationId = user.DesignationId,
+                DesignationName = desigName,
+                FullName = user.FullName,
+                Email = user.Email,
+                Mobile = user.Mobile,
+                IsActive = user.IsActive,
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt
             }, "User created successfully.", statusCode: 201);
         }
         else
@@ -99,9 +158,15 @@ public class UserService : IUserService
             if (await _context.Users.AnyAsync(u => u.Id != dto.Id && u.Email.ToLower() == dto.Email.ToLower()))
                 return ApiResponse<UserDto>.FailResult("Another user with this email already exists.", statusCode: 409);
 
-            user.RoleId = dto.RoleId; user.FullName = dto.FullName.Trim();
-            user.Email = dto.Email.Trim().ToLower(); user.Mobile = dto.Mobile?.Trim();
-            user.IsActive = dto.IsActive; user.UpdatedBy = dto.UpdatedBy; user.UpdatedAt = DateTime.UtcNow;
+            user.RoleId = dto.RoleId;
+            user.DepartmentId = targetDeptId;
+            user.DesignationId = targetDesigId;
+            user.FullName = dto.FullName.Trim();
+            user.Email = dto.Email.Trim().ToLower();
+            user.Mobile = dto.Mobile?.Trim();
+            user.IsActive = dto.IsActive;
+            user.UpdatedBy = dto.UpdatedBy;
+            user.UpdatedAt = DateTime.UtcNow;
 
             if (!string.IsNullOrWhiteSpace(dto.Password)) user.PasswordHash = PasswordHelper.HashPassword(dto.Password);
 
@@ -109,9 +174,19 @@ public class UserService : IUserService
 
             return ApiResponse<UserDto>.SuccessResult(new UserDto
             {
-                Id = user.Id, RoleId = user.RoleId, RoleName = role.RoleName,
-                FullName = user.FullName, Email = user.Email, Mobile = user.Mobile,
-                IsActive = user.IsActive, CreatedAt = user.CreatedAt, UpdatedAt = user.UpdatedAt
+                Id = user.Id,
+                RoleId = user.RoleId,
+                RoleName = role.RoleName,
+                DepartmentId = user.DepartmentId,
+                DepartmentName = deptName,
+                DesignationId = user.DesignationId,
+                DesignationName = desigName,
+                FullName = user.FullName,
+                Email = user.Email,
+                Mobile = user.Mobile,
+                IsActive = user.IsActive,
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt
             }, "User updated successfully.");
         }
     }
@@ -121,14 +196,19 @@ public class UserService : IUserService
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         if (user == null) return ApiResponse<bool>.FailResult("User not found.", statusCode: 404);
 
-        user.IsDeleted = true; user.UpdatedBy = updatedBy; user.UpdatedAt = DateTime.UtcNow;
+        user.IsDeleted = true;
+        user.UpdatedBy = updatedBy;
+        user.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
         return ApiResponse<bool>.SuccessResult(true, "User deleted successfully.");
     }
 
     public async Task<ApiResponse<LoginResponseDto>> LoginAsync(LoginDto dto)
     {
-        var user = await _context.Users.Include(u => u.Role)
+        var user = await _context.Users
+            .Include(u => u.Role)
+            .Include(u => u.Department)
+            .Include(u => u.Designation)
             .FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.Trim().ToLower() && u.IsActive);
 
         if (user == null || user.PasswordHash != PasswordHelper.HashPassword(dto.Password))
@@ -136,8 +216,15 @@ public class UserService : IUserService
 
         return ApiResponse<LoginResponseDto>.SuccessResult(new LoginResponseDto
         {
-            UserId = user.Id, FullName = user.FullName, Email = user.Email,
-            RoleId = user.RoleId, RoleName = user.Role != null ? user.Role.RoleName : string.Empty
+            UserId = user.Id,
+            FullName = user.FullName,
+            Email = user.Email,
+            RoleId = user.RoleId,
+            RoleName = user.Role != null ? user.Role.RoleName : string.Empty,
+            DepartmentId = user.DepartmentId,
+            DepartmentName = user.Department != null ? user.Department.DepartmentName : null,
+            DesignationId = user.DesignationId,
+            DesignationName = user.Designation != null ? user.Designation.DesignationName : null
         }, "Login successful.");
     }
 }

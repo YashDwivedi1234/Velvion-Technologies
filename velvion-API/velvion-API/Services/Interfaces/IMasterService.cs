@@ -33,4 +33,34 @@ public interface IMasterService
     Task<ApiResponse<SettingDto>> GetSettingByKeyAsync(string key);
     Task<ApiResponse<SettingDto>> SaveSettingAsync(SaveSettingDto dto);
     Task<ApiResponse<bool>> DeleteSettingAsync(int id, int? updatedBy = null);
+
+    // 5. Categories & Industries (GET & POST)
+    Task<ApiResponse<List<CategoryDto>>> GetCategoriesAsync(bool activeOnly = false);
+    Task<ApiResponse<CategoryDto>> GetCategoryByIdAsync(int id);
+    Task<ApiResponse<CategoryDto>> SaveCategoryAsync(SaveCategoryDto dto);
+    Task<ApiResponse<bool>> DeleteCategoryAsync(int id, int? updatedBy = null);
+
+    // 6. Departments (GET & POST)
+    Task<ApiResponse<List<DepartmentDto>>> GetDepartmentsAsync(bool activeOnly = false);
+    Task<ApiResponse<DepartmentDto>> GetDepartmentByIdAsync(int id);
+    Task<ApiResponse<DepartmentDto>> SaveDepartmentAsync(SaveDepartmentDto dto);
+    Task<ApiResponse<bool>> DeleteDepartmentAsync(int id, int? updatedBy = null);
+
+    // 6B. Designations (GET & POST)
+    Task<ApiResponse<List<DesignationDto>>> GetDesignationsAsync(bool activeOnly = false, int? departmentId = null);
+    Task<ApiResponse<DesignationDto>> GetDesignationByIdAsync(int id);
+    Task<ApiResponse<DesignationDto>> SaveDesignationAsync(SaveDesignationDto dto);
+    Task<ApiResponse<bool>> DeleteDesignationAsync(int id, int? updatedBy = null);
+
+    // 7. Clients & Partners (GET & POST)
+    Task<ApiResponse<List<ClientDto>>> GetClientsAsync(bool activeOnly = false);
+    Task<ApiResponse<ClientDto>> GetClientByIdAsync(int id);
+    Task<ApiResponse<ClientDto>> SaveClientAsync(SaveClientDto dto);
+    Task<ApiResponse<bool>> DeleteClientAsync(int id, int? updatedBy = null);
+
+    // 8. FAQs & Knowledge Base (GET & POST)
+    Task<ApiResponse<List<FaqDto>>> GetFaqsAsync(bool activeOnly = false, string? category = null);
+    Task<ApiResponse<FaqDto>> GetFaqByIdAsync(int id);
+    Task<ApiResponse<FaqDto>> SaveFaqAsync(SaveFaqDto dto);
+    Task<ApiResponse<bool>> DeleteFaqAsync(int id, int? updatedBy = null);
 }

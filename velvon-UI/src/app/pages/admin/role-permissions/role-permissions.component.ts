@@ -37,8 +37,13 @@ const DEFAULT_PLATFORM_MENUS: PlatformMenuDef[] = [
   { id: 4, menuName: 'Role Menu Permissions', routeUrl: '/admin/permissions', icon: 'check-circle', isActive: true, parentGroup: 'User Management' },
 
   // 3) Masters
-  { id: 6, menuName: 'Services Master', routeUrl: '/admin/masters/services', icon: 'layers', isActive: true, parentGroup: 'Masters' },
-  { id: 7, menuName: 'Settings Master', routeUrl: '/admin/masters/settings', icon: 'settings', isActive: true, parentGroup: 'Masters' },
+  { id: 6, menuName: 'Services', routeUrl: '/admin/masters/services', icon: 'layers', isActive: true, parentGroup: 'Masters' },
+  { id: 14, menuName: 'Categories & Industries', routeUrl: '/admin/masters/categories', icon: 'folder', isActive: true, parentGroup: 'Masters' },
+  { id: 15, menuName: 'Departments', routeUrl: '/admin/masters/departments', icon: 'briefcase', isActive: true, parentGroup: 'Masters' },
+  { id: 18, menuName: 'Designations', routeUrl: '/admin/masters/designations', icon: 'award', isActive: true, parentGroup: 'Masters' },
+  { id: 16, menuName: 'Clients & Partners', routeUrl: '/admin/masters/clients', icon: 'globe', isActive: true, parentGroup: 'Masters' },
+  { id: 17, menuName: 'FAQs & Knowledge Base', routeUrl: '/admin/masters/faqs', icon: 'help-circle', isActive: true, parentGroup: 'Masters' },
+  { id: 7, menuName: 'Settings', routeUrl: '/admin/masters/settings', icon: 'settings', isActive: true, parentGroup: 'Masters' },
 
   // 4) Content & Showcase
   { id: 8, menuName: 'Blogs & Articles', routeUrl: '/admin/blogs', icon: 'edit', isActive: true, parentGroup: 'Content & Showcase' },
@@ -55,7 +60,7 @@ function resolveParentGroup(menuName: string): { group: string; icon: string } {
   const name = menuName.toLowerCase();
   if (name.includes('dash')) return { group: 'Dashboard', icon: 'grid' };
   if (name.includes('user') || name.includes('role') || name.includes('perm')) return { group: 'User Management', icon: 'shield' };
-  if (name.includes('menu') || name.includes('service') || name.includes('setting') || name.includes('master')) return { group: 'Masters', icon: 'layers' };
+  if (name.includes('menu') || name.includes('service') || name.includes('setting') || name.includes('master') || name.includes('categor') || name.includes('industr') || name.includes('dept') || name.includes('depart') || name.includes('client') || name.includes('partner') || name.includes('faq') || name.includes('knowledge')) return { group: 'Masters', icon: 'layers' };
   if (name.includes('blog') || name.includes('article') || name.includes('portfolio') || name.includes('team') || name.includes('testim')) return { group: 'Content & Showcase', icon: 'folder' };
   if (name.includes('inquir') || name.includes('lead') || name.includes('audit') || name.includes('log')) return { group: 'Operations & Logs', icon: 'activity' };
   return { group: 'General Modules', icon: 'grid' };

@@ -14,6 +14,11 @@ public class AppDbContext : DbContext
     public DbSet<Menu> Menus => Set<Menu>();
     public DbSet<ServiceMaster> Services => Set<ServiceMaster>();
     public DbSet<Setting> Settings => Set<Setting>();
+    public DbSet<CategoryMaster> Categories => Set<CategoryMaster>();
+    public DbSet<DepartmentMaster> Departments => Set<DepartmentMaster>();
+    public DbSet<DesignationMaster> Designations => Set<DesignationMaster>();
+    public DbSet<ClientMaster> Clients => Set<ClientMaster>();
+    public DbSet<FaqMaster> Faqs => Set<FaqMaster>();
 
     // Application Tables
     public DbSet<User> Users => Set<User>();
@@ -25,7 +30,7 @@ public class AppDbContext : DbContext
     public DbSet<ContactInquiry> ContactInquiries => Set<ContactInquiry>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
-    // New — Careers / ATS
+    // Careers / ATS
     public DbSet<JobPosting> JobPostings => Set<JobPosting>();
     public DbSet<JobApplication> JobApplications => Set<JobApplication>();
 
@@ -38,6 +43,11 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Menu>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<ServiceMaster>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Setting>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<CategoryMaster>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<DepartmentMaster>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<DesignationMaster>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<ClientMaster>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<FaqMaster>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<User>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<RoleMenuPermission>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Blog>().HasQueryFilter(e => !e.IsDeleted);

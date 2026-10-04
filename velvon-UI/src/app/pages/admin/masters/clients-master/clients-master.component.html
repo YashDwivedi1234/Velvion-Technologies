@@ -1,0 +1,329 @@
+<div class="master-page-view">
+  
+  <!-- Top Action Bar -->
+  <div class="page-top-actions">
+    <div class="search-box">
+      <app-icon name="search" [size]="16" class="search-icon"></app-icon>
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Search clients, industries, tiers..." 
+        [value]="searchQuery()" 
+        (input)="searchQuery.set($any($event.target).value)" />
+    </div>
+
+    <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+      <app-icon name="plus" [size]="16"></app-icon>
+      <span>Add Client / Partner</span>
+    </button>
+  </div>
+
+  <div class="table-card glass-panel">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Sr. No.</th>
+            <th class="sortable" (click)="toggleSort('clientName')">
+              <div class="th-sort-wrap">
+                <span>Client / Brand Name</span>
+                @if (sortColumn() === 'clientName') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('industry')">
+              <div class="th-sort-wrap">
+                <span>Industry</span>
+                @if (sortColumn() === 'industry') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('partnerTier')">
+              <div class="th-sort-wrap">
+                <span>Partner Tier</span>
+                @if (sortColumn() === 'partnerTier') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th>Website</th>
+            <th class="sortable" (click)="toggleSort('displayOrder')">
+              <div class="th-sort-wrap">
+                <span>Order</span>
+                @if (sortColumn() === 'displayOrder') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('isActive')">
+              <div class="th-sort-wrap">
+                <span>Status</span>
+                @if (sortColumn() === 'isActive') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of paginatedClients(); track c.id; let i = $index) {
+            <tr>
+              <td class="font-mono text-muted">{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
+              <td>
+                <div class="item-name-cell">
+                  <div class="client-avatar-box">
+                    <app-icon name="globe" [size]="16"></app-icon>
+                  </div>
+                  <div>
+                    <span class="font-bold text-white block">{{ c.clientName }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="industry-badge">{{ c.industry || 'General' }}</span>
+              </td>
+              <td>
+                <span class="tier-pill">{{ c.partnerTier || 'Enterprise Client' }}</span>
+              </td>
+              <td>
+                @if (c.websiteUrl) {
+                  <a [href]="c.websiteUrl" target="_blank" rel="noopener noreferrer" class="link-external">
+                    <span>Visit</span>
+                    <app-icon name="external-link" [size]="12"></app-icon>
+                  </a>
+                } @else {
+                  <span class="text-muted">—</span>
+                }
+              </td>
+              <td>
+                <span class="order-badge">#{{ c.displayOrder }}</span>
+              </td>
+              <td>
+                <span class="status-pill" [class.active]="c.isActive">
+                  <span class="status-dot"></span>
+                  {{ c.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="text-right">
+                <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon view" (click)="openViewModal(c)" title="View Client">
+                    <app-icon name="eye" [size]="15"></app-icon>
+                  </button>
+                  <button type="button" class="btn-action-icon edit" (click)="openEditModal(c)" title="Edit Client">
+                    <app-icon name="edit" [size]="15"></app-icon>
+                  </button>
+                  <button type="button" class="btn-action-icon delete" (click)="deleteClient(c)" title="Delete Client">
+                    <app-icon name="trash" [size]="15"></app-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @if (filteredClients().length === 0 && !loading()) {
+            <tr>
+              <td colspan="8" class="text-center py-5 text-muted">
+                No clients or partners found.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Global Pagination -->
+    <app-pagination
+      [totalItems]="filteredClients().length"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      (pageChange)="currentPage.set($event)"
+      (pageSizeChange)="pageSize.set($event)">
+    </app-pagination>
+  </div>
+
+  <!-- View Modal -->
+  @if (isViewModalOpen() && viewingClient(); as c) {
+    <div class="modal-backdrop" (click)="closeViewModal()">
+      <div class="modal-card view-modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="client-avatar-box large">
+              <app-icon name="globe" [size]="20"></app-icon>
+            </div>
+            <div>
+              <h2 class="modal-title">{{ c.clientName }}</h2>
+              <p class="text-xs text-muted">Client & Ecosystem Partner</p>
+            </div>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeViewModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <div class="view-modal-body">
+          <div class="view-info-grid">
+            <div class="view-item">
+              <span class="view-label">Client Name</span>
+              <span class="view-value text-white font-bold">{{ c.clientName }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Partner Tier</span>
+              <span class="view-value text-cyan font-bold">{{ c.partnerTier || 'Enterprise Client' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Industry Sector</span>
+              <span class="view-value">{{ c.industry || 'General' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Showcase Order</span>
+              <span class="view-value text-cyan font-bold">#{{ c.displayOrder }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Official Website</span>
+              <span class="view-value">
+                @if (c.websiteUrl) {
+                  <a [href]="c.websiteUrl" target="_blank" rel="noopener noreferrer" class="link-external">{{ c.websiteUrl }}</a>
+                } @else {
+                  <span class="text-muted">None specified</span>
+                }
+              </span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Status</span>
+              <span class="view-value">
+                <span class="status-pill" [class.active]="c.isActive">
+                  <span class="status-dot"></span>
+                  {{ c.isActive ? 'Active Showcase' : 'Inactive' }}
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeViewModal()">Close</button>
+          <button type="button" class="btn-primary-neon" (click)="closeViewModal(); openEditModal(c)">
+            <app-icon name="edit" [size]="15"></app-icon>
+            <span>Edit Client</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Add/Edit Modal -->
+  @if (isModalOpen()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <div class="modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <app-icon name="globe" [size]="20" class="text-cyan"></app-icon>
+            <h2 class="modal-title">{{ isEditMode() ? 'Edit Client / Partner' : 'Add New Client / Partner' }}</h2>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="clientForm" (ngSubmit)="saveClient()" class="modal-form">
+          <div class="form-group">
+            <label class="form-label" for="cl-name">Client / Partner Name *</label>
+            <input 
+              id="cl-name"
+              type="text" 
+              class="form-control" 
+              placeholder="e.g. Apex Nexus Global" 
+              formControlName="clientName"
+              [class.is-invalid]="clientForm.get('clientName')?.touched && clientForm.get('clientName')?.invalid" />
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="cl-ind">Industry</label>
+              <input 
+                id="cl-ind"
+                type="text" 
+                class="form-control" 
+                placeholder="e.g. FinTech, MedTech" 
+                formControlName="industry" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="cl-tier">Partner Tier</label>
+              <input 
+                id="cl-tier"
+                type="text" 
+                class="form-control" 
+                placeholder="Strategic Tier 1, Alliance Partner" 
+                formControlName="partnerTier" />
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="cl-web">Website URL</label>
+              <input 
+                id="cl-web"
+                type="url" 
+                class="form-control" 
+                placeholder="https://client.com" 
+                formControlName="websiteUrl" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="cl-order">Display Sequence</label>
+              <input 
+                id="cl-order"
+                type="number" 
+                class="form-control" 
+                formControlName="displayOrder" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cl-logo">Logo / Brand Image URL</label>
+            <input 
+              id="cl-logo"
+              type="text" 
+              class="form-control" 
+              placeholder="e.g. /images/partners/apex.svg" 
+              formControlName="logoUrl" />
+          </div>
+
+          <div class="form-group toggle-row">
+            <label class="form-label">Client Status</label>
+            <app-toggle formControlName="isActive" label="Featured in platform trust bar & logo carousel"></app-toggle>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
+            <button type="submit" class="btn-primary-neon" [disabled]="modalSubmitting()">
+              @if (modalSubmitting()) {
+                <span class="spinner-sm"></span>
+                <span>Saving to Database...</span>
+              } @else {
+                <app-icon name="check-circle" [size]="16"></app-icon>
+                <span>{{ isEditMode() ? 'Update Client' : 'Save Client' }}</span>
+              }
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  }
+
+</div>

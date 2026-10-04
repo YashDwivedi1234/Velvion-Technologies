@@ -8,6 +8,11 @@ import {
   MenuDto, SaveMenuDto,
   ServiceMasterDto, SaveServiceMasterDto,
   SettingDto, SaveSettingDto,
+  CategoryDto, SaveCategoryDto,
+  DepartmentDto, SaveDepartmentDto,
+  DesignationDto, SaveDesignationDto,
+  ClientDto, SaveClientDto,
+  FaqDto, SaveFaqDto,
   AllMastersDto,
   RoleMenuPermissionDto, BulkSaveRolePermissionDto,
   BlogDto, SaveBlogDto,
@@ -107,6 +112,95 @@ export class AdminDataService {
 
   deleteSetting(id: number): Observable<ApiResponse<boolean>> {
     return this.api.post<boolean>(`Master/settings/delete/${id}`, {});
+  }
+
+  // ==================== CATEGORIES & INDUSTRIES ====================
+  getCategories(activeOnly = false): Observable<ApiResponse<CategoryDto[]>> {
+    return this.api.get<CategoryDto[]>('Master/categories', { activeOnly });
+  }
+
+  getCategoryById(id: number): Observable<ApiResponse<CategoryDto>> {
+    return this.api.get<CategoryDto>(`Master/categories/${id}`);
+  }
+
+  saveCategory(dto: SaveCategoryDto): Observable<ApiResponse<CategoryDto>> {
+    return this.api.post<CategoryDto>('Master/categories/save', dto);
+  }
+
+  deleteCategory(id: number): Observable<ApiResponse<boolean>> {
+    return this.api.post<boolean>(`Master/categories/delete/${id}`, {});
+  }
+
+  // ==================== DEPARTMENTS ====================
+  getDepartments(activeOnly = false): Observable<ApiResponse<DepartmentDto[]>> {
+    return this.api.get<DepartmentDto[]>('Master/departments', { activeOnly });
+  }
+
+  getDepartmentById(id: number): Observable<ApiResponse<DepartmentDto>> {
+    return this.api.get<DepartmentDto>(`Master/departments/${id}`);
+  }
+
+  saveDepartment(dto: SaveDepartmentDto): Observable<ApiResponse<DepartmentDto>> {
+    return this.api.post<DepartmentDto>('Master/departments/save', dto);
+  }
+
+  deleteDepartment(id: number): Observable<ApiResponse<boolean>> {
+    return this.api.post<boolean>(`Master/departments/delete/${id}`, {});
+  }
+
+  // ==================== DESIGNATIONS ====================
+  getDesignations(activeOnly = false, departmentId?: number): Observable<ApiResponse<DesignationDto[]>> {
+    const params: any = { activeOnly };
+    if (departmentId !== undefined && departmentId !== null) {
+      params.departmentId = departmentId;
+    }
+    return this.api.get<DesignationDto[]>('Master/designations', params);
+  }
+
+  getDesignationById(id: number): Observable<ApiResponse<DesignationDto>> {
+    return this.api.get<DesignationDto>(`Master/designations/${id}`);
+  }
+
+  saveDesignation(dto: SaveDesignationDto): Observable<ApiResponse<DesignationDto>> {
+    return this.api.post<DesignationDto>('Master/designations/save', dto);
+  }
+
+  deleteDesignation(id: number): Observable<ApiResponse<boolean>> {
+    return this.api.post<boolean>(`Master/designations/delete/${id}`, {});
+  }
+
+  // ==================== CLIENTS & PARTNERS ====================
+  getClients(activeOnly = false): Observable<ApiResponse<ClientDto[]>> {
+    return this.api.get<ClientDto[]>('Master/clients', { activeOnly });
+  }
+
+  getClientById(id: number): Observable<ApiResponse<ClientDto>> {
+    return this.api.get<ClientDto>(`Master/clients/${id}`);
+  }
+
+  saveClient(dto: SaveClientDto): Observable<ApiResponse<ClientDto>> {
+    return this.api.post<ClientDto>('Master/clients/save', dto);
+  }
+
+  deleteClient(id: number): Observable<ApiResponse<boolean>> {
+    return this.api.post<boolean>(`Master/clients/delete/${id}`, {});
+  }
+
+  // ==================== FAQS & KNOWLEDGE BASE ====================
+  getFaqs(activeOnly = false, category?: string): Observable<ApiResponse<FaqDto[]>> {
+    return this.api.get<FaqDto[]>('Master/faqs', category ? { activeOnly, category } : { activeOnly });
+  }
+
+  getFaqById(id: number): Observable<ApiResponse<FaqDto>> {
+    return this.api.get<FaqDto>(`Master/faqs/${id}`);
+  }
+
+  saveFaq(dto: SaveFaqDto): Observable<ApiResponse<FaqDto>> {
+    return this.api.post<FaqDto>('Master/faqs/save', dto);
+  }
+
+  deleteFaq(id: number): Observable<ApiResponse<boolean>> {
+    return this.api.post<boolean>(`Master/faqs/delete/${id}`, {});
   }
 
   getAllMasters(): Observable<ApiResponse<AllMastersDto>> {

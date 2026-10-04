@@ -8,15 +8,14 @@
       
       <!-- List Header & Search Bar -->
       <div class="directory-header-card glass-panel">
-        <div class="header-text-block">
+        <!-- <div class="header-text-block">
           <div class="badge-tag">
             <app-icon name="shield" [size]="14"></app-icon> 
             <span>Access Control Management</span>
           </div>
-          <h2 class="section-title">Role Menu Permissions</h2>
-          <p class="section-desc">Select a role below to view current access rights or click Edit to configure granular menu permissions.</p>
-        </div>
-
+          <h2 class="section-title">Role Permissions Management</h2>
+          <p class="section-desc">Manage system roles and configure granular permissions across platform menus.</p>
+        </div> -->
         <div class="header-controls">
           <div class="search-box">
             <app-icon name="search" [size]="16" class="search-icon"></app-icon>
@@ -43,9 +42,8 @@
               <tr>
                 <th class="col-id">Sr. No.</th>
                 <th class="col-role">Role Name</th>
-                <th class="col-scope">Platform Scope</th>
                 <th class="col-status">Status</th>
-                <th class="col-actions text-end">Actions</th>
+                <th class="col-actions text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -56,29 +54,17 @@
                   </td>
                   <td>
                     <div class="role-identity">
-                      <div class="role-icon-box" [class.admin-box]="role.id === 1 || role.id === 2">
-                        <app-icon [name]="role.id === 1 ? 'shield' : (role.id === 2 ? 'lock' : 'user')" [size]="18"></app-icon>
-                      </div>
                       <div class="role-info">
                         <span class="role-name-text">{{ role.roleName }}</span>
-                        <span class="role-sub-text">
-                          {{ role.id === 1 ? 'Full system super administrator privileges' : (role.id === 2 ? 'Administrative platform manager' : 'Standard configured access role') }}
-                        </span>
                       </div>
                     </div>
-                  </td>
-                  <td>
-                    <span class="scope-badge">
-                      <app-icon name="grid" [size]="13"></app-icon>
-                      {{ menus().length }} Platform Modules
-                    </span>
                   </td>
                   <td>
                     <span class="status-pill active">
                       <span class="status-dot"></span> Active
                     </span>
                   </td>
-                  <td class="text-end">
+                  <td class="col-actions text-right">
                     <div class="action-buttons-group">
                       <!-- VIEW BUTTON -->
                       <button 
@@ -97,7 +83,7 @@
                         (click)="openEditPermissions(role)"
                         title="Configure & Edit Permissions for {{ role.roleName }}">
                         <app-icon name="edit" [size]="15"></app-icon>
-                        <span>Edit Permissions</span>
+                        <span>Edit</span>
                       </button>
                     </div>
                   </td>
@@ -126,37 +112,6 @@
   <!-- ========================================== -->
   @if (viewMode() === 'matrix') {
     <div class="matrix-view-container">
-
-      <!-- Back bar & Action Bar -->
-      <div class="matrix-top-bar glass-panel">
-        <div class="top-left-actions">
-          <button type="button" class="btn-back" (click)="backToList()">
-            <app-icon name="arrow-left" [size]="16"></app-icon>
-            <span>Back to Roles List</span>
-          </button>
-          
-          <div class="editing-role-badge">
-            <app-icon name="shield" [size]="16" class="text-cyan"></app-icon>
-            <span>Editing Permissions: <strong>{{ selectedRole()?.roleName || 'Role #' + selectedRoleId() }}</strong></span>
-          </div>
-        </div>
-
-        <div class="top-right-actions">
-          <button 
-            type="button" 
-            class="btn-primary-neon" 
-            (click)="savePermissions()" 
-            [disabled]="saving() || loading()">
-            @if (saving()) {
-              <span class="spinner-sm"></span>
-              <span>Saving to MySQL...</span>
-            } @else {
-              <app-icon name="check-circle" [size]="16"></app-icon>
-              <span>Save Permissions Matrix</span>
-            }
-          </button>
-        </div>
-      </div>
 
       <!-- Role Quick Switcher Selector Bar -->
       <div class="role-selector-bar glass-panel">
@@ -341,7 +296,7 @@
 
           <div class="footer-actions">
             <button type="button" class="btn-secondary-outline" (click)="backToList()">
-              <span>Back to Roles</span>
+              <span>Back</span>
             </button>
             <button 
               type="button" 
@@ -353,7 +308,7 @@
                 <span>Saving...</span>
               } @else {
                 <app-icon name="check-circle" [size]="16"></app-icon>
-                <span>Save Changes to MySQL</span>
+                <span>Save Changes</span>
               }
             </button>
           </div>

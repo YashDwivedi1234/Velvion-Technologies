@@ -1,0 +1,331 @@
+<div class="master-page-view">
+  
+  <!-- Top Action Bar & Filter Panel -->
+  <div class="page-top-actions">
+    <div class="filters-row">
+      <div class="search-box">
+        <app-icon name="search" [size]="16" class="search-icon"></app-icon>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Search designations, departments, descriptions..." 
+          [value]="searchQuery()" 
+          (input)="searchQuery.set($any($event.target).value)" />
+      </div>
+
+      <div class="dept-filter-wrap">
+        <app-dropdown
+          [options]="departmentFilterOptions()"
+          [ngModel]="selectedDepartmentFilter()"
+          (selectionChange)="onDepartmentFilterChange($event)"
+          [searchable]="false"
+          [clearable]="false"
+          placeholder="Filter by Department"
+          size="md">
+        </app-dropdown>
+      </div>
+    </div>
+
+    <button type="button" class="btn-primary-neon" (click)="openAddModal()">
+      <app-icon name="plus" [size]="16"></app-icon>
+      <span>Add Designation</span>
+    </button>
+  </div>
+
+  <!-- Data Table Card -->
+  <div class="table-card glass-panel">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Sr. No.</th>
+            <th class="sortable" (click)="toggleSort('designationName')">
+              <div class="th-sort-wrap">
+                <span>Designation Title</span>
+                @if (sortColumn() === 'designationName') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('departmentName')">
+              <div class="th-sort-wrap">
+                <span>Department</span>
+                @if (sortColumn() === 'departmentName') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th>Description</th>
+            <th class="sortable" (click)="toggleSort('displayOrder')">
+              <div class="th-sort-wrap">
+                <span>Order</span>
+                @if (sortColumn() === 'displayOrder') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="sortable" (click)="toggleSort('isActive')">
+              <div class="th-sort-wrap">
+                <span>Status</span>
+                @if (sortColumn() === 'isActive') {
+                  <app-icon [name]="sortDirection() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="13" class="sort-icon active"></app-icon>
+                } @else {
+                  <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
+                }
+              </div>
+            </th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (d of paginatedDesignations(); track d.id; let i = $index) {
+            <tr>
+              <td class="font-mono text-muted">{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
+              <td>
+                <div class="item-name-cell">
+                  <div class="desig-icon-box">
+                    <app-icon name="award" [size]="16"></app-icon>
+                  </div>
+                  <div class="desig-text-block">
+                    <span class="font-bold text-white">{{ d.designationName }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                @if (d.departmentName) {
+                  <div class="dept-badge">
+                    <app-icon name="briefcase" [size]="13" class="text-cyan"></app-icon>
+                    <span>{{ d.departmentName }}</span>
+                  </div>
+                } @else {
+                  <span class="text-muted font-sm">— Global / All —</span>
+                }
+              </td>
+              <td>
+                <span class="desc-cell text-muted" [title]="d.description || ''">
+                  {{ d.description || '—' }}
+                </span>
+              </td>
+              <td class="font-mono text-cyan">{{ d.displayOrder }}</td>
+              <td>
+                <span class="status-pill" [class.active]="d.isActive">
+                  <span class="status-dot"></span>
+                  {{ d.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="text-right">
+                <div class="action-buttons-wrap">
+                  <button type="button" class="btn-action-icon view" (click)="openViewModal(d)" title="View Details">
+                    <app-icon name="eye" [size]="15"></app-icon>
+                  </button>
+                  <button type="button" class="btn-action-icon edit" (click)="openEditModal(d)" title="Edit Designation">
+                    <app-icon name="edit" [size]="15"></app-icon>
+                  </button>
+                  <button type="button" class="btn-action-icon delete" (click)="deleteDesignation(d)" title="Delete Designation">
+                    <app-icon name="trash" [size]="15"></app-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @if (filteredDesignations().length === 0 && !loading()) {
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">
+                No designations found matching the criteria.
+              </td>
+            </tr>
+          }
+          @if (loading()) {
+            <tr>
+              <td colspan="7" class="text-center py-5">
+                <div class="table-loading-spinner">
+                  <span class="spinner-sm"></span>
+                  <span>Fetching designations from database...</span>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <app-pagination
+      [totalItems]="filteredDesignations().length"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      (pageChange)="currentPage.set($event)"
+      (pageSizeChange)="pageSize.set($event)">
+    </app-pagination>
+  </div>
+
+  <!-- ADD / EDIT MODAL -->
+  @if (isModalOpen()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <div class="modal-card glass-panel animate-scale" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <app-icon [name]="isEditMode() ? 'edit' : 'plus'" [size]="20" class="text-cyan"></app-icon>
+            <h2 class="modal-title">{{ isEditMode() ? 'Edit Designation' : 'Add New Designation' }}</h2>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeModal()">
+            <app-icon name="x" [size]="18"></app-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="designationForm" (ngSubmit)="saveDesignation()" class="modal-form">
+          
+          <div class="form-group">
+            <label class="form-label" for="desig-name">Designation Title *</label>
+            <input 
+              id="desig-name"
+              type="text" 
+              class="form-control" 
+              placeholder="e.g. Senior Full-Stack Developer" 
+              formControlName="designationName"
+              [class.is-invalid]="designationForm.get('designationName')?.touched && designationForm.get('designationName')?.invalid" />
+            @if (designationForm.get('designationName')?.touched && designationForm.get('designationName')?.invalid) {
+              <span class="field-error">Designation title is required</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="desig-dept">Department Assignment</label>
+            <app-dropdown
+              id="desig-dept"
+              [options]="modalDepartmentOptions()"
+              formControlName="departmentId"
+              [searchable]="true"
+              [clearable]="false"
+              placeholder="Select Department"
+              size="md">
+            </app-dropdown>
+            <span class="field-hint">Assign this designation to a specific department or leave as global.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="desig-desc">Role Description / Key Responsibilities</label>
+            <textarea 
+              id="desig-desc"
+              rows="3"
+              class="form-control" 
+              placeholder="Brief summary of duties and responsibilities..." 
+              formControlName="description"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="desig-order">Display Sequence Order</label>
+            <input 
+              id="desig-order"
+              type="number" 
+              class="form-control font-mono" 
+              placeholder="1" 
+              formControlName="displayOrder" />
+          </div>
+
+          <div class="form-group toggle-row">
+            <label class="form-label">Active Master Status</label>
+            <app-toggle formControlName="isActive" label="Enabled for user creation & assignments"></app-toggle>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
+            <button type="submit" class="btn-primary-neon" [disabled]="modalSubmitting()">
+              @if (modalSubmitting()) {
+                <span class="spinner-sm"></span>
+                <span>Saving...</span>
+              } @else {
+                <app-icon name="check-circle" [size]="16"></app-icon>
+                <span>{{ isEditMode() ? 'Update Designation' : 'Create Designation' }}</span>
+              }
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  }
+
+  <!-- VIEW MODAL -->
+  @if (isViewModalOpen() && viewingDesignation(); as d) {
+    <div class="modal-backdrop" (click)="closeViewModal()">
+      <div class="modal-card view-modal-card animate-scale" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="view-icon-badge">
+              <app-icon name="award" [size]="20" class="text-cyan"></app-icon>
+            </div>
+            <div>
+              <h3 class="modal-title">{{ d.designationName }}</h3>
+              <span class="text-muted font-sm">Designation & Role Master Details</span>
+            </div>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeViewModal()">
+            <app-icon name="x" [size]="20"></app-icon>
+          </button>
+        </div>
+
+        <div class="view-modal-body">
+          <div class="view-info-grid">
+            <div class="view-item">
+              <span class="view-label">Designation Title</span>
+              <span class="view-value font-bold text-white">{{ d.designationName }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Department</span>
+              <span class="view-value">
+                @if (d.departmentName) {
+                  <span class="dept-badge">{{ d.departmentName }}</span>
+                } @else {
+                  <span class="text-muted">— Global / All —</span>
+                }
+              </span>
+            </div>
+            <div class="view-item full-width">
+              <span class="view-label">Role Description</span>
+              <p class="view-desc-text">{{ d.description || 'No description provided.' }}</p>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Display Order</span>
+              <span class="view-value font-mono text-cyan">{{ d.displayOrder }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Status</span>
+              <span class="status-pill" [class.active]="d.isActive">
+                <span class="status-dot"></span>
+                {{ d.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Created Date</span>
+              <span class="view-value">{{ d.createdAt | date:'mediumDate' }}</span>
+            </div>
+            <div class="view-item">
+              <span class="view-label">Last Updated</span>
+              <span class="view-value">{{ d.updatedAt | date:'mediumDate' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeViewModal()">Close</button>
+          <button type="button" class="btn-primary-neon" (click)="closeViewModal(); openEditModal(d)">
+            <app-icon name="edit" [size]="15"></app-icon>
+            <span>Edit Designation</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>
