@@ -3,8 +3,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at 50% 40%, #0d1527 0%, #060911 100%);
-  color: #f8fafc;
+  background: var(--bg-app);
+  color: var(--text-main);
   overflow: hidden;
   font-family: var(--font-heading), 'Outfit', sans-serif;
   z-index: 99999;
@@ -17,16 +17,17 @@
   height: 100vh;
 }
 
-/* Cyber Grid */
+/* Subtle Grid */
 .cyber-grid-overlay {
   position: absolute;
   inset: 0;
   background-image: 
-    linear-gradient(rgba(0, 242, 254, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 242, 254, 0.05) 1px, transparent 1px);
+    linear-gradient(var(--border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
   background-size: 32px 32px;
   background-position: center center;
   pointer-events: none;
+  opacity: 0.6;
 }
 
 /* Ambient Glow Orbs */
@@ -35,14 +36,14 @@
   border-radius: 50%;
   filter: blur(80px);
   pointer-events: none;
-  opacity: 0.35;
+  opacity: 0.25;
   animation: orbFloat 6s ease-in-out infinite alternate;
 }
 
 .primary-orb {
   width: 320px;
   height: 320px;
-  background: #00f2fe;
+  background: var(--primary-base);
   top: 20%;
   left: 35%;
 }
@@ -57,8 +58,8 @@
 }
 
 @keyframes orbFloat {
-  0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
-  100% { transform: translate(25px, -20px) scale(1.15); opacity: 0.55; }
+  0% { transform: translate(0, 0) scale(1); opacity: 0.2; }
+  100% { transform: translate(25px, -20px) scale(1.15); opacity: 0.35; }
 }
 
 /* Content Container */
@@ -95,14 +96,14 @@
 .energy-orbit {
   position: absolute;
   border-radius: 50%;
-  border: 1.5px dashed rgba(0, 242, 254, 0.35);
+  border: 1.5px dashed rgba(99, 102, 241, 0.3);
   pointer-events: none;
 }
 
 .orbit-1 {
   width: 170px;
   height: 170px;
-  border-top-color: #00f2fe;
+  border-top-color: var(--primary-base);
   border-right-color: #818cf8;
   animation: orbitSpin 4s linear infinite;
 }
@@ -111,7 +112,7 @@
   width: 200px;
   height: 200px;
   border-bottom-color: #a855f7;
-  border-left-color: #00f2fe;
+  border-left-color: var(--primary-base);
   animation: orbitSpinReverse 6s linear infinite;
 }
 
@@ -144,7 +145,7 @@
   100% {
     stroke-dashoffset: 0;
     opacity: 1;
-    filter: drop-shadow(0 0 16px rgba(0, 242, 254, 1)) drop-shadow(0 0 30px rgba(168, 85, 247, 0.8));
+    filter: drop-shadow(0 0 16px rgba(99, 102, 241, 0.8)) drop-shadow(0 0 30px rgba(168, 85, 247, 0.5));
   }
 }
 
@@ -166,35 +167,32 @@
 
 @keyframes nodeBlink {
   0% { opacity: 0.4; transform: scale(0.9); }
-  100% { opacity: 1; transform: scale(1.1); filter: drop-shadow(0 0 6px #00f2fe); }
+  100% { opacity: 1; transform: scale(1.1); filter: drop-shadow(0 0 6px var(--primary-base)); }
 }
 
 /* Brand Title */
 .loader-brand-title {
-  font-size: 2.2rem;
+  font-size: 2rem;
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 55%, #94a3b8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 10px rgba(0, 242, 254, 0.5));
+  color: var(--text-main);
 }
 
 .loader-brand-title .v-letter {
-  background: linear-gradient(135deg, #00f2fe 0%, #38bdf8 60%, #a855f7 100%);
+  background: linear-gradient(135deg, var(--primary-base) 0%, var(--primary-hover) 60%, #a855f7 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .loader-brand-sub {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: #38bdf8;
-  letter-spacing: 0.42em;
+  color: var(--text-muted);
+  letter-spacing: 0.35em;
   margin-top: 4px;
-  text-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
   margin-bottom: var(--space-xl);
+  opacity: 0.85;
 }
 
 /* Scanner bar */
@@ -210,7 +208,7 @@
 .cyber-scan-bar {
   width: 100%;
   height: 3px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border-subtle);
   border-radius: var(--radius-full);
   overflow: hidden;
   position: relative;
@@ -222,7 +220,7 @@
   left: -50%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, #00f2fe, #a855f7, transparent);
+  background: linear-gradient(90deg, transparent, var(--primary-base), #a855f7, transparent);
   border-radius: var(--radius-full);
   animation: scanProgress 1.6s ease-in-out infinite;
 }
@@ -234,7 +232,7 @@
 
 .loader-msg {
   font-size: 0.88rem;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-family: var(--font-sans);
   margin: 0;
   letter-spacing: 0.02em;
@@ -244,5 +242,5 @@
   display: inline-block;
   width: 20px;
   text-align: left;
-  color: #00f2fe;
+  color: var(--primary-base);
 }

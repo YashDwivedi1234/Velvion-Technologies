@@ -260,7 +260,7 @@
         @if (!sidebarCollapsed()) {
           <div class="sidebar-user-pill">
             <div class="user-avatar-hex">
-              <span>{{ authService.currentUser()?.fullName?.charAt(0) || 'U' }}</span>
+              <span>{{ getInitials(authService.currentUser()?.fullName) }}</span>
             </div>
             <div class="user-info-text">
               <span class="user-name">{{ authService.currentUser()?.fullName }}</span>
@@ -270,7 +270,7 @@
         } @else {
           <div class="sidebar-user-collapsed" [title]="authService.currentUser()?.fullName || 'User Profile'">
             <div class="user-avatar-hex">
-              <span>{{ authService.currentUser()?.fullName?.charAt(0) || 'U' }}</span>
+              <span>{{ getInitials(authService.currentUser()?.fullName) }}</span>
             </div>
           </div>
         }
@@ -319,7 +319,7 @@
             [class.dropdown-active]="userDropdownOpen()"
             title="Click to view profile menu">
             <div class="header-avatar">
-              <span>{{ authService.currentUser()?.fullName?.charAt(0) || 'A' }}</span>
+              <span>{{ getInitials(authService.currentUser()?.fullName) }}</span>
             </div>
             <div class="header-user-text">
               <span class="header-user-name">{{ authService.currentUser()?.fullName || 'Super Admin' }}</span>
@@ -333,7 +333,7 @@
             <div class="profile-dropdown-menu glass-panel" (click)="$event.stopPropagation()">
               <div class="dropdown-user-header">
                 <div class="dropdown-avatar-hex">
-                  <span>{{ authService.currentUser()?.fullName?.charAt(0) || 'A' }}</span>
+                  <span>{{ getInitials(authService.currentUser()?.fullName) }}</span>
                 </div>
                 <div class="dropdown-user-info">
                   <div class="dropdown-name">{{ authService.currentUser()?.fullName || 'Super Admin' }}</div>

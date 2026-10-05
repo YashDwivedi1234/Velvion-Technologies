@@ -61,8 +61,8 @@
 
 .spinner-ring.inner {
   inset: 6px;
-  border-bottom-color: #06b6d4; /* cyan */
-  border-left-color: #a855f7;   /* purple */
+  border-bottom-color: var(--primary-400);
+  border-left-color: #a855f7;
   animation: spin 0.8s cubic-bezier(0.5, 0, 0.5, 1) infinite reverse;
 }
 

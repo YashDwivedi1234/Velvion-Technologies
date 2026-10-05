@@ -1,10 +1,14 @@
+/* ==========================================================================
+   VELVION — GLOBAL PAGINATION COMPONENT v2.0
+   ========================================================================== */
+
 .global-pagination-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-md);
-  padding: 0.9rem 1.25rem;
-  border-top: 1px solid var(--border-glass);
+  gap: var(--space-4);
+  padding: 0.875rem 1.25rem;
+  border-top: 1px solid var(--border-subtle);
   background: var(--bg-surface-elevated);
   border-bottom-left-radius: inherit;
   border-bottom-right-radius: inherit;
@@ -13,18 +17,23 @@
 }
 
 .pagination-records-info {
-  font-size: 0.85rem;
+  font-size: 0.8125rem;
   color: var(--text-muted);
 }
 
 .text-cyan {
-  color: #00f2fe;
+  color: var(--primary-base);
+  font-weight: 600;
+}
+
+html[data-theme="light"] .text-cyan {
+  color: var(--primary-600);
 }
 
 .pagination-right-group {
   display: flex;
   align-items: center;
-  gap: var(--space-lg);
+  gap: var(--space-5);
   flex-wrap: wrap;
 }
 
@@ -32,8 +41,8 @@
 .page-size-selector {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.82rem;
+  gap: 7px;
+  font-size: 0.8125rem;
   color: var(--text-muted);
 }
 
@@ -42,22 +51,28 @@
   border: 1px solid var(--border-default);
   border-radius: var(--radius-sm);
   color: var(--text-main);
-  padding: 0.3rem 0.6rem;
-  font-size: 0.82rem;
+  padding: 0.3125rem 0.625rem;
+  font-size: 0.8125rem;
   cursor: pointer;
   outline: none;
-  transition: var(--transition-fast);
+  transition: all var(--transition-fast);
+  font-family: var(--font-sans);
+}
+
+.page-size-select:hover {
+  border-color: var(--border-highlight);
 }
 
 .page-size-select:focus {
-  border-color: #00f2fe;
+  border-color: var(--primary-base);
+  box-shadow: 0 0 0 2px var(--primary-subtle);
 }
 
 /* Navigation Buttons */
 .pagination-nav-buttons {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 .btn-page-step {
@@ -68,16 +83,16 @@
   height: 32px;
   border-radius: var(--radius-sm);
   background: var(--bg-surface);
-  border: 1px solid var(--border-glass);
-  color: var(--text-body);
+  border: 1px solid var(--border-default);
+  color: var(--text-muted);
   cursor: pointer;
-  transition: var(--transition-fast);
+  transition: all var(--transition-fast);
 }
 
 .btn-page-step:hover:not(:disabled) {
-  background: rgba(0, 242, 254, 0.1);
-  color: #00f2fe;
-  border-color: rgba(0, 242, 254, 0.35);
+  background: var(--primary-subtle);
+  color: var(--primary-base);
+  border-color: rgba(99, 102, 241, 0.3);
 }
 
 .btn-page-step:disabled {
@@ -88,7 +103,7 @@
 .page-numbers-wrap {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 .btn-page-number {
@@ -101,24 +116,26 @@
   border-radius: var(--radius-sm);
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  color: var(--text-body);
-  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
-  transition: var(--transition-fast);
+  transition: all var(--transition-fast);
+  font-family: var(--font-sans);
 }
 
 .btn-page-number:hover:not(.active) {
-  background: var(--bg-surface-hover);
-  color: var(--text-main);
+  background: var(--primary-subtle);
+  color: var(--primary-base);
+  border-color: rgba(99, 102, 241, 0.25);
 }
 
 .btn-page-number.active {
-  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-  color: #0d1424;
+  background: var(--primary-base);
+  color: #ffffff;
   font-weight: 700;
   border-color: transparent;
-  box-shadow: 0 0 10px rgba(0, 242, 254, 0.35);
+  box-shadow: var(--shadow-xs);
 }
 
 .page-ellipsis {
@@ -126,6 +143,6 @@
   align-items: center;
   justify-content: center;
   width: 24px;
-  color: var(--text-muted);
-  font-size: 0.9rem;
+  color: var(--text-disabled);
+  font-size: 0.875rem;
 }

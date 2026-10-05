@@ -11,11 +11,11 @@ interface PageInfo {
 }
 
 const ROUTE_MAP: Record<string, PageInfo> = {
-  '/admin/dashboard': { section: 'Platform Overview', breadcrumb: 'Dashboard Overview', title: 'Platform Dashboard' },
-  '/admin/users': { section: 'User Management', breadcrumb: 'Users Directory', title: 'Users Management' },
-  '/admin/roles': { section: 'User Management', breadcrumb: 'Roles & Permissions', title: 'Role Management' },
-  '/admin/permissions': { section: 'User Management', breadcrumb: 'Permissions Matrix', title: 'Role Permissions' },
-  '/admin/masters/menus': { section: 'Masters', breadcrumb: 'Navigation Menus', title: 'Menus' },
+  '/admin/dashboard': { section: 'Dashboard', breadcrumb: 'Dashboard Overview', title: 'Dashboard' },
+  '/admin/users': { section: 'User Management', breadcrumb: 'Users', title: 'Users Management' },
+  '/admin/roles': { section: 'User Management', breadcrumb: 'Roles', title: 'Role Management' },
+  '/admin/permissions': { section: 'User Management', breadcrumb: 'Permissions', title: 'Role Permissions' },
+  '/admin/masters/menus': { section: 'Masters', breadcrumb: 'Menus', title: 'Menus' },
   '/admin/masters/services': { section: 'Masters', breadcrumb: 'Service Catalog', title: 'Services' },
   '/admin/masters/categories': { section: 'Masters', breadcrumb: 'Project Verticals', title: 'Categories & Industries' },
   '/admin/masters/departments': { section: 'Masters', breadcrumb: 'Organization Hierarchy', title: 'Departments' },
@@ -61,6 +61,15 @@ export class DashboardLayoutComponent implements OnInit {
   userDropdownOpen = signal<boolean>(false);
   pageLoading = signal<boolean>(false);
   currentUrl = signal<string>(this.router.url);
+
+  getInitials(name?: string | null): string {
+    if (!name) return 'YD';
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return parts[0].substring(0, 2).toUpperCase();
+  }
 
   currentPageInfo = computed<PageInfo>(() => {
     const cleanUrl = this.currentUrl().split('?')[0].split('#')[0];

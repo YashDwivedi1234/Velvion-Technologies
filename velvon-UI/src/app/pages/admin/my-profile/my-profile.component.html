@@ -7,7 +7,7 @@
       <!-- Avatar Section -->
       <div class="profile-avatar-wrapper">
         <div class="avatar-large-hexagon">
-          <span>{{ authService.currentUser()?.fullName?.charAt(0) || 'U' }}</span>
+          <span>{{ getInitials(authService.currentUser()?.fullName) }}</span>
         </div>
         <span class="online-status-badge" title="Active Online"></span>
       </div>
@@ -26,20 +26,6 @@
           <app-icon name="mail" [size]="14"></app-icon>
           <span>{{ authService.currentUser()?.email || 'admin@velvion.com' }}</span>
         </p>
-
-        <div class="profile-quick-meta">
-          <span class="meta-tag">
-            <span class="meta-dot green"></span> Account Active
-          </span>
-          <span class="meta-tag">
-            <app-icon name="check-circle" [size]="13" class="text-cyan"></app-icon> Verified Platform Member
-          </span>
-          @if (userDetails()?.mobile) {
-            <span class="meta-tag">
-              <app-icon name="phone" [size]="13"></app-icon> {{ userDetails()?.mobile }}
-            </span>
-          }
-        </div>
       </div>
 
     </div>
@@ -69,7 +55,7 @@
   <!-- ================= TAB CONTENT GRID ================= -->
   <div class="profile-content-grid">
     
-    <!-- LEFT MAIN CARD: FORM -->
+    <!-- MAIN CARD: FORM -->
     <div class="form-card-container glass-panel">
       
       <!-- TAB 1: BASIC INFORMATION -->
@@ -273,50 +259,5 @@
       }
 
     </div>
-
-    <!-- RIGHT SIDEBAR: ACCOUNT STATS & INFO -->
-    <div class="profile-side-column">
-      
-      <!-- Account Overview Card -->
-      <div class="info-card glass-panel">
-        <h3 class="side-card-title">
-          <app-icon name="activity" [size]="16" class="text-cyan"></app-icon>
-          <span>Account Overview</span>
-        </h3>
-
-        <div class="side-meta-list">
-          <div class="side-meta-item">
-            <span class="side-meta-label">User Role</span>
-            <span class="side-meta-value highlight">{{ authService.currentUser()?.roleName || 'Super Admin' }}</span>
-          </div>
-          <div class="side-meta-item">
-            <span class="side-meta-label">Access Level</span>
-            <span class="side-meta-value">Full Management</span>
-          </div>
-          <div class="side-meta-item">
-            <span class="side-meta-label">Authentication</span>
-            <span class="side-meta-value status-secure">
-              <span class="dot-secure"></span> Password & Token
-            </span>
-          </div>
-          <div class="side-meta-item">
-            <span class="side-meta-label">Status</span>
-            <span class="side-meta-value status-active">Active</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Guidance Card -->
-      <div class="info-card glass-panel guidance-card">
-        <div class="guidance-icon-box">
-          <app-icon name="shield" [size]="20" class="text-cyan"></app-icon>
-        </div>
-        <h4 class="guidance-title">Security Recommendation</h4>
-        <p class="guidance-text">Use a strong, unique password with letters, numbers, and symbols to ensure maximum system protection.</p>
-      </div>
-
-    </div>
-
   </div>
-
 </div>

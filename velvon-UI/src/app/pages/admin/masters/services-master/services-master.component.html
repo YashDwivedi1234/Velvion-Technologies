@@ -25,7 +25,7 @@
               </div>
             </th>
             <th>Description</th>
-            <th class="sortable" (click)="toggleSort('iconUrl')">
+            <!-- <th class="sortable" (click)="toggleSort('iconUrl')">
               <div class="th-sort-wrap">
                 <span>Icon Key</span>
                 @if (sortColumn() === 'iconUrl') {
@@ -34,7 +34,7 @@
                   <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
                 }
               </div>
-            </th>
+            </th> -->
             <th class="sortable" (click)="toggleSort('isActive')">
               <div class="th-sort-wrap">
                 <span>Status</span>
@@ -71,9 +71,9 @@
                 </div>
               </td>
               <td class="text-muted desc-col">{{ svc.description || '—' }}</td>
-              <td>
+              <!-- <td>
                 <code class="icon-code">{{ svc.iconUrl || 'layers' }}</code>
-              </td>
+              </td> -->
               <td>
                 <span class="status-pill" [class.active]="svc.isActive">
                   <span class="status-dot"></span>

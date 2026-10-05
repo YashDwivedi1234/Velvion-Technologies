@@ -59,7 +59,7 @@
                 }
               </div>
             </th>
-            <th>Description</th>
+            <!-- <th>Description</th>
             <th class="sortable" (click)="toggleSort('displayOrder')">
               <div class="th-sort-wrap">
                 <span>Order</span>
@@ -69,7 +69,7 @@
                   <app-icon name="arrow-up-down" [size]="13" class="sort-icon inactive"></app-icon>
                 }
               </div>
-            </th>
+            </th> -->
             <th class="sortable" (click)="toggleSort('isActive')">
               <div class="th-sort-wrap">
                 <span>Status</span>
@@ -107,12 +107,12 @@
                   <span class="text-muted font-sm">— Global / All —</span>
                 }
               </td>
-              <td>
+              <!-- <td>
                 <span class="desc-cell text-muted" [title]="d.description || ''">
                   {{ d.description || '—' }}
                 </span>
               </td>
-              <td class="font-mono text-cyan">{{ d.displayOrder }}</td>
+              <td class="font-mono text-cyan">{{ d.displayOrder }}</td> -->
               <td>
                 <span class="status-pill" [class.active]="d.isActive">
                   <span class="status-dot"></span>
