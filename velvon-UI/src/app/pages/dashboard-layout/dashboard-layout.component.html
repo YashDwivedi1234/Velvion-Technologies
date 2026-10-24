@@ -307,7 +307,7 @@
           type="button" 
           class="theme-toggle-header-btn" 
           (click)="themeService.toggleTheme()"
-          [title]="'Toggle theme (' + themeService.currentTheme() + ')'">
+          [title]="'Switch to ' + (themeService.isDark() ? 'light' : 'dark') + ' mode'">
           <app-icon [name]="themeService.isDark() ? 'sun' : 'moon'" [size]="17"></app-icon>
         </button>
 

@@ -1,7 +1,7 @@
 import { Injectable, signal, computed, effect, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
-export type AppTheme = 'dark' | 'light' | 'midnight';
+export type AppTheme = 'dark' | 'light';
 
 @Injectable({
   providedIn: 'root'
@@ -9,13 +9,15 @@ export type AppTheme = 'dark' | 'light' | 'midnight';
 export class ThemeService {
   private platformId = inject(PLATFORM_ID);
   public currentTheme = signal<AppTheme>('dark');
-  public isDark = computed(() => this.currentTheme() !== 'light');
+  public isDark = computed(() => this.currentTheme() === 'dark');
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
       const saved = localStorage.getItem('velvion_theme') as AppTheme;
-      if (saved && ['dark', 'light', 'midnight'].includes(saved)) {
+      if (saved === 'dark' || saved === 'light') {
         this.currentTheme.set(saved);
+      } else {
+        this.currentTheme.set('dark');
       }
       this.applyTheme(this.currentTheme());
     }
@@ -34,14 +36,7 @@ export class ThemeService {
   }
 
   public toggleTheme(): void {
-    const current = this.currentTheme();
-    if (current === 'dark') {
-      this.currentTheme.set('light');
-    } else if (current === 'light') {
-      this.currentTheme.set('midnight');
-    } else {
-      this.currentTheme.set('dark');
-    }
+    this.currentTheme.set(this.currentTheme() === 'dark' ? 'light' : 'dark');
   }
 
   private applyTheme(theme: AppTheme): void {

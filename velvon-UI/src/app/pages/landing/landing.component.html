@@ -25,8 +25,8 @@
           type="button" 
           class="theme-toggle-btn"
           (click)="themeService.toggleTheme()"
-          [title]="'Theme: ' + themeService.currentTheme()">
-          <app-icon [name]="themeService.currentTheme() === 'dark' ? 'sun' : (themeService.currentTheme() === 'light' ? 'moon' : 'sparkles')" [size]="18"></app-icon>
+          [title]="'Switch to ' + (themeService.isDark() ? 'light' : 'dark') + ' mode'">
+          <app-icon [name]="themeService.isDark() ? 'sun' : 'moon'" [size]="18"></app-icon>
         </button>
 
         <!-- Auth Navigation -->
