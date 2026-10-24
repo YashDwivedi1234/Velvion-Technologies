@@ -1655,8 +1655,19 @@ html[data-theme="light"] .field-error { color: var(--danger-600); }
 .users-page-view .page-top-actions,
 .jobs-page-view .page-top-actions,
 .applications-page-view .filter-bar,
-.permissions-page-view .directory-header-card {
+.permissions-page-view .directory-header-card,
+.permissions-page-view .role-selector-bar {
   flex-shrink: 0 !important;
+}
+
+.permissions-page-view .list-view-container,
+.permissions-page-view .matrix-view-container {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  overflow: hidden !important;
 }
 
 /* Table card: expands to take all remaining vertical height */
@@ -1707,7 +1718,9 @@ html[data-theme="light"] .field-error { color: var(--danger-600); }
 .users-page-view .data-table,
 .jobs-page-view .data-table,
 .applications-page-view .data-table,
-.permissions-page-view .data-table {
+.permissions-page-view .data-table,
+.permissions-page-view .matrix-table,
+.permissions-page-view .roles-table {
   border-collapse: separate !important;
   border-spacing: 0 !important;
 }
@@ -1716,7 +1729,9 @@ html[data-theme="light"] .field-error { color: var(--danger-600); }
 .users-page-view .data-table th,
 .jobs-page-view .data-table th,
 .applications-page-view .data-table th,
-.permissions-page-view .data-table th {
+.permissions-page-view .data-table th,
+.permissions-page-view .matrix-table th,
+.permissions-page-view .roles-table th {
   position: sticky !important;
   top: 0 !important;
   z-index: 10 !important;
@@ -1724,11 +1739,12 @@ html[data-theme="light"] .field-error { color: var(--danger-600); }
   box-shadow: inset 0 -1px 0 var(--border-default) !important;
 }
 
-/* Pagination pinned at the bottom of the table card */
+/* Pagination & footer pinned at the bottom of the table card */
 .master-page-view app-pagination,
 .users-page-view app-pagination,
 .jobs-page-view app-pagination,
 .applications-page-view app-pagination,
-.permissions-page-view app-pagination {
+.permissions-page-view app-pagination,
+.permissions-page-view .matrix-footer {
   flex-shrink: 0 !important;
 }

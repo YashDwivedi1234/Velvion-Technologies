@@ -372,43 +372,6 @@
 
                 <div class="dropdown-divider"></div>
 
-                <!-- Role Simulation Switcher -->
-                <div class="dropdown-role-selector">
-                  <span class="role-selector-label">SIMULATE ROLE VIEW:</span>
-                  <div class="role-pills-row">
-                    <button 
-                      type="button" 
-                      class="sim-role-btn" 
-                      [class.active]="authService.userRoleType() === 'super-admin'"
-                      (click)="authService.switchRole('Super Admin', 1); closeUserDropdown()">
-                      Super Admin
-                    </button>
-                    <button 
-                      type="button" 
-                      class="sim-role-btn" 
-                      [class.active]="authService.userRoleType() === 'developer'"
-                      (click)="authService.switchRole('Developer', 2); closeUserDropdown()">
-                      Developer
-                    </button>
-                    <button 
-                      type="button" 
-                      class="sim-role-btn" 
-                      [class.active]="authService.userRoleType() === 'manager'"
-                      (click)="authService.switchRole('HR Manager', 3); closeUserDropdown()">
-                      HR Manager
-                    </button>
-                    <button 
-                      type="button" 
-                      class="sim-role-btn" 
-                      [class.active]="authService.userRoleType() === 'user'"
-                      (click)="authService.switchRole('User', 4); closeUserDropdown()">
-                      User
-                    </button>
-                  </div>
-                </div>
-
-                <div class="dropdown-divider"></div>
-
                 <!-- Logout Option -->
                 <button type="button" class="dropdown-menu-item danger" (click)="logout()">
                   <div class="menu-item-icon-box danger-icon-box">

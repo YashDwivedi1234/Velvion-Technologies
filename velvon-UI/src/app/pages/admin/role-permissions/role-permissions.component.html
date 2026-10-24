@@ -140,7 +140,6 @@
             <thead>
               <tr>
                 <th class="col-menu">Menu / Route Item</th>
-                <th class="col-url">Route URL</th>
                 <th class="col-perm text-center">
                   <button type="button" class="btn-col-toggle" (click)="toggleAllColumn('canView')" title="Toggle All View">
                     <span>Can View</span>
@@ -172,7 +171,7 @@
                 
                 <!-- PARENT MENU HEADER ROW -->
                 <tr class="parent-menu-row">
-                  <td colspan="2">
+                  <td>
                     <div class="parent-identity">
                       <div class="parent-icon-box">
                         <app-icon [name]="group.groupIcon" [size]="16"></app-icon>
@@ -238,7 +237,6 @@
                         <span class="child-menu-title">{{ row.menuName }}</span>
                       </div>
                     </td>
-                    <td class="font-mono text-muted">{{ row.routeUrl || '—' }}</td>
                     
                     <!-- Can View -->
                     <td class="text-center">
@@ -277,7 +275,7 @@
               }
               @if (matrixRows().length === 0 && !loading()) {
                 <tr>
-                  <td colspan="6" class="text-center py-5 text-muted">
+                  <td colspan="5" class="text-center py-5 text-muted">
                     No menus configured in database. Add menus from Masters section first.
                   </td>
                 </tr>
