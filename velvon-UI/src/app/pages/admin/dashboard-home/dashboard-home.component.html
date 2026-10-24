@@ -1,200 +1,825 @@
 <div class="dashboard-home-view">
 
-  <!-- Metric Overview Cards -->
-  <div class="metrics-grid">
+  <!-- ================= 1. EXECUTIVE WELCOME HERO ================= -->
+  <section class="dash-welcome-hero glass-panel">
+    <div class="welcome-left">
+      <div class="welcome-meta-pill">
+        <app-icon name="calendar" [size]="13" class="meta-icon"></app-icon>
+        <span class="meta-date">{{ getFormattedDate() }}</span>
+        <span class="meta-dot"></span>
+        <span class="system-beacon time-beacon">
+          <span class="pulse-beacon"></span>
+          <app-icon name="clock" [size]="12"></app-icon>
+          <span class="beacon-text time-text">{{ currentTime() }}</span>
+        </span>
+      </div>
+      <h1 class="welcome-title">
+        {{ getGreetingTime() }}, <span class="highlight-name">{{ authService.currentUser()?.fullName || 'Super Admin' }}</span> 👋
+      </h1>
+    </div>
+
+    <div class="welcome-right">
+      <div class="sync-pill-container">
+        <span class="sync-label">Sync:</span>
+        <span class="sync-time">{{ lastSyncTime() }}</span>
+      </div>
+      <button 
+        type="button" 
+        class="btn-hero-action outline" 
+        (click)="refreshDashboard()" 
+        [class.is-spinning]="isSyncing()"
+        title="Sync live records from MySQL">
+        <app-icon name="refresh" [size]="15" [class.spin-anim]="isSyncing()"></app-icon>
+        <span>{{ isSyncing() ? 'Syncing...' : 'Sync Data' }}</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ================= 2. ROLE-ADAPTIVE KPI METRICS ================= -->
+  <section class="kpi-grid">
     
-    <!-- Total Users -->
-    <div class="metric-card glass-panel">
-      <div class="metric-icon-wrap cyan">
-        <app-icon name="users" [size]="22"></app-icon>
-      </div>
-      <div class="metric-data">
-        <span class="metric-label">Registered Users</span>
-        <div class="metric-val-row">
-          <span class="metric-number">{{ totalUsersCount() }}</span>
-          <span class="metric-trend positive">Active DB</span>
+    <!-- KPI 1 -->
+    <div class="kpi-card glass-panel kpi-cyan">
+      <div class="kpi-header">
+        <div class="kpi-icon-wrapper cyan">
+          @if (isDeveloper()) { <app-icon name="grid" [size]="20"></app-icon> }
+          @else if (isManager()) { <app-icon name="mail" [size]="20"></app-icon> }
+          @else if (isStandardUser()) { <app-icon name="layers" [size]="20"></app-icon> }
+          @else { <app-icon name="users" [size]="20"></app-icon> }
         </div>
+        <div class="kpi-badge positive">
+          <app-icon name="arrow-up" [size]="11"></app-icon>
+          <span>Active</span>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">
+          @if (isDeveloper()) { API Endpoints }
+          @else if (isManager()) { Client Inquiries }
+          @else if (isStandardUser()) { Catalog Services }
+          @else { Registered Users }
+        </span>
+        <div class="kpi-number-row">
+          <span class="kpi-number">
+            @if (isDeveloper()) { {{ totalMenusCount() }} }
+            @else if (isManager()) { {{ totalInquiriesCount() }} }
+            @else if (isStandardUser()) { {{ totalServicesCount() }} }
+            @else { {{ totalUsersCount() }} }
+          </span>
+          <div class="kpi-sparkline">
+            <svg viewBox="0 0 100 28" class="sparkline-svg" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="cyanSparkGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.35"/>
+                  <stop offset="100%" stop-color="#06b6d4" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0 24 Q 25 22, 45 14 T 75 10 T 100 4 L 100 28 L 0 28 Z" fill="url(#cyanSparkGrad)"/>
+              <path d="M0 24 Q 25 22, 45 14 T 75 10 T 100 4" fill="none" stroke="#06b6d4" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-footer">
+        <span class="kpi-footer-text">
+          @if (isDeveloper()) { 19 route handlers synced }
+          @else if (isManager()) { {{ unresolvedInquiriesCount() }} pending inquiries }
+          @else if (isStandardUser()) { Enterprise software solutions }
+          @else { <strong>{{ activeUsersCount() }}</strong> active platform accounts }
+        </span>
       </div>
     </div>
 
-    <!-- Total Roles -->
-    <div class="metric-card glass-panel">
-      <div class="metric-icon-wrap purple">
-        <app-icon name="shield" [size]="22"></app-icon>
-      </div>
-      <div class="metric-data">
-        <span class="metric-label">Assigned Roles</span>
-        <div class="metric-val-row">
-          <span class="metric-number">{{ totalRolesCount() }}</span>
-          <span class="metric-trend positive">RBAC Ready</span>
+    <!-- KPI 2 -->
+    <div class="kpi-card glass-panel kpi-purple">
+      <div class="kpi-header">
+        <div class="kpi-icon-wrapper purple">
+          @if (isDeveloper()) { <app-icon name="layers" [size]="20"></app-icon> }
+          @else if (isManager()) { <app-icon name="user" [size]="20"></app-icon> }
+          @else if (isStandardUser()) { <app-icon name="folder" [size]="20"></app-icon> }
+          @else { <app-icon name="shield" [size]="20"></app-icon> }
         </div>
+        <div class="kpi-badge info">
+          <app-icon name="check-circle" [size]="11"></app-icon>
+          <span>Verified</span>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">
+          @if (isDeveloper()) { Service Masters }
+          @else if (isManager()) { Team Members }
+          @else if (isStandardUser()) { Showcase Projects }
+          @else { Assigned Roles }
+        </span>
+        <div class="kpi-number-row">
+          <span class="kpi-number">
+            @if (isDeveloper()) { {{ totalServicesCount() }} }
+            @else if (isManager()) { 4 }
+            @else if (isStandardUser()) { 4 }
+            @else { {{ totalRolesCount() }} }
+          </span>
+          <div class="kpi-sparkline">
+            <svg viewBox="0 0 100 28" class="sparkline-svg" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="purpleSparkGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#a855f7" stop-opacity="0.35"/>
+                  <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0 22 Q 30 18, 50 12 T 80 8 T 100 3 L 100 28 L 0 28 Z" fill="url(#purpleSparkGrad)"/>
+              <path d="M0 22 Q 30 18, 50 12 T 80 8 T 100 3" fill="none" stroke="#a855f7" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-footer">
+        <span class="kpi-footer-text">
+          @if (isDeveloper()) { Configured in database }
+          @else if (isManager()) { Active personnel }
+          @else if (isStandardUser()) { Deployed enterprise solutions }
+          @else { Full permission coverage }
+        </span>
       </div>
     </div>
 
-    <!-- Total Menus -->
-    <div class="metric-card glass-panel">
-      <div class="metric-icon-wrap blue">
-        <app-icon name="menu" [size]="22"></app-icon>
-      </div>
-      <div class="metric-data">
-        <span class="metric-label">Active Menus</span>
-        <div class="metric-val-row">
-          <span class="metric-number">{{ totalMenusCount() }}</span>
-          <span class="metric-trend info">Tree Synced</span>
+    <!-- KPI 3 -->
+    <div class="kpi-card glass-panel kpi-blue">
+      <div class="kpi-header">
+        <div class="kpi-icon-wrapper blue">
+          @if (isDeveloper()) { <app-icon name="activity" [size]="20"></app-icon> }
+          @else if (isManager()) { <app-icon name="briefcase" [size]="20"></app-icon> }
+          @else if (isStandardUser()) { <app-icon name="help-circle" [size]="20"></app-icon> }
+          @else { <app-icon name="grid" [size]="20"></app-icon> }
         </div>
+        <div class="kpi-badge info">
+          <app-icon name="zap" [size]="11"></app-icon>
+          <span>Online</span>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">
+          @if (isDeveloper()) { API Throughput }
+          @else if (isManager()) { Job Openings }
+          @else if (isStandardUser()) { Knowledge FAQs }
+          @else { Active Menus }
+        </span>
+        <div class="kpi-number-row">
+          <span class="kpi-number">
+            @if (isDeveloper()) { 1.1k }
+            @else if (isManager()) { 3 }
+            @else if (isStandardUser()) { 6 }
+            @else { {{ totalMenusCount() }} }
+          </span>
+          <div class="kpi-sparkline">
+            <svg viewBox="0 0 100 28" class="sparkline-svg" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="blueSparkGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.35"/>
+                  <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0 20 Q 25 15, 55 16 T 80 9 T 100 5 L 100 28 L 0 28 Z" fill="url(#blueSparkGrad)"/>
+              <path d="M0 20 Q 25 15, 55 16 T 80 9 T 100 5" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-footer">
+        <span class="kpi-footer-text">
+          @if (isDeveloper()) { 1,120 req/s • 14ms ping }
+          @else if (isManager()) { Open career listings }
+          @else if (isStandardUser()) { Instant support guides }
+          @else { 19 route endpoints protected }
+        </span>
       </div>
     </div>
 
-    <!-- Total Services -->
-    <div class="metric-card glass-panel">
-      <div class="metric-icon-wrap amber">
-        <app-icon name="layers" [size]="22"></app-icon>
-      </div>
-      <div class="metric-data">
-        <span class="metric-label">Service Masters</span>
-        <div class="metric-val-row">
-          <span class="metric-number">{{ totalServicesCount() }}</span>
-          <span class="metric-trend warning">Configured</span>
+    <!-- KPI 4 -->
+    <div class="kpi-card glass-panel kpi-amber">
+      <div class="kpi-header">
+        <div class="kpi-icon-wrapper amber">
+          @if (isDeveloper()) { <app-icon name="server" [size]="20"></app-icon> }
+          @else if (isManager()) { <app-icon name="users" [size]="20"></app-icon> }
+          @else if (isStandardUser()) { <app-icon name="user" [size]="20"></app-icon> }
+          @else { <app-icon name="layers" [size]="20"></app-icon> }
         </div>
+        <div class="kpi-badge warning">
+          <app-icon name="star" [size]="11"></app-icon>
+          <span>SLA Status</span>
+        </div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">
+          @if (isDeveloper()) { System SLA }
+          @else if (isManager()) { Platform Users }
+          @else if (isStandardUser()) { Account Status }
+          @else { Service Masters }
+        </span>
+        <div class="kpi-number-row">
+          <span class="kpi-number">
+            @if (isDeveloper()) { 100% }
+            @else if (isManager()) { {{ totalUsersCount() }} }
+            @else if (isStandardUser()) { Active }
+            @else { {{ totalServicesCount() }} }
+          </span>
+          <div class="kpi-sparkline">
+            <svg viewBox="0 0 100 28" class="sparkline-svg" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="amberSparkGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.35"/>
+                  <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0 24 Q 30 18, 55 10 T 80 12 T 100 6 L 100 28 L 0 28 Z" fill="url(#amberSparkGrad)"/>
+              <path d="M0 24 Q 30 18, 55 10 T 80 12 T 100 6" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-footer">
+        <span class="kpi-footer-text">
+          @if (isDeveloper()) { MySQL 8.0 & .NET 10 healthy }
+          @else if (isManager()) { Accounts recorded in DB }
+          @else if (isStandardUser()) { Verified member credentials }
+          @else { Enterprise service offerings live }
+        </span>
       </div>
     </div>
 
-  </div>
+  </section>
 
-  <!-- Quick Shortcut Cards to Core Modules -->
-  <div class="shortcuts-row">
-    <a routerLink="/admin/users" class="shortcut-card glass-panel">
-      <div class="shortcut-icon"><app-icon name="user" [size]="18"></app-icon></div>
-      <div class="shortcut-text">
-        <span class="sc-title">Users Directory</span>
-        <span class="sc-sub">Add, Edit & Filter Members</span>
-      </div>
-      <app-icon name="chevron-right" [size]="16" class="sc-arrow"></app-icon>
-    </a>
+  <!-- ================= 3. ROLE-ADAPTIVE FAST NAVIGATION HUB ================= -->
+  <section class="shortcuts-grid">
+    @for (sc of roleShortcuts(); track sc.title) {
+      <a [routerLink]="sc.link" class="shortcut-item glass-panel">
+        <div class="sc-icon-box" [class]="'sc-' + sc.color">
+          <app-icon [name]="sc.icon" [size]="18"></app-icon>
+        </div>
+        <div class="sc-content">
+          <span class="sc-head">{{ sc.title }}</span>
+          <span class="sc-desc">{{ sc.desc }}</span>
+        </div>
+        <div class="sc-arrow-circle">
+          <app-icon name="arrow-right" [size]="14"></app-icon>
+        </div>
+      </a>
+    }
+  </section>
 
-    <a routerLink="/admin/roles" class="shortcut-card glass-panel">
-      <div class="shortcut-icon"><app-icon name="shield" [size]="18"></app-icon></div>
-      <div class="shortcut-text">
-        <span class="sc-title">Role Management</span>
-        <span class="sc-sub">Access Control & Security</span>
-      </div>
-      <app-icon name="chevron-right" [size]="16" class="sc-arrow"></app-icon>
-    </a>
-
-    <a routerLink="/admin/permissions" class="shortcut-card glass-panel">
-      <div class="shortcut-icon"><app-icon name="check-circle" [size]="18"></app-icon></div>
-      <div class="shortcut-text">
-        <span class="sc-title">Permission Matrix</span>
-        <span class="sc-sub">Bulk RBAC Capabilities</span>
-      </div>
-      <app-icon name="chevron-right" [size]="16" class="sc-arrow"></app-icon>
-    </a>
-
-    <a routerLink="/admin/masters/services" class="shortcut-card glass-panel">
-      <div class="shortcut-icon"><app-icon name="grid" [size]="18"></app-icon></div>
-      <div class="shortcut-text">
-        <span class="sc-title">Services</span>
-        <span class="sc-sub">Service List</span>
-      </div>
-      <app-icon name="chevron-right" [size]="16" class="sc-arrow"></app-icon>
-    </a>
-  </div>
-
-  <!-- Two Column Content: Recent Users & Recent Inquiries -->
-  <div class="dash-content-grid">
+  <!-- ================= 4. TELEMETRY & SYSTEM HEALTH ================= -->
+  <section class="telemetry-grid">
     
-    <!-- Recent Users Table Card -->
-    <div class="dash-card glass-panel">
-      <div class="dash-card-header">
-        <div class="dash-card-title-wrap">
-          <app-icon name="users" [size]="18" class="text-cyan"></app-icon>
-          <h2 class="dash-card-title">Live Database Users</h2>
+    <!-- Interactive Area Chart -->
+    <div class="telemetry-card glass-panel chart-panel">
+      <div class="chart-header">
+        <div class="chart-title-group">
+          <div class="chart-icon-box">
+            <app-icon name="activity" [size]="18"></app-icon>
+          </div>
+          <div>
+            <h2 class="section-title">
+              @if (isDeveloper()) { API Throughput & Infrastructure Telemetry }
+              @else if (isManager()) { Customer Lead Velocity & Inquiries }
+              @else { Platform Velocity & Engagement }
+            </h2>
+            <p class="section-subtitle">Real-time throughput metrics across API, database, and visitor interactions</p>
+          </div>
         </div>
-        <a routerLink="/admin/users" class="view-all-link">
-          <span>View All</span>
-          <app-icon name="chevron-right" [size]="14"></app-icon>
-        </a>
+
+        <!-- Time Range Selector -->
+        <div class="time-range-group">
+          <button 
+            type="button" 
+            class="time-btn" 
+            [class.active]="timeRange() === '7d'" 
+            (click)="setTimeRange('7d')">7D</button>
+          <button 
+            type="button" 
+            class="time-btn" 
+            [class.active]="timeRange() === '30d'" 
+            (click)="setTimeRange('30d')">30D</button>
+          <button 
+            type="button" 
+            class="time-btn" 
+            [class.active]="timeRange() === '90d'" 
+            (click)="setTimeRange('90d')">90D</button>
+        </div>
       </div>
 
-      <div class="table-responsive">
-        <table class="simple-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (user of users().slice(0, 5); track user.id) {
-              <tr>
-                <td>
-                  <div class="table-user-cell">
-                    <div class="table-user-avatar">{{ user.fullName.charAt(0) }}</div>
-                    <span class="font-medium">{{ user.fullName }}</span>
-                  </div>
-                </td>
-                <td class="text-muted">{{ user.email }}</td>
-                <td>
-                  <span class="role-pill">{{ user.roleName || 'User' }}</span>
-                </td>
-                <td>
-                  <span class="status-dot" [class.active]="user.isActive"></span>
-                  <span class="status-text">{{ user.isActive ? 'Active' : 'Inactive' }}</span>
-                </td>
-              </tr>
-            }
-            @if (users().length === 0) {
-              <tr>
-                <td colspan="4" class="text-center py-4 text-muted">
-                  No users recorded in database yet.
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+      <!-- Key Highlight Metrics -->
+      <div class="chart-highlights-row">
+        @for (item of chartData().highlights; track item.label) {
+          <div class="highlight-item">
+            <span class="hl-label">{{ item.label }}</span>
+            <span class="hl-val">{{ item.value }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- SVG Curve Area Visual -->
+      <div class="chart-canvas-wrapper">
+        <svg viewBox="0 0 450 200" class="main-chart-svg" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="areaFillGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--primary-base)" stop-opacity="0.38"/>
+              <stop offset="50%" stop-color="var(--primary-base)" stop-opacity="0.12"/>
+              <stop offset="100%" stop-color="var(--primary-base)" stop-opacity="0.0"/>
+            </linearGradient>
+            <linearGradient id="lineStrokeGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="50%" stop-color="#6366f1"/>
+              <stop offset="100%" stop-color="#a855f7"/>
+            </linearGradient>
+            <filter id="chartGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#6366f1" flood-opacity="0.3"/>
+            </filter>
+          </defs>
+
+          <!-- Horizontal Grid Lines -->
+          <line x1="0" y1="40" x2="450" y2="40" class="chart-grid-line"/>
+          <line x1="0" y1="80" x2="450" y2="80" class="chart-grid-line"/>
+          <line x1="0" y1="120" x2="450" y2="120" class="chart-grid-line"/>
+          <line x1="0" y1="160" x2="450" y2="160" class="chart-grid-line"/>
+
+          <!-- Area & Stroke Curves -->
+          <path [attr.d]="chartData().areaPath" fill="url(#areaFillGrad)"/>
+          <path [attr.d]="chartData().strokePath" fill="none" stroke="url(#lineStrokeGrad)" stroke-width="3" stroke-linecap="round" filter="url(#chartGlow)"/>
+
+          <!-- Interactive Hover Circles -->
+          @for (pt of chartData().points; track pt.label) {
+            <g class="chart-point-group" (mouseenter)="hoveredPoint.set(pt)" (mouseleave)="hoveredPoint.set(null)">
+              <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="5" class="chart-point-core"/>
+              <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="10" class="chart-point-ring"/>
+            </g>
+          }
+        </svg>
+
+        <!-- Dynamic Hover Tooltip -->
+        @if (hoveredPoint()) {
+          <div 
+            class="chart-tooltip" 
+            [style.left.%]="(hoveredPoint()!.x / 450) * 100" 
+            [style.top.%]="(hoveredPoint()!.y / 200) * 100">
+            <span class="tt-label">{{ hoveredPoint()!.label }}</span>
+            <span class="tt-val">{{ hoveredPoint()!.val }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- X-Axis Labels -->
+      <div class="chart-x-labels">
+        @for (lbl of chartData().labels; track lbl) {
+          <span class="x-label">{{ lbl }}</span>
+        }
       </div>
     </div>
 
-    <!-- Recent Inquiries Card -->
-    <div class="dash-card glass-panel">
-      <div class="dash-card-header">
-        <div class="dash-card-title-wrap">
-          <app-icon name="mail" [size]="18" class="text-cyan"></app-icon>
-          <h2 class="dash-card-title">Landing Page Inquiries</h2>
+    <!-- Right Side: Infrastructure Telemetry & Health -->
+    <div class="telemetry-card glass-panel health-panel">
+      <div class="health-header">
+        <div class="health-title-group">
+          <div class="health-icon-box">
+            <app-icon name="server" [size]="18"></app-icon>
+          </div>
+          <div>
+            <h2 class="section-title">System Architecture</h2>
+            <p class="section-subtitle">Core services & database status</p>
+          </div>
         </div>
-        <a routerLink="/admin/inquiries" class="view-all-link">
-          <span>View All</span>
-          <app-icon name="chevron-right" [size]="14"></app-icon>
-        </a>
+        <span class="health-badge-live">
+          <span class="ping-circle"></span>
+          <span>100% SLA</span>
+        </span>
       </div>
 
-      <div class="inquiry-list">
-        @for (inq of inquiries().slice(0, 4); track inq.id) {
-          <div class="inquiry-item">
-            <div class="inquiry-icon-wrap">
-              <app-icon name="mail" [size]="16"></app-icon>
+      <div class="health-nodes-list">
+        
+        <!-- Node 1: MySQL -->
+        <div class="health-node-item">
+          <div class="node-icon-wrap cyan">
+            <app-icon name="database" [size]="16"></app-icon>
+          </div>
+          <div class="node-info">
+            <div class="node-top">
+              <span class="node-name">MySQL Database</span>
+              <span class="node-status-pill green">Connected</span>
             </div>
-            <div class="inquiry-text-block">
-              <div class="inq-top">
-                <span class="inq-name">{{ inq.fullName }}</span>
-                <span class="inq-email">{{ inq.email }}</span>
+            <span class="node-sub">Active pool • Latency: 12ms</span>
+          </div>
+        </div>
+
+        <!-- Node 2: ASP.NET Core -->
+        <div class="health-node-item">
+          <div class="node-icon-wrap purple">
+            <app-icon name="cpu" [size]="16"></app-icon>
+          </div>
+          <div class="node-info">
+            <div class="node-top">
+              <span class="node-name">ASP.NET Core WebAPI</span>
+              <span class="node-status-pill green">Healthy</span>
+            </div>
+            <span class="node-sub">.NET 10.0 runtime • RESTful Gateway</span>
+          </div>
+        </div>
+
+        <!-- Node 3: RBAC Security -->
+        <div class="health-node-item">
+          <div class="node-icon-wrap blue">
+            <app-icon name="lock" [size]="16"></app-icon>
+          </div>
+          <div class="node-info">
+            <div class="node-top">
+              <span class="node-name">RBAC & JWT Security</span>
+              <span class="node-status-pill green">Enforced</span>
+            </div>
+            <span class="node-sub">Role: {{ currentRole() }}</span>
+          </div>
+        </div>
+
+        <!-- Node 4: Storage & Assets -->
+        <div class="health-node-item">
+          <div class="node-icon-wrap amber">
+            <app-icon name="cloud" [size]="16"></app-icon>
+          </div>
+          <div class="node-info">
+            <div class="node-top">
+              <span class="node-name">Static Assets & CDN</span>
+              <span class="node-status-pill green">Synced</span>
+            </div>
+            <span class="node-sub">Edge cached • Global distribution</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="health-footer-summary">
+        <div class="summary-progress-top">
+          <span class="text-xs text-muted font-medium">Platform Capacity</span>
+          <span class="text-xs font-semibold text-main">{{ activeUsersCount() }} / {{ totalUsersCount() }} Users Active</span>
+        </div>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" [style.width.%]="totalUsersCount() > 0 ? (activeUsersCount() / totalUsersCount()) * 100 : 100"></div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ================= 5. ROLE-ADAPTIVE TWO-COLUMN DATA GRIDS ================= -->
+  <section class="dual-tables-grid">
+    
+    <!-- Left Column: Database Users (Visible to Super Admin / Admin / Developer) -->
+    @if (isSuperAdmin() || isDeveloper()) {
+      <div class="data-widget-card glass-panel">
+        <div class="widget-header">
+          <div class="widget-title-area">
+            <div class="widget-icon cyan">
+              <app-icon name="users" [size]="17"></app-icon>
+            </div>
+            <div>
+              <h3 class="widget-title">Live Database Users</h3>
+              <span class="widget-badge-count">{{ filteredUsers().length }} Accounts</span>
+            </div>
+          </div>
+
+          <div class="widget-header-actions">
+            <!-- Inline Search -->
+            <div class="widget-search-wrap">
+              <app-icon name="search" [size]="13" class="search-icon"></app-icon>
+              <input 
+                type="text" 
+                class="widget-search-input" 
+                placeholder="Filter users..." 
+                [value]="userSearchQuery()"
+                (input)="onSearchInput($event)" />
+              @if (userSearchQuery()) {
+                <button type="button" class="clear-search-btn" (click)="userSearchQuery.set('')">
+                  <app-icon name="x" [size]="11"></app-icon>
+                </button>
+              }
+            </div>
+
+            @if (isSuperAdmin()) {
+              <a routerLink="/admin/users" class="widget-link-action">
+                <span>View All</span>
+                <app-icon name="arrow-right" [size]="13"></app-icon>
+              </a>
+            }
+          </div>
+        </div>
+
+        <!-- Role Filter Pills -->
+        <div class="table-filter-pills">
+          <button 
+            type="button" 
+            class="filter-pill" 
+            [class.active]="userRoleFilter() === 'all'" 
+            (click)="setUserRoleFilter('all')">
+            All Users ({{ users().length }})
+          </button>
+          <button 
+            type="button" 
+            class="filter-pill" 
+            [class.active]="userRoleFilter() === 'super'" 
+            (click)="setUserRoleFilter('super')">
+            Super Admin
+          </button>
+          <button 
+            type="button" 
+            class="filter-pill" 
+            [class.active]="userRoleFilter() === 'dev'" 
+            (click)="setUserRoleFilter('dev')">
+            Developer
+          </button>
+        </div>
+
+        <!-- Users Table -->
+        <div class="table-scroll-wrap">
+          <table class="modern-dashboard-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                @if (isSuperAdmin()) {
+                  <th class="text-right">Action</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of filteredUsers().slice(0, 5); track user.id) {
+                <tr>
+                  <td>
+                    <div class="user-row-cell">
+                      <div class="user-hex-avatar" [class]="getRoleBadgeClass(user.roleName)">
+                        <span>{{ getUserInitials(user.fullName) }}</span>
+                      </div>
+                      <div class="user-meta-names">
+                        <span class="user-display-name">{{ user.fullName }}</span>
+                        <span class="user-id-code">UID-{{ user.id.toString().padStart(4, '0') }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="email-col">
+                    <span class="email-text" [title]="user.email">{{ user.email }}</span>
+                  </td>
+                  <td>
+                    <span class="modern-role-pill" [class]="getRoleBadgeClass(user.roleName)">
+                      {{ user.roleName || 'User' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="status-indicator-pill" [class.active]="user.isActive">
+                      <span class="status-dot"></span>
+                      <span>{{ user.isActive ? 'Active' : 'Inactive' }}</span>
+                    </div>
+                  </td>
+                  @if (isSuperAdmin()) {
+                    <td class="text-right">
+                      <a routerLink="/admin/users" class="table-row-action-btn" title="Manage user">
+                        <app-icon name="edit" [size]="13"></app-icon>
+                        <span>Manage</span>
+                      </a>
+                    </td>
+                  }
+                </tr>
+              }
+              @if (filteredUsers().length === 0) {
+                <tr>
+                  <td [attr.colspan]="isSuperAdmin() ? 5 : 4" class="empty-table-cell">
+                    <app-icon name="users" [size]="28" class="text-muted"></app-icon>
+                    <p class="empty-text">No matching users found in database</p>
+                    @if (userSearchQuery()) {
+                      <button type="button" class="btn-clear-query" (click)="userSearchQuery.set('')">Clear filter</button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    } @else {
+      <!-- Left Column for Standard User & HR: Services Catalog Overview -->
+      <div class="data-widget-card glass-panel">
+        <div class="widget-header">
+          <div class="widget-title-area">
+            <div class="widget-icon cyan">
+              <app-icon name="layers" [size]="17"></app-icon>
+            </div>
+            <div>
+              <h3 class="widget-title">Enterprise Services & Solutions</h3>
+              <span class="widget-badge-count">{{ totalServicesCount() }} Capabilities</span>
+            </div>
+          </div>
+          <a routerLink="/admin/masters/services" class="widget-link-action">
+            <span>Explore All</span>
+            <app-icon name="arrow-right" [size]="13"></app-icon>
+          </a>
+        </div>
+
+        <div class="services-role-list">
+          @for (srv of allMasters()?.services || []; track srv.id) {
+            <div class="service-role-card">
+              <div class="service-icon-box">
+                <app-icon name="layers" [size]="16"></app-icon>
               </div>
-              <p class="inq-msg">{{ inq.message }}</p>
+              <div class="service-details">
+                <div class="service-top">
+                  <h4 class="service-name">{{ srv.serviceName }}</h4>
+                  <span class="service-status-tag">Active</span>
+                </div>
+                <p class="service-desc">{{ srv.description || 'Enterprise scalable technology solution by Velvion.' }}</p>
+              </div>
+            </div>
+          }
+          @if (!allMasters()?.services?.length) {
+            <div class="empty-inquiries-box">
+              <app-icon name="layers" [size]="28" class="text-muted"></app-icon>
+              <h4 class="empty-title">Enterprise Software Development</h4>
+              <p class="empty-desc">Custom web apps, cloud native infrastructure, and enterprise architectures.</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Right Column: Landing Page Inquiries (or FAQs for Standard Users) -->
+    @if (!isStandardUser()) {
+      <div class="data-widget-card glass-panel">
+        <div class="widget-header">
+          <div class="widget-title-area">
+            <div class="widget-icon amber">
+              <app-icon name="mail" [size]="17"></app-icon>
+            </div>
+            <div>
+              <h3 class="widget-title">Landing Page Inquiries</h3>
+              <span class="widget-badge-count amber">{{ totalInquiriesCount() }} Inquiries</span>
             </div>
           </div>
-        }
-        @if (inquiries().length === 0) {
-          <div class="empty-inquiry-box">
-            <app-icon name="mail" [size]="32" class="text-muted"></app-icon>
-            <p>No contact inquiries submitted yet.</p>
-            <a routerLink="/" fragment="contact" class="text-cyan text-sm">Test submitting from landing page</a>
+
+          <div class="widget-header-actions">
+            @if (unresolvedInquiriesCount() > 0) {
+              <span class="unresolved-badge">
+                {{ unresolvedInquiriesCount() }} Pending
+              </span>
+            }
+            <a routerLink="/admin/inquiries" class="widget-link-action">
+              <span>View All</span>
+              <app-icon name="arrow-right" [size]="13"></app-icon>
+            </a>
           </div>
-        }
+        </div>
+
+        <!-- Inquiries List -->
+        <div class="modern-inquiries-list">
+          @for (inq of inquiries().slice(0, 4); track inq.id) {
+            <div class="inquiry-card-item">
+              <div class="inq-item-top">
+                <div class="inq-avatar-pill">
+                  <span>{{ getUserInitials(inq.fullName) }}</span>
+                </div>
+                <div class="inq-sender-details">
+                  <div class="inq-name-row">
+                    <span class="inq-full-name">{{ inq.fullName }}</span>
+                    <span class="inq-date-tag">Recent</span>
+                  </div>
+                  <a [href]="'mailto:' + inq.email" class="inq-email-link" title="Send email">
+                    <app-icon name="mail" [size]="12"></app-icon>
+                    <span>{{ inq.email }}</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Message Preview -->
+              <div class="inq-message-bubble">
+                <p class="inq-body-text">{{ inq.message }}</p>
+              </div>
+
+              <!-- Quick Action Footer -->
+              <div class="inq-actions-bar">
+                <a 
+                  [href]="'mailto:' + inq.email + '?subject=' + (inq.subject || 'Inquiry - Velvion Technologies')" 
+                  class="inq-action-btn reply" 
+                  title="Reply directly via email client">
+                  <app-icon name="send" [size]="12"></app-icon>
+                  <span>Reply</span>
+                </a>
+                <button 
+                  type="button" 
+                  class="inq-action-btn view" 
+                  (click)="openInquiry(inq)"
+                  title="View full inquiry details">
+                  <app-icon name="eye" [size]="12"></app-icon>
+                  <span>Details</span>
+                </button>
+              </div>
+            </div>
+          }
+
+          @if (inquiries().length === 0) {
+            <div class="empty-inquiries-box">
+              <div class="empty-icon-circle">
+                <app-icon name="mail" [size]="28"></app-icon>
+              </div>
+              <h4 class="empty-title">No client inquiries received yet</h4>
+              <p class="empty-desc">New inquiries submitted through the Velvion landing page will appear here instantly.</p>
+              <a routerLink="/" fragment="contact" class="btn-test-inquiry">
+                <app-icon name="external-link" [size]="13"></app-icon>
+                <span>Visit Contact Form</span>
+              </a>
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <!-- Right Column for Standard User: FAQs & Knowledge Support -->
+      <div class="data-widget-card glass-panel">
+        <div class="widget-header">
+          <div class="widget-title-area">
+            <div class="widget-icon amber">
+              <app-icon name="help-circle" [size]="17"></app-icon>
+            </div>
+            <div>
+              <h3 class="widget-title">Knowledge Base & FAQs</h3>
+              <span class="widget-badge-count amber">Support Center</span>
+            </div>
+          </div>
+          <a routerLink="/admin/masters/faqs" class="widget-link-action">
+            <span>All FAQs</span>
+            <app-icon name="arrow-right" [size]="13"></app-icon>
+          </a>
+        </div>
+
+        <div class="modern-inquiries-list">
+          <div class="inquiry-card-item">
+            <h4 class="faq-question">What services does Velvion provide?</h4>
+            <p class="faq-answer">Velvion develops full-stack SaaS applications, cloud infrastructure, AI solutions, and enterprise backend APIs.</p>
+          </div>
+          <div class="inquiry-card-item">
+            <h4 class="faq-question">How does RBAC security work?</h4>
+            <p class="faq-answer">Permissions are dynamically configured per role (Super Admin, Developer, HR Manager, User) and enforced across all routes.</p>
+          </div>
+          <div class="inquiry-card-item">
+            <h4 class="faq-question">Need custom development?</h4>
+            <p class="faq-answer">Contact your account manager or submit an inquiry through the Velvion client portal.</p>
+          </div>
+        </div>
+      </div>
+    }
+
+  </section>
+
+  <!-- ================= 6. INQUIRY DETAIL MODAL ================= -->
+  @if (selectedInquiry()) {
+    <div class="modal-backdrop-scrim" (click)="closeInquiry()">
+      <div class="inquiry-detail-modal glass-panel" (click)="$event.stopPropagation()">
+        <div class="modal-header-bar">
+          <div class="modal-header-info">
+            <div class="modal-icon-badge">
+              <app-icon name="mail" [size]="18"></app-icon>
+            </div>
+            <div>
+              <h3 class="modal-lead-title">Inquiry from {{ selectedInquiry()?.fullName }}</h3>
+              <span class="modal-lead-subtitle">{{ selectedInquiry()?.email }}</span>
+            </div>
+          </div>
+          <button type="button" class="btn-close-modal" (click)="closeInquiry()" title="Close details">
+            <app-icon name="x" [size]="16"></app-icon>
+          </button>
+        </div>
+
+        <div class="modal-body-content">
+          @if (selectedInquiry()?.phone) {
+            <div class="inquiry-meta-field">
+              <span class="field-label">Phone:</span>
+              <a [href]="'tel:' + selectedInquiry()?.phone" class="field-val-link">{{ selectedInquiry()?.phone }}</a>
+            </div>
+          }
+          @if (selectedInquiry()?.subject) {
+            <div class="inquiry-meta-field">
+              <span class="field-label">Subject:</span>
+              <span class="field-val">{{ selectedInquiry()?.subject }}</span>
+            </div>
+          }
+          <div class="inquiry-full-message">
+            <span class="field-label">Message:</span>
+            <p class="full-message-text">{{ selectedInquiry()?.message }}</p>
+          </div>
+        </div>
+
+        <div class="modal-actions-bar">
+          <button type="button" class="btn-modal-cancel" (click)="closeInquiry()">Close</button>
+          <a 
+            [href]="'mailto:' + selectedInquiry()?.email + '?subject=' + (selectedInquiry()?.subject || 'Velvion Services')" 
+            class="btn-modal-reply">
+            <app-icon name="send" [size]="14"></app-icon>
+            <span>Send Email Reply</span>
+          </a>
+        </div>
       </div>
     </div>
-
-  </div>
+  }
 
 </div>

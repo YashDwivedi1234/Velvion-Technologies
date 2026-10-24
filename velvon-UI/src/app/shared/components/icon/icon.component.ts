@@ -280,6 +280,10 @@ import { CommonModule } from '@angular/common';
           <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
           <line x1="12" y1="17" x2="12.01" y2="17"></line>
         }
+        @case ('clock') {
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        }
         @default {
           <circle cx="12" cy="12" r="10"></circle>
         }

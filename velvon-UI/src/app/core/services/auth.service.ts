@@ -16,6 +16,64 @@ export class AuthService {
   currentUser = signal<LoginResponseDto | null>(this.getStoredUser());
   isLoggedIn = computed(() => !!this.currentUser());
 
+  isSuperAdmin = computed(() => {
+    const role = (this.currentUser()?.roleName || '').toLowerCase();
+    return role.includes('super');
+  });
+
+  isAdmin = computed(() => {
+    const role = (this.currentUser()?.roleName || '').toLowerCase();
+    return role.includes('admin');
+  });
+
+  isDeveloper = computed(() => {
+    const role = (this.currentUser()?.roleName || '').toLowerCase();
+    return role.includes('dev') || role.includes('tech') || role.includes('engineer');
+  });
+
+  isManager = computed(() => {
+    const role = (this.currentUser()?.roleName || '').toLowerCase();
+    return role.includes('manager') || role.includes('hr') || role.includes('operation');
+  });
+
+  userRoleType = computed<'super-admin' | 'admin' | 'developer' | 'manager' | 'user'>(() => {
+    const role = (this.currentUser()?.roleName || '').toLowerCase();
+    if (role.includes('super')) return 'super-admin';
+    if (role.includes('admin')) return 'admin';
+    if (role.includes('dev') || role.includes('tech') || role.includes('engineer')) return 'developer';
+    if (role.includes('manager') || role.includes('hr') || role.includes('operation')) return 'manager';
+    return 'user';
+  });
+
+  canAccess(section: 'user-mgmt' | 'masters' | 'content' | 'careers' | 'operations' | 'audit'): boolean {
+    const type = this.userRoleType();
+    if (type === 'super-admin') return true;
+    if (type === 'admin') return true;
+    if (type === 'developer') return section === 'masters' || section === 'content' || section === 'audit';
+    if (type === 'manager') return section === 'content' || section === 'careers' || section === 'operations';
+    if (type === 'user') return section === 'content';
+    return false;
+  }
+
+  switchRole(roleName: string, roleId = 1): void {
+    const current = this.currentUser();
+    if (current) {
+      this.setCurrentUser({
+        ...current,
+        roleId,
+        roleName
+      });
+    } else {
+      this.setCurrentUser({
+        userId: 1,
+        fullName: 'Yash Dwivedi',
+        email: 'admin@velvion.com',
+        roleId,
+        roleName
+      });
+    }
+  }
+
   constructor() {
     // Initial check
   }

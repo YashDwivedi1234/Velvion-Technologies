@@ -5,10 +5,12 @@
 /* ── Shell Container ──────────────────────────────────────────────────────── */
 .admin-shell {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
   background: var(--bg-app);
   color: var(--text-body);
   position: relative;
+  overflow: hidden;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -311,9 +313,12 @@ html[data-theme="dark"] .sidebar-footer,
   margin-left: 260px;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
   background: var(--bg-app);
   transition: margin-left var(--transition-normal);
+  min-width: 0;
 }
 
 .sidebar-collapsed .admin-main-wrapper {
@@ -325,8 +330,8 @@ html[data-theme="dark"] .sidebar-footer,
    ═══════════════════════════════════════════════════════════════════════════ */
 .admin-top-header {
   height: 64px;
-  position: sticky;
-  top: 0;
+  flex-shrink: 0;
+  position: relative;
   z-index: 400;
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
@@ -586,7 +591,54 @@ html[data-theme="dark"] .sidebar-footer,
 .dropdown-divider {
   height: 1px;
   background: var(--border-subtle);
-  margin: var(--space-1) 0;
+  margin: var(--space-2) 0;
+}
+
+.dropdown-role-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--space-2) var(--space-3);
+}
+
+.role-selector-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+}
+
+.role-pills-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+}
+
+.sim-role-btn {
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-body);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.sim-role-btn:hover {
+  border-color: var(--primary-base);
+  color: var(--text-main);
+  background: var(--primary-subtle);
+}
+
+.sim-role-btn.active {
+  background: var(--primary-base);
+  color: #ffffff;
+  border-color: var(--primary-base);
+  box-shadow: 0 1px 4px rgba(99, 102, 241, 0.35);
 }
 
 .dropdown-menu-list {
@@ -698,12 +750,25 @@ html[data-theme="dark"] .sidebar-footer,
    ═══════════════════════════════════════════════════════════════════════════ */
 .admin-content-view {
   flex: 1;
-  padding: var(--space-8);
-  max-width: 1440px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4) var(--space-6);
+  max-width: 1600px;
   width: 100%;
   margin: 0 auto;
   position: relative;
-  min-height: calc(100vh - 128px);
+  overflow: hidden;
+}
+
+.router-outlet-container {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* ── Page Center Loader ─────────────────────────────────────────────────── */
@@ -753,14 +818,15 @@ html[data-theme="dark"] .sidebar-footer,
    ADMIN FOOTER
    ═══════════════════════════════════════════════════════════════════════════ */
 .admin-dashboard-footer {
+  flex-shrink: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 0.875rem var(--space-8);
+  padding: 0.5rem var(--space-8);
   border-top: 1px solid var(--border-subtle);
   background: var(--bg-surface);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   transition: background var(--transition-normal);
 }

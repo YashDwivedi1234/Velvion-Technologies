@@ -1622,3 +1622,113 @@ html[data-theme="light"] .field-error { color: var(--danger-600); }
 }
 
 .status-dot.active  { background: var(--success-500); }
+
+/* ==========================================================================
+   FIXED VIEWPORT & INNER TABLE SCROLL SYSTEM (Admin Shell)
+   ========================================================================== */
+.router-outlet-container > :not(router-outlet) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Master/table page views: lock to 100% viewport height without outer scrolling */
+.master-page-view,
+.users-page-view,
+.jobs-page-view,
+.applications-page-view,
+.permissions-page-view {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--space-3) !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  flex: 1 !important;
+  overflow: hidden !important;
+}
+
+.master-page-view .page-top-actions,
+.users-page-view .page-top-actions,
+.jobs-page-view .page-top-actions,
+.applications-page-view .filter-bar,
+.permissions-page-view .directory-header-card {
+  flex-shrink: 0 !important;
+}
+
+/* Table card: expands to take all remaining vertical height */
+.master-page-view .table-card,
+.users-page-view .table-card,
+.jobs-page-view .table-card,
+.applications-page-view .table-card,
+.permissions-page-view .table-card {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Table responsive: provides smooth internal vertical scrolling */
+.master-page-view .table-responsive,
+.users-page-view .table-responsive,
+.jobs-page-view .table-responsive,
+.applications-page-view .table-responsive,
+.permissions-page-view .table-responsive {
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: auto !important;
+}
+
+.table-responsive::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.45);
+}
+
+/* Sticky table header so column names stay fixed while scrolling records */
+.master-page-view .data-table,
+.users-page-view .data-table,
+.jobs-page-view .data-table,
+.applications-page-view .data-table,
+.permissions-page-view .data-table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.master-page-view .data-table th,
+.users-page-view .data-table th,
+.jobs-page-view .data-table th,
+.applications-page-view .data-table th,
+.permissions-page-view .data-table th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 10 !important;
+  background: var(--bg-surface-elevated) !important;
+  box-shadow: inset 0 -1px 0 var(--border-default) !important;
+}
+
+/* Pagination pinned at the bottom of the table card */
+.master-page-view app-pagination,
+.users-page-view app-pagination,
+.jobs-page-view app-pagination,
+.applications-page-view app-pagination,
+.permissions-page-view app-pagination {
+  flex-shrink: 0 !important;
+}

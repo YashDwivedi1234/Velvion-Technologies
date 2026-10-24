@@ -37,219 +37,233 @@
           </a>
         </div>
 
-        <!-- 2) USER MANAGEMENT ACCORDION -->
-        <div class="nav-section">
-          @if (!sidebarCollapsed()) {
-            <button type="button" class="nav-section-title-btn" (click)="toggleNavSection('user-mgmt')">
-              <span>USER MANAGEMENT</span>
-              <app-icon [name]="isSectionOpen('user-mgmt') ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
-            </button>
-          }
+        <!-- 2) USER MANAGEMENT ACCORDION (Super Admin / Admin only) -->
+        @if (authService.canAccess('user-mgmt')) {
+          <div class="nav-section">
+            @if (!sidebarCollapsed()) {
+              <button type="button" class="nav-section-title-btn" (click)="toggleNavSection('user-mgmt')">
+                <span>USER MANAGEMENT</span>
+                <app-icon [name]="isSectionOpen('user-mgmt') ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
+              </button>
+            }
 
-          @if (isSectionOpen('user-mgmt') || sidebarCollapsed()) {
-            <div class="nav-submenu">
-              <!-- Users -->
-              <a routerLink="/admin/users" routerLinkActive="active-nav" class="nav-sublink" title="Users List & Management">
-                <app-icon name="users" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Users</span>
-                }
-              </a>
+            @if (isSectionOpen('user-mgmt') || sidebarCollapsed()) {
+              <div class="nav-submenu">
+                <!-- Users -->
+                <a routerLink="/admin/users" routerLinkActive="active-nav" class="nav-sublink" title="Users List & Management">
+                  <app-icon name="users" [size]="16" class="nav-icon"></app-icon>
+                  @if (!sidebarCollapsed()) {
+                    <span>Users</span>
+                  }
+                </a>
 
-              <!-- Role -->
-              <a routerLink="/admin/roles" routerLinkActive="active-nav" class="nav-sublink" title="Role Management">
-                <app-icon name="shield" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Roles</span>
-                }
-              </a>
+                <!-- Role -->
+                <a routerLink="/admin/roles" routerLinkActive="active-nav" class="nav-sublink" title="Role Management">
+                  <app-icon name="shield" [size]="16" class="nav-icon"></app-icon>
+                  @if (!sidebarCollapsed()) {
+                    <span>Roles</span>
+                  }
+                </a>
 
-              <!-- Role Menu Permission -->
-              <a routerLink="/admin/permissions" routerLinkActive="active-nav" class="nav-sublink" title="Role Menu Permissions Matrix">
-                <app-icon name="check-circle" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Role Menu Permissions</span>
-                }
-              </a>
-            </div>
-          }
-        </div>
+                <!-- Role Menu Permission -->
+                <a routerLink="/admin/permissions" routerLinkActive="active-nav" class="nav-sublink" title="Role Menu Permissions Matrix">
+                  <app-icon name="check-circle" [size]="16" class="nav-icon"></app-icon>
+                  @if (!sidebarCollapsed()) {
+                    <span>Role Menu Permissions</span>
+                  }
+                </a>
+              </div>
+            }
+          </div>
+        }
 
-        <!-- 3) MASTERS ACCORDION -->
-        <div class="nav-section">
-          @if (!sidebarCollapsed()) {
-            <button type="button" class="nav-section-title-btn" (click)="toggleNavSection('masters')">
-              <span>MASTERS</span>
-              <app-icon [name]="isSectionOpen('masters') ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
-            </button>
-          }
+        <!-- 3) MASTERS ACCORDION (Super Admin / Admin / Developer) -->
+        @if (authService.canAccess('masters')) {
+          <div class="nav-section">
+            @if (!sidebarCollapsed()) {
+              <button type="button" class="nav-section-title-btn" (click)="toggleNavSection('masters')">
+                <span>MASTERS</span>
+                <app-icon [name]="isSectionOpen('masters') ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
+              </button>
+            }
 
-          @if (isSectionOpen('masters') || sidebarCollapsed()) {
-            <div class="nav-submenu">
-              <!-- Services -->
-              <a routerLink="/admin/masters/services" routerLinkActive="active-nav" class="nav-sublink" title="Services">
-                <app-icon name="layers" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Services</span>
-                }
-              </a>
+            @if (isSectionOpen('masters') || sidebarCollapsed()) {
+              <div class="nav-submenu">
+                <!-- Services -->
+                <a routerLink="/admin/masters/services" routerLinkActive="active-nav" class="nav-sublink" title="Services">
+                  <app-icon name="layers" [size]="16" class="nav-icon"></app-icon>
+                  @if (!sidebarCollapsed()) {
+                    <span>Services</span>
+                  }
+                </a>
 
-              <!-- Categories & Industries -->
-              <a routerLink="/admin/masters/categories" routerLinkActive="active-nav" class="nav-sublink" title="Project Categories & Industries">
-                <app-icon name="folder" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Categories & Industries</span>
-                }
-              </a>
+                <!-- Categories & Industries -->
+                <a routerLink="/admin/masters/categories" routerLinkActive="active-nav" class="nav-sublink" title="Project Categories & Industries">
+                  <app-icon name="folder" [size]="16" class="nav-icon"></app-icon>
+                  @if (!sidebarCollapsed()) {
+                    <span>Categories & Industries</span>
+                  }
+                </a>
 
-              <!-- Departments -->
-              <a routerLink="/admin/masters/departments" routerLinkActive="active-nav" class="nav-sublink" title="Departments Master">
-                <app-icon name="briefcase" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Departments</span>
-                }
-              </a>
+                <!-- Departments -->
+                <a routerLink="/admin/masters/departments" routerLinkActive="active-nav" class="nav-sublink" title="Departments Master">
+                  <app-icon name="briefcase" [size]="16" class="nav-icon"></app-icon>
+                  @if (!sidebarCollapsed()) {
+                    <span>Departments</span>
+                  }
+                </a>
 
-              <!-- Designations -->
-              <a routerLink="/admin/masters/designations" routerLinkActive="active-nav" class="nav-sublink" title="Designations Master">
-                <app-icon name="award" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Designations</span>
-                }
-              </a>
+                <!-- Designations -->
+                <a routerLink="/admin/masters/designations" routerLinkActive="active-nav" class="nav-sublink" title="Designations Master">
+                  <app-icon name="award" [size]="16" class="nav-icon"></app-icon>
+                  @if (!sidebarCollapsed()) {
+                    <span>Designations</span>
+                  }
+                </a>
 
-              <!-- Clients & Partners -->
-              <a routerLink="/admin/masters/clients" routerLinkActive="active-nav" class="nav-sublink" title="Clients & Partners">
-                <app-icon name="globe" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Clients & Partners</span>
-                }
-              </a>
+                <!-- Clients & Partners -->
+                <a routerLink="/admin/masters/clients" routerLinkActive="active-nav" class="nav-sublink" title="Clients & Partners">
+                  <app-icon name="globe" [size]="16" class="nav-icon"></app-icon>
+                  @if (!sidebarCollapsed()) {
+                    <span>Clients & Partners</span>
+                  }
+                </a>
 
-              <!-- FAQs & Knowledge Base -->
-              <a routerLink="/admin/masters/faqs" routerLinkActive="active-nav" class="nav-sublink" title="FAQs & Knowledge Base">
-                <app-icon name="help-circle" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>FAQs & Knowledge</span>
-                }
-              </a>
+                <!-- FAQs & Knowledge Base -->
+                <a routerLink="/admin/masters/faqs" routerLinkActive="active-nav" class="nav-sublink" title="FAQs & Knowledge Base">
+                  <app-icon name="help-circle" [size]="16" class="nav-icon"></app-icon>
+                  @if (!sidebarCollapsed()) {
+                    <span>FAQs & Knowledge</span>
+                  }
+                </a>
 
-              <!-- Settings -->
-              <a routerLink="/admin/masters/settings" routerLinkActive="active-nav" class="nav-sublink" title="Settings">
-                <app-icon name="settings" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Settings</span>
-                }
-              </a>
-            </div>
-          }
-        </div>
+                <!-- Settings -->
+                <a routerLink="/admin/masters/settings" routerLinkActive="active-nav" class="nav-sublink" title="Settings">
+                  <app-icon name="settings" [size]="16" class="nav-icon"></app-icon>
+                  @if (!sidebarCollapsed()) {
+                    <span>Settings</span>
+                  }
+                </a>
+              </div>
+            }
+          </div>
+        }
 
         <!-- 4) CONTENT & MEDIA -->
-        <div class="nav-section">
-          @if (!sidebarCollapsed()) {
-            <button type="button" class="nav-section-title-btn" (click)="toggleNavSection('content')">
-              <span>CONTENT & SHOWCASE</span>
-              <app-icon [name]="isSectionOpen('content') ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
-            </button>
-          }
+        @if (authService.canAccess('content')) {
+          <div class="nav-section">
+            @if (!sidebarCollapsed()) {
+              <button type="button" class="nav-section-title-btn" (click)="toggleNavSection('content')">
+                <span>CONTENT & SHOWCASE</span>
+                <app-icon [name]="isSectionOpen('content') ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
+              </button>
+            }
 
-          @if (isSectionOpen('content') || sidebarCollapsed()) {
-            <div class="nav-submenu">
-              <!-- Blogs -->
-              <a routerLink="/admin/blogs" routerLinkActive="active-nav" class="nav-sublink" title="Blogs Management">
-                <app-icon name="edit" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Blogs & Articles</span>
-                }
-              </a>
+            @if (isSectionOpen('content') || sidebarCollapsed()) {
+              <div class="nav-submenu">
+                <!-- Blogs -->
+                <a routerLink="/admin/blogs" routerLinkActive="active-nav" class="nav-sublink" title="Blogs Management">
+                  <app-icon name="edit" [size]="16" class="nav-icon"></app-icon>
+                  @if (!sidebarCollapsed()) {
+                    <span>Blogs & Articles</span>
+                  }
+                </a>
 
-              <!-- Portfolios -->
-              <a routerLink="/admin/portfolios" routerLinkActive="active-nav" class="nav-sublink" title="Portfolio Projects">
-                <app-icon name="folder" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Portfolios</span>
-                }
-              </a>
+                <!-- Portfolios -->
+                <a routerLink="/admin/portfolios" routerLinkActive="active-nav" class="nav-sublink" title="Portfolio Projects">
+                  <app-icon name="folder" [size]="16" class="nav-icon"></app-icon>
+                  @if (!sidebarCollapsed()) {
+                    <span>Portfolios</span>
+                  }
+                </a>
 
-              <!-- Team Members -->
-              <a routerLink="/admin/team" routerLinkActive="active-nav" class="nav-sublink" title="Team Members">
-                <app-icon name="user" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Team Members</span>
-                }
-              </a>
+                <!-- Team Members -->
+                <a routerLink="/admin/team" routerLinkActive="active-nav" class="nav-sublink" title="Team Members">
+                  <app-icon name="user" [size]="16" class="nav-icon"></app-icon>
+                  @if (!sidebarCollapsed()) {
+                    <span>Team Members</span>
+                  }
+                </a>
 
-              <!-- Testimonials -->
-              <a routerLink="/admin/testimonials" routerLinkActive="active-nav" class="nav-sublink" title="Client Testimonials">
-                <app-icon name="star" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Testimonials</span>
-                }
-              </a>
-            </div>
-          }
-        </div>
+                <!-- Testimonials -->
+                <a routerLink="/admin/testimonials" routerLinkActive="active-nav" class="nav-sublink" title="Client Testimonials">
+                  <app-icon name="star" [size]="16" class="nav-icon"></app-icon>
+                  @if (!sidebarCollapsed()) {
+                    <span>Testimonials</span>
+                  }
+                </a>
+              </div>
+            }
+          </div>
+        }
 
-        <!-- CAREERS & HIRING -->
-        <div class="nav-section">
-          @if (!sidebarCollapsed()) {
-            <button type="button" class="nav-section-title-btn" (click)="toggleNavSection('careers')">
-              <span>CAREERS & HIRING</span>
-              <app-icon [name]="isSectionOpen('careers') ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
-            </button>
-          }
+        <!-- CAREERS & HIRING (Super Admin / Admin / HR Manager) -->
+        @if (authService.canAccess('careers')) {
+          <div class="nav-section">
+            @if (!sidebarCollapsed()) {
+              <button type="button" class="nav-section-title-btn" (click)="toggleNavSection('careers')">
+                <span>CAREERS & HIRING</span>
+                <app-icon [name]="isSectionOpen('careers') ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
+              </button>
+            }
 
-          @if (isSectionOpen('careers') || sidebarCollapsed()) {
-            <div class="nav-submenu">
-              <!-- Job Openings -->
-              <a routerLink="/admin/careers/job-postings" routerLinkActive="active-nav" class="nav-sublink" title="Job Postings">
-                <app-icon name="briefcase" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Job Openings</span>
-                }
-              </a>
+            @if (isSectionOpen('careers') || sidebarCollapsed()) {
+              <div class="nav-submenu">
+                <!-- Job Openings -->
+                <a routerLink="/admin/careers/job-postings" routerLinkActive="active-nav" class="nav-sublink" title="Job Postings">
+                  <app-icon name="briefcase" [size]="16" class="nav-icon"></app-icon>
+                  @if (!sidebarCollapsed()) {
+                    <span>Job Openings</span>
+                  }
+                </a>
 
-              <!-- ATS Applications -->
-              <a routerLink="/admin/careers/job-applications" routerLinkActive="active-nav" class="nav-sublink" title="Job Applications ATS">
-                <app-icon name="users" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Applications (ATS)</span>
-                }
-              </a>
-            </div>
-          }
-        </div>
+                <!-- ATS Applications -->
+                <a routerLink="/admin/careers/job-applications" routerLinkActive="active-nav" class="nav-sublink" title="Job Applications ATS">
+                  <app-icon name="users" [size]="16" class="nav-icon"></app-icon>
+                  @if (!sidebarCollapsed()) {
+                    <span>Applications (ATS)</span>
+                  }
+                </a>
+              </div>
+            }
+          </div>
+        }
 
         <!-- 5) OPERATIONS & AUDIT -->
-        <div class="nav-section">
-          @if (!sidebarCollapsed()) {
-            <button type="button" class="nav-section-title-btn" (click)="toggleNavSection('operations')">
-              <span>OPERATIONS & LOGS</span>
-              <app-icon [name]="isSectionOpen('operations') ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
-            </button>
-          }
+        @if (authService.canAccess('operations') || authService.canAccess('audit')) {
+          <div class="nav-section">
+            @if (!sidebarCollapsed()) {
+              <button type="button" class="nav-section-title-btn" (click)="toggleNavSection('operations')">
+                <span>OPERATIONS & LOGS</span>
+                <app-icon [name]="isSectionOpen('operations') ? 'chevron-down' : 'chevron-right'" [size]="14"></app-icon>
+              </button>
+            }
 
-          @if (isSectionOpen('operations') || sidebarCollapsed()) {
-            <div class="nav-submenu">
-              <!-- Inquiries -->
-              <a routerLink="/admin/inquiries" routerLinkActive="active-nav" class="nav-sublink" title="Contact Inquiries">
-                <app-icon name="mail" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Inquiries & Leads</span>
+            @if (isSectionOpen('operations') || sidebarCollapsed()) {
+              <div class="nav-submenu">
+                <!-- Inquiries -->
+                @if (authService.canAccess('operations')) {
+                  <a routerLink="/admin/inquiries" routerLinkActive="active-nav" class="nav-sublink" title="Contact Inquiries">
+                    <app-icon name="mail" [size]="16" class="nav-icon"></app-icon>
+                    @if (!sidebarCollapsed()) {
+                      <span>Inquiries & Leads</span>
+                    }
+                  </a>
                 }
-              </a>
 
-              <!-- Audit Logs -->
-              <a routerLink="/admin/audit-logs" routerLinkActive="active-nav" class="nav-sublink" title="Audit Activity Logs">
-                <app-icon name="activity" [size]="16" class="nav-icon"></app-icon>
-                @if (!sidebarCollapsed()) {
-                  <span>Audit Trail</span>
+                <!-- Audit Logs -->
+                @if (authService.canAccess('audit')) {
+                  <a routerLink="/admin/audit-logs" routerLinkActive="active-nav" class="nav-sublink" title="Audit Activity Logs">
+                    <app-icon name="activity" [size]="16" class="nav-icon"></app-icon>
+                    @if (!sidebarCollapsed()) {
+                      <span>Audit Trail</span>
+                    }
+                  </a>
                 }
-              </a>
-            </div>
-          }
-        </div>
+              </div>
+            }
+          </div>
+        }
 
       </nav>
     </div>
@@ -356,6 +370,45 @@
                   </div>
                 </a>
 
+                <div class="dropdown-divider"></div>
+
+                <!-- Role Simulation Switcher -->
+                <div class="dropdown-role-selector">
+                  <span class="role-selector-label">SIMULATE ROLE VIEW:</span>
+                  <div class="role-pills-row">
+                    <button 
+                      type="button" 
+                      class="sim-role-btn" 
+                      [class.active]="authService.userRoleType() === 'super-admin'"
+                      (click)="authService.switchRole('Super Admin', 1); closeUserDropdown()">
+                      Super Admin
+                    </button>
+                    <button 
+                      type="button" 
+                      class="sim-role-btn" 
+                      [class.active]="authService.userRoleType() === 'developer'"
+                      (click)="authService.switchRole('Developer', 2); closeUserDropdown()">
+                      Developer
+                    </button>
+                    <button 
+                      type="button" 
+                      class="sim-role-btn" 
+                      [class.active]="authService.userRoleType() === 'manager'"
+                      (click)="authService.switchRole('HR Manager', 3); closeUserDropdown()">
+                      HR Manager
+                    </button>
+                    <button 
+                      type="button" 
+                      class="sim-role-btn" 
+                      [class.active]="authService.userRoleType() === 'user'"
+                      (click)="authService.switchRole('User', 4); closeUserDropdown()">
+                      User
+                    </button>
+                  </div>
+                </div>
+
+                <div class="dropdown-divider"></div>
+
                 <!-- Logout Option -->
                 <button type="button" class="dropdown-menu-item danger" (click)="logout()">
                   <div class="menu-item-icon-box danger-icon-box">
@@ -394,7 +447,7 @@
           <p class="page-loading-text">Loading...</p>
         </div>
       }
-      <div [class.page-content-hidden]="pageLoading()">
+      <div class="router-outlet-container" [class.page-content-hidden]="pageLoading()">
         <router-outlet></router-outlet>
       </div>
     </main>
