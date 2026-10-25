@@ -114,6 +114,14 @@ export class AuthComponent implements OnInit {
     this.toastService.info('Admin demo credentials pre-filled', 'Demo Access');
   }
 
+  onForgotPassword(event?: Event): void {
+    if (event) event.preventDefault();
+    this.toastService.info(
+      'Please contact your system administrator to recover or reset your account password.',
+      'Password Recovery'
+    );
+  }
+
   onRoleChange(val: string | string[]): void {
     const roleId = Number(val);
     this.selectedRole.set(roleId);

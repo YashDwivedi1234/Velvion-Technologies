@@ -7,98 +7,22 @@
 
   <!-- Top Quick Bar -->
   <header class="auth-top-bar">
-    <a routerLink="/" class="back-link" title="Return to Velvion Homepage">
-      <app-icon name="chevron-left" [size]="16"></app-icon>
-      <span>Back to Landing Page</span>
+    <a routerLink="/" class="auth-brand-logo" title="Velvion Technologies">
+      <app-logo size="sm" [animated]="true"></app-logo>
     </a>
-    <div class="system-status-pill">
-      <span class="pulse-dot"></span>
-      <span>System Operational</span>
-    </div>
+
+    <!-- Home Icon for Returning to Landing Page on the Right -->
+    <a routerLink="/" class="home-nav-btn" title="Back to Landing Page" aria-label="Return to Landing Page">
+      <app-icon name="home" [size]="17"></app-icon>
+      <span>Home</span>
+    </a>
   </header>
 
-  <!-- Main Dual-Pane Auth Workspace (Centered, No Page Scroll) -->
+  <!-- Main Auth Workspace (Centered Standalone Card) -->
   <main class="auth-viewport-wrapper">
-    <div class="auth-split-card">
+    <div class="auth-card">
       
-      <!-- ================= LEFT COLUMN: HIGH-TECH VISUAL SHOWCASE ================= -->
-      <section class="auth-visual-pane" aria-label="Velvion Platform Highlights">
-        <!-- Visual Background with Cyber Overlays -->
-        <div class="visual-img-container">
-          <img 
-            src="/images/auth-hero.jpg" 
-            alt="Velvion Enterprise AI & Cloud Cybersecurity Core" 
-            class="visual-hero-img" />
-          <div class="visual-gradient-scrim"></div>
-          <div class="visual-cyber-mesh"></div>
-        </div>
-
-        <!-- Overlaid Content -->
-        <div class="visual-content-overlay">
-          <!-- Top Badge -->
-          <div class="visual-top-badge">
-            <span class="badge-icon-wrap">
-              <app-icon name="sparkles" [size]="14"></app-icon>
-            </span>
-            <span class="badge-text">VELVION ENTERPRISE CORE v3.4</span>
-          </div>
-
-          <!-- Mid Hero Copy -->
-          <div class="visual-hero-text">
-            <h2 class="visual-title">
-              Architecting Next-Gen <span class="gradient-text">Digital Intelligence</span>
-            </h2>
-            <p class="visual-desc">
-              Unified cloud telemetry, neural AI microservices, and quantum-grade cybersecurity for mission-critical operations.
-            </p>
-          </div>
-
-          <!-- High-Tech Feature Badges -->
-          <div class="visual-feature-list">
-            <div class="feature-chip">
-              <div class="feature-icon-box cyan">
-                <app-icon name="shield" [size]="15"></app-icon>
-              </div>
-              <div class="feature-meta">
-                <span class="feature-name">Quantum-Safe Encryption</span>
-                <span class="feature-sub">Zero-Trust Architecture</span>
-              </div>
-            </div>
-
-            <div class="feature-chip">
-              <div class="feature-icon-box purple">
-                <app-icon name="zap" [size]="15"></app-icon>
-              </div>
-              <div class="feature-meta">
-                <span class="feature-name">99.99% Uptime SLA</span>
-                <span class="feature-sub">Autonomous Multi-Region Edge</span>
-              </div>
-            </div>
-
-            <div class="feature-chip">
-              <div class="feature-icon-box sky">
-                <app-icon name="cpu" [size]="15"></app-icon>
-              </div>
-              <div class="feature-meta">
-                <span class="feature-name">Neural AI Processing</span>
-                <span class="feature-sub">Real-Time Threat Detection</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bottom Trust Metric -->
-          <div class="visual-footer-pill">
-            <div class="trust-avatars">
-              <div class="avatar-dot dot-1"><app-icon name="user" [size]="10"></app-icon></div>
-              <div class="avatar-dot dot-2"><app-icon name="user" [size]="10"></app-icon></div>
-              <div class="avatar-dot dot-3"><app-icon name="user" [size]="10"></app-icon></div>
-            </div>
-            <span class="trust-text">Trusted by <strong>500+ global enterprises</strong></span>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================= RIGHT COLUMN: LOGIN & REGISTRATION CONSOLE ================= -->
+      <!-- ================= LOGIN & REGISTRATION CONSOLE ================= -->
       <section class="auth-form-pane" aria-label="User Authentication Form">
         <div class="auth-form-inner">
           
@@ -106,18 +30,18 @@
           <div class="form-header">
             <app-logo size="md" [animated]="true"></app-logo>
             <h1 class="auth-headline">
-              {{ mode() === 'login' ? 'Sign In to Dashboard' : 'Create Enterprise Account' }}
+              {{ mode() === 'login' ? 'Welcome Back' : 'Create Your Account' }}
             </h1>
             <p class="auth-subheadline">
               @if (mode() === 'login') {
-                Enter your credentials to access your administrative control console
+                Log in to your account 
               } @else {
                 Fill in your professional details to request platform workspace access
               }
             </p>
           </div>
 
-          <!-- Segmented Tab Switcher (Login vs Register) -->
+          <!-- Segmented Tab Switcher (Sign In & Create Account - Removed)
           <div class="auth-tabs-nav" role="tablist">
             <button 
               type="button" 
@@ -140,6 +64,7 @@
               <span>Create Account</span>
             </button>
           </div>
+          -->
 
           <!-- ================= LOGIN FORM ================= -->
           @if (mode() === 'login') {
@@ -196,6 +121,25 @@
                   <span class="field-error">Password is required (minimum 4 characters)</span>
                 }
               </div>
+
+              <!-- Remember Me & Forgot Password Options -->
+              <div class="form-options-row">
+                <label class="remember-me-label" for="login-remember">
+                  <input 
+                    type="checkbox" 
+                    id="login-remember" 
+                    formControlName="rememberMe" 
+                    class="custom-checkbox-input" />
+                  <span class="remember-me-text">Remember me</span>
+                </label>
+
+                <a 
+                  href="javascript:void(0)" 
+                  (click)="onForgotPassword($event)" 
+                  class="forgot-password-link">
+                  Forgot password?
+                </a>
+              </div>
               
               <!-- Submit Button -->
               <button 
@@ -211,13 +155,14 @@
                 }
               </button>
 
-              <!-- Switch Prompt -->
+              <!-- Switch Prompt (Create Account)
               <div class="auth-footer-prompt">
                 <span>Don't have an account yet?</span>
                 <button type="button" class="text-link" (click)="switchMode('register')">
                   Register new account
                 </button>
               </div>
+              -->
             </form>
           }
 
