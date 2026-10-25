@@ -30,13 +30,15 @@ export class AuthComponent implements OnInit {
   private adminDataService = inject(AdminDataService);
   private toastService = inject(ToastService);
 
-  mode = signal<'login' | 'register'>('login');
+  mode = signal<'login' | 'register' | 'forgot-password'>('login');
   loading = signal<boolean>(false);
   showPassword = signal<boolean>(false);
   showConfirmPassword = signal<boolean>(false);
+  codeSent = signal<boolean>(false);
 
   loginForm!: FormGroup;
   registerForm!: FormGroup;
+  forgotPasswordForm!: FormGroup;
 
   roles = signal<RoleDto[]>([]);
   roleOptions = signal<DropdownOption[]>([]);
@@ -47,6 +49,8 @@ export class AuthComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params['mode'] === 'register') {
         this.mode.set('register');
+      } else if (params['mode'] === 'forgot-password') {
+        this.mode.set('forgot-password');
       } else {
         this.mode.set('login');
       }
@@ -58,9 +62,13 @@ export class AuthComponent implements OnInit {
 
   private initForms(): void {
     this.loginForm = this.fb.group({
-      email: ['admin@velvion.com', [Validators.required, Validators.email]],
-      password: ['Admin@123', [Validators.required, Validators.minLength(4)]],
-      rememberMe: [true]
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(4)]],
+      rememberMe: [false]
+    });
+
+    this.forgotPasswordForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]]
     });
 
     this.registerForm = this.fb.group({
@@ -102,8 +110,9 @@ export class AuthComponent implements OnInit {
     });
   }
 
-  switchMode(newMode: 'login' | 'register'): void {
+  switchMode(newMode: 'login' | 'register' | 'forgot-password'): void {
     this.mode.set(newMode);
+    this.codeSent.set(false);
   }
 
   fillAdminCredentials(): void {
@@ -116,10 +125,32 @@ export class AuthComponent implements OnInit {
 
   onForgotPassword(event?: Event): void {
     if (event) event.preventDefault();
-    this.toastService.info(
-      'Please contact your system administrator to recover or reset your account password.',
-      'Password Recovery'
-    );
+    const currentEmail = this.loginForm.get('email')?.value || '';
+    if (currentEmail) {
+      this.forgotPasswordForm.patchValue({ email: currentEmail });
+    }
+    this.codeSent.set(false);
+    this.mode.set('forgot-password');
+  }
+
+  onSendVerificationCode(): void {
+    if (this.forgotPasswordForm.invalid) {
+      this.forgotPasswordForm.markAllAsTouched();
+      this.toastService.error('Please enter a valid email address.', 'Validation Error');
+      return;
+    }
+
+    this.loading.set(true);
+    const email = this.forgotPasswordForm.value.email;
+
+    setTimeout(() => {
+      this.loading.set(false);
+      this.codeSent.set(true);
+      this.toastService.success(
+        `Verification code sent to ${email}`,
+        'Code Dispatched'
+      );
+    }, 700);
   }
 
   onRoleChange(val: string | string[]): void {

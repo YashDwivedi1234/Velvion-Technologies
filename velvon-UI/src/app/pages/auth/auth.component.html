@@ -30,11 +30,13 @@
           <div class="form-header">
             <app-logo size="md" [animated]="true"></app-logo>
             <h1 class="auth-headline">
-              {{ mode() === 'login' ? 'Welcome Back' : 'Create Your Account' }}
+              {{ mode() === 'login' ? 'Welcome Back' : (mode() === 'forgot-password' ? 'Reset Password' : 'Create Your Account') }}
             </h1>
             <p class="auth-subheadline">
               @if (mode() === 'login') {
                 Log in to your account 
+              } @else if (mode() === 'forgot-password') {
+                Enter your registered email address and we'll send you a verification code.
               } @else {
                 Fill in your professional details to request platform workspace access
               }
@@ -163,6 +165,54 @@
                 </button>
               </div>
               -->
+            </form>
+          }
+
+          <!-- ================= FORGOT PASSWORD / RESET PASSWORD FORM ================= -->
+          @if (mode() === 'forgot-password') {
+            <form [formGroup]="forgotPasswordForm" (ngSubmit)="onSendVerificationCode()" class="auth-form animate-slide-in" novalidate>
+              
+              <!-- Email Input -->
+              <div class="form-group">
+                <label class="form-label" for="reset-email">Email address</label>
+                <div class="input-container input-with-icon">
+                  <span class="input-leading-icon">
+                    <app-icon name="mail" [size]="16"></app-icon>
+                  </span>
+                  <input 
+                    id="reset-email"
+                    type="email" 
+                    class="form-control" 
+                    placeholder="name@company.com" 
+                    formControlName="email"
+                    autocomplete="email"
+                    [class.is-invalid]="forgotPasswordForm.get('email')?.touched && forgotPasswordForm.get('email')?.invalid" />
+                </div>
+                @if (forgotPasswordForm.get('email')?.touched && forgotPasswordForm.get('email')?.invalid) {
+                  <span class="field-error">Please enter a valid registered email address</span>
+                }
+              </div>
+
+              <!-- Submit Button -->
+              <button 
+                type="submit" 
+                class="btn-primary-neon full-width reset-btn" 
+                [disabled]="loading()">
+                @if (loading()) {
+                  <span class="spinner-sm"></span>
+                  <span>Sending Code...</span>
+                } @else {
+                  <span>Send Verification Code</span>
+                }
+              </button>
+
+              <!-- Back to Login Navigation -->
+              <div class="auth-footer-prompt">
+                <button type="button" class="back-link-btn" (click)="switchMode('login')">
+                  <app-icon name="arrow-left" [size]="15"></app-icon>
+                  <span>Back to Login</span>
+                </button>
+              </div>
             </form>
           }
 

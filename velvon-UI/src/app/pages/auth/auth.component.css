@@ -550,6 +550,28 @@ html[data-theme="light"] .visual-gradient-scrim {
   color: var(--primary-base);
 }
 
+/* Leading Icon inside inputs (e.g., Forgot Password Email) */
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-leading-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.input-with-icon .form-control {
+  padding-left: 2.625rem;
+}
+
 .field-error {
   font-size: 0.75rem;
   color: var(--danger-text);
@@ -671,6 +693,40 @@ html[data-theme="light"] .field-error { color: var(--danger-600); }
   color: var(--primary-hover);
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+.reset-btn {
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.75rem 1.25rem;
+  background: #3b52f5;
+  border-radius: var(--radius-md, 10px);
+  box-shadow: 0 4px 14px rgba(59, 82, 245, 0.35);
+}
+
+.reset-btn:hover:not(:disabled) {
+  background: #2f44dc;
+  box-shadow: 0 6px 18px rgba(59, 82, 245, 0.45);
+}
+
+.back-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--primary-base);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.back-link-btn:hover {
+  color: var(--primary-hover);
+  transform: translateX(-2px);
 }
 
 /* Spinner */

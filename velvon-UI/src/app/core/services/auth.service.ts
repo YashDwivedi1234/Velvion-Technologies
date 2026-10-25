@@ -66,8 +66,8 @@ export class AuthService {
     } else {
       this.setCurrentUser({
         userId: 1,
-        fullName: 'Yash Dwivedi',
-        email: 'admin@velvion.com',
+        fullName: '',
+        email: '',
         roleId,
         roleName
       });
